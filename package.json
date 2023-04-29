@@ -2,6 +2,8 @@
   "name": "satellite-web",
   "version": "1.0.0",
   "type": "module",
+  "author": "Stuart Bowman",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
