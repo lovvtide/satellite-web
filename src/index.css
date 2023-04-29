@@ -1,0 +1,50 @@
+::selection {
+  background: rgba(62, 137, 184, 0.5)!important;
+  color: #fff!important;
+}
+
+::-moz-selection {
+  background: rgba(62, 137, 184, 0.5)!important;
+  color: #fff!important;
+}
+@font-face {
+  font-family: 'JetBrains-Mono-Regular';
+  font-style: normal;
+  src: local('JetBrainsMono-Regular'), local('JetBrainsMono-Regular'),
+  url('./fonts/JetBrainsMono-Regular.ttf') format('truetype')
+}@font-face {
+  font-family: 'JetBrains-Mono-Bold';
+  font-style: normal;
+  src: local('JetBrainsMono-Bold'), local('JetBrainsMono-Bold'),
+  url('./fonts/JetBrainsMono-Bold.ttf') format('truetype')
+}
+@font-face {
+  font-family: 'Lexend-Deca-Regular';
+  font-style: normal;
+  src: local('LexendDeca-Regular'), local('LexendDeca-Regular'),
+  url('./fonts/LexendDeca-Regular.ttf') format('truetype')
+}
+body {
+  font-family: 'Lexend-Deca-Regular';
+  background: rgb(23, 24, 25);
+  color: #fff;
+  margin: 0;
+  -webkit-overflow-scrolling: touch;
+}
+code {
+  background: rgb(47, 54, 61, 0.75);
+  padding: 1px 3px;
+}
+.no-scroll::-webkit-scrollbar {
+  display: none;
+}
+.ui.page.modals.dimmer {
+  z-index: 9999;
+}
+.ui.dimmer {
+  animation-duration: .2s;
+  transition: background-color .2s linear;
+}
+.blurring.dimmable>:not(.dimmer) {
+  transition: .2s filter ease,.2s -webkit-filter ease;
+}

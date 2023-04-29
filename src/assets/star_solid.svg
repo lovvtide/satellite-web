@@ -1,0 +1,12 @@
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.0"
+   width="528" height="528" viewBox="-264 -264 528 528">
+  <polygon transform="scale(1.0875,1.0875)"
+     style="fill:rgb(219, 170, 49);stroke:rgb(219, 170, 49);stroke-opacity:1;stroke-width:20;stroke-miterlimit:4;stroke-dasharray:none;stroke-linejoin:round"
+     points="-36.16358,-87.30662 0,-233.85776 36.16358,-87.30662 165.36241,-165.36241 87.30662,-36.16358 233.85776,0 87.30662,36.16358 165.36241,165.36241 36.16358,87.30662 0,233.85776 -36.16358,87.30662 -165.36241,165.36241 -87.30662,36.16358 -233.85776,0 -87.30662,-36.16358 -165.36241,-165.36241 -36.16358,-87.30662 " />
+</svg>
