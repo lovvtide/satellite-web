@@ -239,6 +239,8 @@ class ContentNav extends PureComponent {
 const mapState = ({ app, nostr }) => {
 
 	return {
+		contentTop: app.contentTop,
+		showNavMeta: app.showNavMeta,
 		rootItem: nostr.rootItem,
 		rootAuthor: nostr.rootAuthor,
 		dirExpanded: app.dirExpanded,

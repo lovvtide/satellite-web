@@ -10,6 +10,8 @@ export const history = createBrowserHistory();
 export const INITIAL_STATE = {
 
 	app: {
+		contentTop: null,
+		showNavMeta: false,
 		dirExpanded: false,
 		initialized: false,
 		mobile: false,

@@ -13,7 +13,9 @@ import {
 	DISPLAY_QR,
 	WINDOW_RESIZE,
 	SHOW_NAV_ACTIONS,
-	RELAY_CONNECTED
+	RELAY_CONNECTED,
+	SET_PUB_SCROLL_STATE,
+	SET_CONTENT_TOP
 } from '../actions';
 
 import { NAV_HEIGHT, MOBILE_BREAKPOINT } from '../constants';
@@ -156,6 +158,18 @@ export default (state = {}, action) => {
 				...state,
 				error: 'Failed to initialize'
 			}
+
+		case SET_PUB_SCROLL_STATE:
+			return {
+				...state,
+				showNavMeta: data.active
+			};
+
+		case SET_CONTENT_TOP:
+			return {
+				...state,
+				contentTop: data.contentTop
+			};
 
 		default:
 			return state;

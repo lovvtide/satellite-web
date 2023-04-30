@@ -241,6 +241,8 @@ const mapState = ({ app, nostr }) => {
 	const showContentNav = app.route === '/' || app.routeComponents[0] === 'thread';
 
 	return {
+		contentTop: app.contentTop,
+		showNavMeta: app.showNavMeta,
 		currentEpochOrdinal: 1, // TODO DEV ONLY this is hardcoded
 		main: nostr.main,
 		dirExpanded: app.dirExpanded,
