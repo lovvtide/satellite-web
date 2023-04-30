@@ -48,8 +48,10 @@ class AliasMenuMobile extends PureComponent {
 	handleTouchEnd = (e) => {
 		this.container.style.transition = 'width 0.2s ease 0s, opacity 0.2s ease 0s';
 		if (this.d > (this.props.panelWidth / 2)) { // Close notifications
+			this.d = 0;
 			this.props.showAliasMenuMobile(false);
 		} else { // Snap back
+			this.d = 0;
 			this.container.style.width = `${this.props.clientWidth - 64}px`;
 		}		
 	};
@@ -64,7 +66,7 @@ class AliasMenuMobile extends PureComponent {
 		const { signedIn } = this.props;
 		const text = 'View My Profile';
 		return signedIn ? (
-			<Link to={`/@${this.props.pubkey}`} onClick={() => this.props.showAliasMenuMobile(false)}>
+			<Link to={`/@${nip19.npubEncode(this.props.pubkey)}`} onClick={() => this.props.showAliasMenuMobile(false)}>
 				<div>
 					<Icon style={styles.actionIcon} name='user circle' />
 					<div
