@@ -2,8 +2,10 @@ import React, { PureComponent } from 'react';
 import { Icon } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { nip19 } from 'nostr-tools';
 
 import { Chevron } from '../CommonUI';
+import Image from '../Nostr/Image';
 
 import { navigate, showAliasMenuMobile, revokeDeviceAuth, viewSidePanel } from '../../actions';
 import { transition } from '../../helpers';
@@ -166,7 +168,16 @@ class AliasMenuMobile extends PureComponent {
 
 	render = () => {
 		
-		const { open, clientWidth } = this.props;
+		const { open, clientWidth, profile, pubkey } = this.props;
+
+		let profileName = profile.display_name || profile.name;
+		let npub;
+
+		if (!profileName && pubkey) {
+
+			const encoded = nip19.npubEncode(pubkey);
+			npub = encoded.slice(0, 8) + '...' + encoded.slice(-4);
+		}
 
 		return (
 			<div
@@ -180,8 +191,29 @@ class AliasMenuMobile extends PureComponent {
 					<div
 						style={{ ...styles.link(this.state.hover === 'alias', true), display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px 16px', marginBottom: 0 }}
 					>
-						<div style={{ display: 'flex', alignItems: 'center', color: this.state.hover === 'alias' ? '#fff' : COLORS.satelliteGold }}>
-							View My Profile
+						<div style={{
+							display: 'flex',
+							alignItems: 'center',
+							fontWeight: 'bold',
+							fontSize: 14,
+							textTransform: 'initial',
+							fontFamily: 'Lexend-Deca-Regular',
+							color: '#fff'
+						}}>
+							<Image
+								src={profile ? profile.picture : undefined}
+								style={{
+									height: 28,
+									width: 28,
+									minWidth: 28,
+									padding: 1,
+									borderRadius: 16,
+									marginRight: 8,
+									marginLeft: -6,
+									border: profile.picture ? 'none' : `1px solid ${COLORS.secondary}`
+								}}
+							/>
+							{profileName || npub}
 						</div>
 						<div
 							onClick={() => this.props.showAliasMenuMobile(false)}
