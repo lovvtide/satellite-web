@@ -118,7 +118,6 @@ class App extends PureComponent {
           <Route path='/@:alias' component={ProfileFeed} />
         </div>
         <Route exact path='/verify' component={ComingSoon} />
-        <Route exact path='/opensource' component={ComingSoon} />
         <Route exact path='/theory' component={ComingSoon} />
         <Route exact path='/ln' component={ComingSoon} />
         {mobile ? <AliasMenuMobile /> : null}

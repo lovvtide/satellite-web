@@ -65,7 +65,6 @@ const mapState = ({ active, app }) => {
 				key: 'opensource',
 				label: 'OPEN SOURCE',
 				href: 'https://github.com/lovvtide/satellite-web'
-				//route: `/opensource`
 			},
 			{
 				key: 'theory',
