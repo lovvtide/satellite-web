@@ -1,7 +1,7 @@
 import { nip19 } from 'nostr-tools';
 
 
-// Replays for non-signed in users
+// Relays for non-signed in users
 export const DEFAULT_RELAYS = [
 	'wss://relay.damus.io',
 	'wss://nos.lol',
