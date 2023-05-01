@@ -23,7 +23,7 @@ class NewPostEditor extends PureComponent {
 		return (
 			<div style={this.props.style}>
 				<Author
-					highlight
+					highlight={this.props.highlight}
 					pubkey={author.pubkey}
 					name={author.name}
 					displayName={author.display_name}
@@ -34,7 +34,7 @@ class NewPostEditor extends PureComponent {
 				<Editor
 					style={{ marginTop: 12 }}
 					rows={3}
-					id='compose_new_editor'
+					id={this.props.editorId || 'compose_new_editor'}
 					placeholder='Say something . . .'
 					onCancel={this.props.onCancel}
 					handlePost={this.handlePost}

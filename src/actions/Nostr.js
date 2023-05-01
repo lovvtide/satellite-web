@@ -933,6 +933,11 @@ export const resolvedContactMetadata = (data) => {
 	return { type: RESOLVED_CONTACT_METADATA, data };
 };
 
+export const SET_PROFILE_PUBKEY = 'SET_PROFILE_PUBKEY';
+export const setProfilePubkey = (pubkey) => {
+	return { type: SET_PROFILE_PUBKEY, data: { pubkey } }
+};
+
 // Open the reply modal
 export const OPEN_REPLY_MODAL = 'OPEN_REPLY_MODAL';
 export const openReplyModal = (data) => {
@@ -947,4 +952,9 @@ export const openReplyModal = (data) => {
 			dispatch(navigate(`/register`));
 		}
 	};
+};
+
+export const SET_NEW_POST_MODAL_OPEN = 'SET_NEW_POST_MODAL_OPEN';
+export const setNewPostModalOpen = (open) => {
+	return { type: SET_NEW_POST_MODAL_OPEN, data: { open } };
 };

@@ -71,7 +71,7 @@ const styles = {
 		return {
 			overflowY: scrollable && !mobile ? 'scroll' : 'auto',
 			zIndex: 999999,
-			background: 'rgba(0,0,0,0.5)',
+			background: 'rgba(0,0,0,0.75)',
 			display: 'flex',
 			alignItems: 'center',
 			justifyContent: 'center',

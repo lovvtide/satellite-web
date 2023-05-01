@@ -3,9 +3,6 @@ import { nip19 } from 'nostr-tools';
 
 // Replays for non-signed in users
 export const DEFAULT_RELAYS = [
-
-	//'ws://172.20.20.20:3030',
-
 	'wss://relay.damus.io',
 	'wss://nos.lol',
 	'wss://relay.current.fyi',

@@ -12,7 +12,8 @@ import {
 	SET_PENDING_CONTACTS,
 	SHOW_ZAP_REQUEST,
 	LOAD_ACTIVE_NOSTR,
-	REVOKE_DEVICE_AUTH
+	REVOKE_DEVICE_AUTH,
+	SET_PROFILE_PUBKEY
 } from '../actions';
 
 
@@ -137,6 +138,12 @@ export default (state = {}, action) => {
 			return {
 				...state,
 				mobileEditor: data
+			};
+
+		case SET_PROFILE_PUBKEY:
+			return {
+				...state,
+				profilePubkey: data.pubkey
 			};
 
 		default:

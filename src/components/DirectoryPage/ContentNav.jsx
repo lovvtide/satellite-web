@@ -4,6 +4,7 @@ import { nip19 } from 'nostr-tools';
 
 import RelativeTime from '../common/RelativeTime';
 import { Chevron } from '../CommonUI';
+import Modal from '../Nostr/Modal';
 
 import { transition } from '../../helpers';
 import { setPubScrollState, setContentTop, navigate } from '../../actions';

@@ -13,6 +13,7 @@ import FrontPageFeed from './components/Nostr/FrontPageFeed';
 import PostFeed from './components/Nostr/PostFeed';
 import ProfileFeed from './components/Nostr/ProfileFeed';
 import MobileEditor from './components/Nostr/MobileEditor';
+import NewPostModal from './components/Nostr/NewPostModal';
 import ZapRequest from './components/Nostr/ZapRequest';
 import AliasMenuMobile from './components/Nav/AliasMenuMobile';
 import LoadingText from './components/common/LoadingText';
@@ -134,6 +135,7 @@ class App extends PureComponent {
           handlePost={this.handleNostrPublish}
           {...this.props.mobileEditor}
         />
+        <NewPostModal />
       </div>
     );
   };

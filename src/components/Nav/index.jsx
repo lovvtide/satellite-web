@@ -14,7 +14,7 @@ import svgstaroutline from '../../assets/star_outline.svg';
 import svgearth from '../../assets/earth.svg';
 import svgalias from '../../assets/alias.svg';
 
-import { setLocalPublicKey, loadActiveNostr, hoverAliasMenu, navigate, showAliasMenuMobile, viewSidePanel, setDirectoryLayoutExpanded } from '../../actions';
+import { setLocalPublicKey, loadActiveNostr, hoverAliasMenu, navigate, showAliasMenuMobile, viewSidePanel, setDirectoryLayoutExpanded, setNewPostModalOpen } from '../../actions';
 import { transition } from '../../helpers';
 import { COLORS, NAV_HEIGHT } from '../../constants';
 
@@ -71,6 +71,11 @@ class Nav extends Component {
 	handleSignUp = () => {
 
 		this.props.navigate('/register');
+	};
+
+	handleNewPostClicked = () => {
+
+		this.props.setNewPostModalOpen(true);
 	};
 
 	onClickAlias = (hovering) => {
@@ -287,14 +292,6 @@ class Nav extends Component {
 
 		return (
 			<div
-				onClick={(e) => {
-					e.stopPropagation();
-					if (this.props.mobile) {
-						this.props.showAliasMenuMobile(!this.props._showAliasMenuMobile);
-					} else {
-						this.props.hoverAliasMenu(!this.props._hoverAliasMenu)
-					}
-				}}
 				style={{
 					display: 'flex',
 					alignItems: 'center',
@@ -306,24 +303,66 @@ class Nav extends Component {
 					float: 'right'
 				}}
 			>
-				<div style={{
-					color: '#fff',
-					marginRight: 10,
-					fontWeight: 'bold',
-					overflow: 'hidden',
-					textOverflow: 'ellipsis'
-				}}>
-					{display_name || name || pubkeyName(this.props.pubkey)}
-				</div>
-				<Image
-					src={picture}
-					style={{
-						height: 28,
-						width: 28,
-						borderRadius: 14,
-						border: `1px solid ${COLORS.secondary}`
+				{this.props.mobile || this.props.profilePubkey === this.props.pubkey ? null : (
+					<div
+						onClick={this.handleNewPostClicked}
+						style={{
+							color: COLORS.satelliteGold,
+							opacity: 1,
+							marginRight: 24,
+							fontFamily: 'JetBrains-Mono-Bold',
+							borderRadius: 5,
+							cursor: 'pointer',
+							minWidth: 28,
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+							fontSize: 12
+						}}
+					>
+						<Icon
+							name='plus'
+							style={{
+								height: 19,
+								marginRight: 4,
+								fontSize: 13
+							}}
+						/>
+						<span style={{ height: 18 }}>
+							NEW POST
+						</span>
+					</div>
+				)}
+				<div
+					style={{ display: 'flex', alignItems: 'center' }}
+					onClick={(e) => {
+						e.stopPropagation();
+						if (this.props.mobile) {
+							this.props.showAliasMenuMobile(!this.props._showAliasMenuMobile);
+						} else {
+							this.props.hoverAliasMenu(!this.props._hoverAliasMenu)
+						}
 					}}
-				/>
+				>
+					<div style={{
+						color: '#fff',
+						marginRight: 10,
+						fontWeight: 'bold',
+						overflow: 'hidden',
+						textOverflow: 'ellipsis'
+					}}>
+						{display_name || name || pubkeyName(this.props.pubkey)}
+					</div>
+					<Image
+						src={picture}
+						style={{
+							height: 28,
+							width: 28,
+							borderRadius: 14,
+							border: `1px solid ${COLORS.secondary}`
+						}}
+					/>
+				</div>
 			</div>
 		);
 	};
@@ -342,6 +381,7 @@ class Nav extends Component {
 
 const mapState = ({ app, nostr }) => {
 	return {
+		profilePubkey: nostr.profilePubkey,
 		pubkey: nostr.pubkey,
 		loadedRoute: app.route !== null,
 		_showAliasMenuMobile: app.showAliasMenuMobile,
@@ -354,7 +394,6 @@ const mapState = ({ app, nostr }) => {
 		showNavActions: app.showNavActions,
 		mobileEditor: nostr.mobileEditor || {},
 		profile: (nostr.metadata || {})[nostr.pubkey]
-
 	};
 };
 
@@ -505,4 +544,4 @@ const styles = {
 	}
 };
 
-export default connect(mapState, { loadActiveNostr, hoverAliasMenu, navigate, showAliasMenuMobile, viewSidePanel, setDirectoryLayoutExpanded })(Nav);
+export default connect(mapState, { loadActiveNostr, hoverAliasMenu, navigate, showAliasMenuMobile, viewSidePanel, setDirectoryLayoutExpanded, setNewPostModalOpen })(Nav);

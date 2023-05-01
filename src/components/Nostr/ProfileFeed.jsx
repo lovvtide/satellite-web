@@ -12,7 +12,7 @@ import NIP05 from './NIP05';
 import MobilePostButton from './MobilePostButton';
 
 import { COLORS, CONTENT_MAX_WIDTH } from '../../constants';
-import { handleZapRequest, handleNostrPublish, openReplyModal, viewSidePanel, navigate, nostrFollow, getLocalPublicKey, setActiveDirectMessageChat, queryProfiles } from '../../actions';
+import { handleZapRequest, handleNostrPublish, openReplyModal, viewSidePanel, navigate, nostrFollow, getLocalPublicKey, setActiveDirectMessageChat, queryProfiles, setProfilePubkey } from '../../actions';
 import { transition } from '../../helpers';
 
 import svglightningactive from '../../assets/lightning_active.svg';
@@ -46,7 +46,9 @@ class ProfileFeed extends PureComponent {
 
 	componentWillUnmount = () => {
 
-		window.removeEventListener('scroll', this.handleScroll)
+		this.props.setProfilePubkey(null);
+
+		window.removeEventListener('scroll', this.handleScroll);
 
 		clearTimeout(this._resetLoadMore);
 		clearTimeout(this._reload);
@@ -117,6 +119,8 @@ class ProfileFeed extends PureComponent {
 			feed.listenForMetadata(profile.pubkey, this.handleMetadata);
 
 			this.setState({ feed, profile, showStickyHeader: false });
+
+			this.props.setProfilePubkey(profile.pubkey);
 		}
 	};
 
@@ -353,6 +357,7 @@ class ProfileFeed extends PureComponent {
 						onCancel={closeEditor}
 						onResolve={closeEditor}
 						handlePost={this.handlePost}
+						highlight
 						style={{
 							marginTop: 16,
 							opacity: composeNewPostReady ? 1 : 0,
@@ -832,4 +837,4 @@ const styles = {
 	}
 };
 
-export default connect(mapState, { handleZapRequest, openReplyModal, viewSidePanel, navigate, nostrFollow, setActiveDirectMessageChat, queryProfiles })(ProfileFeed);
+export default connect(mapState, { handleZapRequest, openReplyModal, viewSidePanel, navigate, nostrFollow, setActiveDirectMessageChat, queryProfiles, setProfilePubkey })(ProfileFeed);
