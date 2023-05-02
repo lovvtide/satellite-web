@@ -45,9 +45,14 @@ class Client {
 
 			console.log(`connected to ${relay.url}`);
 
+			clearTimeout(relay._reconnectTimeout);
+			relay._encounteredError = false;
+			relay._reconnectMillsecs = 500;
+
 			if (this.relayStatusListener) {
 
 				this.relayStatusListener(relay, {
+					error: false,
 					connected: true,
 					connecting: false
 				});
@@ -70,10 +75,39 @@ class Client {
 			if (this.relayStatusListener) {
 
 				this.relayStatusListener(relay, {
+					connecting: false,
 					connected: false,
 					error: true
 				});
 			}
+
+			if (relay._pendingReconnect) { return; }
+
+			if (!relay._reconnectMillsecs) {
+
+				relay._reconnectMillsecs = 500;
+			}
+
+			relay._reconnectMillsecs = relay._reconnectMillsecs * 2;
+
+			clearTimeout(relay._reconnectTimeout);
+
+			relay._pendingReconnect = true;
+
+			// Attempt reconnect with an exponential backoff to avoid DDOSing relays
+			relay._reconnectTimeout = setTimeout(async () => {
+
+				relay._pendingReconnect = false;
+
+				try {
+					await relay.connect();
+				} catch (err) {}
+
+				relay._pendingReconnect = false;
+
+			}, relay._reconnectMillsecs);
+
+			console.log(relay.url + ' reconnecting after ' + relay._reconnectMillsecs + ' ms. . .');
 
 		});
 
@@ -87,12 +121,9 @@ class Client {
 			if (!relay._encounteredError) {
 
 				try {
-
+					console.log(relay.url + ' reconnecting. . .');
 					await relay.connect();
-
-				} catch (err) {
-
-				}
+				} catch (err) {}
 			}
 
 		});
