@@ -378,14 +378,15 @@ const styles = {
 		};
 	},
 
-	picture: ({ mobileEditor }) => {
+	picture: ({ mobileEditor, imageStyle }) => {
 		return {
 			transform: 'translate(0px, -1px)',
 			height: mobileEditor ? 30 : 24,
 			width: mobileEditor ? 30 : 24,
 			border: `1px dotted ${COLORS.secondary}`,
 			borderRadius: 16,
-			marginRight: 10
+			marginRight: 10,
+			...(imageStyle || {})
 		};
 	}
 

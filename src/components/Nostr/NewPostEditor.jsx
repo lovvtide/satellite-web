@@ -30,9 +30,12 @@ class NewPostEditor extends PureComponent {
 					about={author.about}
 					nip05={author.nip05}
 					picture={author.picture}
+					imageStyle={{
+						height: 32,
+						width: 32
+					}}
 				/>
 				<Editor
-					basic={this.props.modal}
 					style={{ marginTop: 12, ...(this.props.editorStyle || {}) }}
 					rows={3}
 					id={this.props.editorId || 'compose_new_editor'}

@@ -470,15 +470,15 @@ const styles = {
 		color: '#fff'
 	},
 
-	textarea: ({ mobile, clientWidth, replyTo, basic }, { hover, focus }) => {
+	textarea: ({ mobile, clientWidth, replyTo }, { hover, focus }) => {
 		return {
 			textAlign: 'left',
 			width: mobile ? clientWidth : '100%',
 			color: 'rgba(255,255,255,0.85)',
-			background: basic ? 'transparent' : (mobile ? 'transparent' : (focus || hover ? `rgb(29, 30, 31)` : `rgb(27, 28, 29)`)),
+			background: mobile ? 'transparent' : (focus || hover ? `rgb(29, 30, 31)` : `rgb(27, 28, 29)`),
 			borderRadius: 4,
 			padding: mobile ? `0px 24px 0px ${replyTo ? 51 : 24}px` : '12px 13px',
-			border: basic ? 'none' : (mobile ? 'none' : '1px dotted rgb(47, 54, 61)'),
+			border: mobile ? 'none' : '1px dotted rgb(47, 54, 61)',
 			outline: 'none',
 			resize: 'none',
 			overflow: 'hidden',

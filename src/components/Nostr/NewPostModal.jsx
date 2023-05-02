@@ -66,45 +66,10 @@ class NewPostModal extends PureComponent {
 				style={{
 					padding: '36px 36px 24px',
 					width: 587,
-					background: COLORS.primary,
-					border: `1px solid ${COLORS.secondary}`,
 					transform: 'translate(-50%, -50%)',
 					top: '50%'
 				}}
 			>
-				{/*<div style={{
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'space-between',
-					marginBottom: 24,
-					marginLeft: -24,
-					marginRight: -24
-				}}>
-					<div style={{
-						display: 'flex',
-						alignItems: 'center'
-					}}>
-						<img
-							style={{ marginRight: 8, marginTop: -2, opacity: 0.25 }}
-							src={svgtransmit}
-							height={20}
-							width={20}
-						/>
-						<span style={{
-							fontSize: 14,
-							opacity: 0.25,
-							fontFamily:'JetBrains-Mono-Regular',
-							color: '#fff'
-						}}>
-							NEW POST
-						</span>
-					</div>
-					<X
-						style={{ color: COLORS.secondaryBright }}
-						dimension={20}
-						onClick={this.handleClose}
-					/>
-				</div>*/}
 				<NewPostEditor
 					modal
 					editorId='compose_new_editor_modal'
