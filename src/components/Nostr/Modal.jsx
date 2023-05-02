@@ -67,9 +67,9 @@ const styles = {
 		};
 	},
 
-	container: ({ clientHeight, clientWidth, scrollable, mobile }) => {
+	container: ({ clientHeight, clientWidth, scrollable, mobile, fixed }) => {
 		return {
-			overflowY: scrollable && !mobile ? 'scroll' : 'auto',
+			overflowY: fixed ? 'hidden' : (scrollable && !mobile ? 'scroll' : 'auto'),
 			zIndex: 999999,
 			background: 'rgba(0,0,0,0.75)',
 			display: 'flex',

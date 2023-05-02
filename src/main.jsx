@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 import * as ReactDOMClient from 'react-dom/client';
 
+//import logo from './assets/logo.png';
 import store, { history } from './store';
 import App from './App'
 import './index.css'

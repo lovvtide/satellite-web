@@ -5,7 +5,7 @@ import { X } from '../CommonUI';
 import Modal from './Modal';
 import NewPostEditor from './NewPostEditor';
 
-import { setNewPostModalOpen, handleNostrPublish } from '../../actions';
+import { setNewPostModalOpen, handleNostrPublish, queryProfiles } from '../../actions';
 import svgtransmit from '../../assets/transmit.svg';
 import { COLORS } from '../../constants';
 
@@ -20,6 +20,25 @@ class NewPostModal extends PureComponent {
 
 			this.editor.focus();
 		}
+	};
+
+	componentDidUpdate = (prevProps) => {
+
+		if (this.props.open) {
+
+			if (!prevProps.open) {
+
+				document.body.style['overflow-y'] = 'hidden';
+			}
+
+		} else {
+
+			if (prevProps.open) {
+
+				document.body.style['overflow-y'] = 'auto';
+			}
+		}
+
 	};
 
 	handlePost = (post) => {
@@ -40,19 +59,20 @@ class NewPostModal extends PureComponent {
 
 		return (
 			<Modal
+				fixed
 				handleClose={this.handleClose}
 				clientHeight={this.props.clientHeight}
 				clientWidth={this.props.clientWidth}
 				style={{
-					padding: '24px 48px 36px 48px',
-					width: 610,
+					padding: '36px 36px 24px',
+					width: 587,
 					background: COLORS.primary,
 					border: `1px solid ${COLORS.secondary}`,
 					transform: 'translate(-50%, -50%)',
 					top: '50%'
 				}}
 			>
-				<div style={{
+				{/*<div style={{
 					display: 'flex',
 					alignItems: 'center',
 					justifyContent: 'space-between',
@@ -84,9 +104,12 @@ class NewPostModal extends PureComponent {
 						dimension={20}
 						onClick={this.handleClose}
 					/>
-				</div>
+				</div>*/}
 				<NewPostEditor
+					modal
 					editorId='compose_new_editor_modal'
+					searchActive={this.props.searchActive}
+					handleQueryProfiles={this.props.queryProfiles}
 					handlePost={this.handlePost}
 					onCancel={this.handleClose}
 					onResolve={this.handleClose}
@@ -100,15 +123,16 @@ class NewPostModal extends PureComponent {
 	};
 }
 
-const mapState = ({ app, nostr }) => {
+const mapState = ({ app, nostr, query }) => {
 
 	return {
 		open: app.newPostModalOpen,
 		pubkey: nostr.pubkey,
 		clientHeight: app.clientHeight,
 		clientWidth: app.clientWidth,
-		metadata: nostr.metadata || {}
+		metadata: nostr.metadata || {},
+		searchActive: query.active
 	};
 };
 
-export default connect(mapState, { setNewPostModalOpen })(NewPostModal);
+export default connect(mapState, { setNewPostModalOpen, queryProfiles })(NewPostModal);

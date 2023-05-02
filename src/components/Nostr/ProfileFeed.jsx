@@ -357,6 +357,8 @@ class ProfileFeed extends PureComponent {
 						onCancel={closeEditor}
 						onResolve={closeEditor}
 						handlePost={this.handlePost}
+						handleQueryProfiles={this.props.queryProfiles}
+						searchActive={this.props.searchActive}
 						highlight
 						style={{
 							marginTop: 16,

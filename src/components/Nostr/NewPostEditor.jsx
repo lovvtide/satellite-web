@@ -32,13 +32,20 @@ class NewPostEditor extends PureComponent {
 					picture={author.picture}
 				/>
 				<Editor
-					style={{ marginTop: 12 }}
+					basic={this.props.modal}
+					style={{ marginTop: 12, ...(this.props.editorStyle || {}) }}
 					rows={3}
 					id={this.props.editorId || 'compose_new_editor'}
 					placeholder='Say something . . .'
 					onCancel={this.props.onCancel}
 					handlePost={this.handlePost}
+					handleQueryProfiles={this.props.handleQueryProfiles}
+					searchActive={this.props.searchActive}
 					showCancel
+					searchStyle={this.props.modal ? {
+						position: 'absolute',
+						width: 512
+					} : undefined}
 				/>
 			</div>
 		);
