@@ -159,7 +159,7 @@ class PublicationsNav extends PureComponent {
 				onClick={this.handleSearchActive}
 				onMouseOver={() => this.setState({ hover: 'search' })}
 				onMouseOut={() => this.setState({ hover: '' })}
-				style={styles.action(false, this.state.hover === 'search')}
+				style={styles.action(false, this.state.hover === 'search', '#fff', this.props.mobile)}
 			>
 				<img
 					src={svgsearch}
@@ -192,7 +192,7 @@ class PublicationsNav extends PureComponent {
 					onMouseOver={() => this.setState({ hover: mode.key })}
 					onMouseOut={() => this.setState({ hover: '' })}
 					onClick={() => this.props.setFrontpageMode(mode.key)}
-					style={styles.action(mode.key === this.props.mode || (mode.key === 'following' && this.props.pendingContacts), mode.key === this.state.hover, mode.color)}
+					style={styles.action(mode.key === this.props.mode || (mode.key === 'following' && this.props.pendingContacts), mode.key === this.state.hover, mode.color, this.props.mobile)}
 				>
 					<img
 						src={mode.icon}
@@ -210,7 +210,7 @@ class PublicationsNav extends PureComponent {
 
 	render = () => {
 		return (
-			<div id='publications_nav' style={styles.container(this.props.dirExpanded, this.props.mobile, this.props.contentWidth)}>
+			<div id='publications_nav' style={styles.container(this.props.dirExpanded, this.props.mobile, this.props.contentWidth, this.props.searchActive)}>
 				{this.renderActions()}
 				{this.renderSearch()}
 				<div style={styles.divider} />
@@ -231,16 +231,17 @@ const mapState = ({ app, nostr, query }) => {
 };
 
 const styles = {
-	container: (expanded, mobile, contentWidth) => {
+	container: (expanded, mobile, contentWidth, searchActive) => {
 		return {
 			display: 'flex',
-			justifyContent: 'space-evenly',
+			justifyContent: mobile ? 'space-evenly' : 'left',
 			alignItems: 'center',
 			background: COLORS.primary,
 			position: 'absolute',
 			top: NAV_HEIGHT,
 			width: mobile ? '100%' : (expanded ? contentWidth * 0.35 : '0px'),
 			marginLeft: mobile ? 0 : (expanded ? contentWidth * 0.15 : '0px'),
+			paddingLeft: mobile || searchActive ? 0 : 18,
 			height: NAV_HEIGHT,
 			color: '#2f363d',
 			zIndex: expanded ? 1 : -1,
@@ -250,7 +251,7 @@ const styles = {
 			...transition(0.2, 'ease', [ 'margin', 'width', 'opacity', 'border-color' ])
 		}
 	},
-	action: (selected, hovered, activeColor) => {
+	action: (selected, hovered, activeColor, mobile) => {
 		return {
 			display: 'flex',
 			alignItems: 'center',
@@ -262,6 +263,7 @@ const styles = {
 			cursor: 'pointer',
 			userSelect: 'none',
 			whiteSpace: 'nowrap',
+			marginRight: mobile ? 0 : 24,
 			fontFamily: 'JetBrains-Mono-Bold',
 			...transition(0.2, 'ease', [ 'color' ])
 		};
