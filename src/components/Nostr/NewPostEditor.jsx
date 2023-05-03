@@ -37,7 +37,7 @@ class NewPostEditor extends PureComponent {
 				/>
 				<Editor
 					style={{ marginTop: 12, ...(this.props.editorStyle || {}) }}
-					rows={3}
+					rows={8}
 					id={this.props.editorId || 'compose_new_editor'}
 					placeholder='Say something . . .'
 					onCancel={this.props.onCancel}
