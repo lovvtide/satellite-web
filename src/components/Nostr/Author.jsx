@@ -366,9 +366,9 @@ class Author extends PureComponent {
 
 const styles = {
 
-	name: ({ highlight, mobileEditor }, { hover }, npub) => {
+	name: ({ highlight, mobileEditor, modal }, { hover }, npub) => {
 		return {
-			fontSize: mobileEditor ? 14 : 12,
+			fontSize: mobileEditor || modal ? 14 : 12,
 			marginRight: 12,
 			fontFamily: npub ? 'JetBrains-Mono-Regular' : 'Lexend-Deca-Regular',
 			fontWeight: 'bold',

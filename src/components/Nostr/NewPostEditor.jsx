@@ -23,6 +23,7 @@ class NewPostEditor extends PureComponent {
 		return (
 			<div style={this.props.style}>
 				<Author
+					modal={this.props.modal}
 					highlight={this.props.highlight}
 					pubkey={author.pubkey}
 					name={author.name}
@@ -36,6 +37,7 @@ class NewPostEditor extends PureComponent {
 					}}
 				/>
 				<Editor
+					modal={this.props.modal}
 					style={{ marginTop: 12, ...(this.props.editorStyle || {}) }}
 					rows={8}
 					id={this.props.editorId || 'compose_new_editor'}

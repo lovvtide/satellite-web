@@ -446,8 +446,9 @@ class Editor extends PureComponent {
 
 const styles = {
 
-	actionsContainer: ({ mobile }) => {
+	actionsContainer: ({ mobile, modal }) => {
 		return {
+			fontWeight: modal ? 'bold' : 'normal',
 			display: 'flex',
 			justifyContent: 'space-between',
 			marginTop: 2,
@@ -470,15 +471,15 @@ const styles = {
 		color: '#fff'
 	},
 
-	textarea: ({ mobile, clientWidth, replyTo }, { hover, focus }) => {
+	textarea: ({ mobile, clientWidth, replyTo, modal }, { hover, focus }) => {
 		return {
 			textAlign: 'left',
 			width: mobile ? clientWidth : '100%',
 			color: 'rgba(255,255,255,0.85)',
-			background: mobile ? 'transparent' : (focus || hover ? `rgb(29, 30, 31)` : `rgb(27, 28, 29)`),
+			background: modal ? 'rgb(20, 21, 22)' : (mobile ? 'transparent' : (focus || hover ? `rgb(29, 30, 31)` : `rgb(27, 28, 29)`)),
 			borderRadius: 4,
-			padding: mobile ? `0px 24px 0px ${replyTo ? 51 : 24}px` : '12px 13px',
-			border: mobile ? 'none' : '1px dotted rgb(47, 54, 61)',
+			padding: modal ? '16px 20px' : (mobile ? `0px 24px 0px ${replyTo ? 51 : 24}px` : '12px 13px'),
+			border: modal ? '1px solid #fff' : (mobile ? 'none' : '1px dotted rgb(47, 54, 61)'),
 			outline: 'none',
 			resize: 'none',
 			overflow: 'hidden',

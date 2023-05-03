@@ -347,8 +347,8 @@ class ProfileFeed extends PureComponent {
 				style={{
 					marginBottom: /*16*/48,
 					marginTop: -14,
-					height: composeNewPost ? (composeNewPostReady ? null : 178) : 0,
-					minHeight: composeNewPostReady ? 178 : 0,
+					height: composeNewPost ? (composeNewPostReady ? null : 285) : 0,
+					minHeight: composeNewPostReady ? 285 : 0,
 					...transition(0.2, 'ease', composeNewPost ? ['height','margin'] : ['height'])
 				}}
 			>
