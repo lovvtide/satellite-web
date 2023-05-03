@@ -13,7 +13,7 @@ class TopLevelLinks extends PureComponent {
 	render = () => {
 
 		return (
-			<div style={{ paddingTop: 18 }}>
+			<div style={{ paddingTop: 11 }}>
 				{this.props.links.map(item => {
 
 					const element = (
