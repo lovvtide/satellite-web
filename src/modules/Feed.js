@@ -659,6 +659,10 @@ class Feed {
 					this.items[item.event.id]._nest = true;
 				}
 
+				if (this.items[item.event.id]._nest && (!this.items[item.ereply] || this.items[item.ereply].phantom)) {
+					return true;
+				}
+
 				return !item.ereply || !this.items[item.ereply] || (
 					this.items[item.ereply] && this.items[item.ereply].event.kind === 9
 				);
