@@ -1,7 +1,11 @@
 import React, { PureComponent } from 'react';
 
+import { transition } from '../../helpers';
+
 
 class Modal extends PureComponent {
+
+	state = {};
 
 	componentDidMount = () => {
 
@@ -15,6 +19,10 @@ class Modal extends PureComponent {
 
 			document.body.style.overflow = 'hidden';
 		}
+
+		this._ready = setTimeout(() => {
+			this.setState({ ready: true })
+		}, 20);
 	};
 
 	componentWillUnmount = () => {
@@ -28,13 +36,15 @@ class Modal extends PureComponent {
 
 			document.body.style.overflow = 'unset';
 		}
+
+		clearTimeout(this._ready);
 	};
 
 	render = () => {
 
 		return (
 			<div
-				style={styles.container(this.props)}
+				style={styles.container(this.props, this.state)}
 				onClick={this.props.closeOnDimmerClick ? this.props.handleClose : null}
 			>
 				<div style={this.props.mobile ? styles.contentMobile(this.props) : styles.content(this.props)} onClick={e => e.stopPropagation()}>
@@ -67,11 +77,11 @@ const styles = {
 		};
 	},
 
-	container: ({ clientHeight, clientWidth, scrollable, mobile, fixed }) => {
+	container: ({ clientHeight, clientWidth, scrollable, mobile, fixed }, { ready }) => {
 		return {
 			overflowY: fixed ? 'hidden' : (scrollable && !mobile ? 'scroll' : 'auto'),
 			zIndex: 999999,
-			background: 'rgba(0,0,0,0.85)',
+			background: `rgba(0,0,0,${ready ? 0.85 : 0})`,
 			display: 'flex',
 			alignItems: 'center',
 			justifyContent: 'center',
@@ -79,7 +89,8 @@ const styles = {
 			height: clientHeight,
 			width: clientWidth,
 			left: 0,
-			top: 0
+			top: 0,
+			...transition(0.1, 'ease-out', [ 'background' ])
 		};
 	}
 };

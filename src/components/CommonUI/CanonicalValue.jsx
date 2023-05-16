@@ -267,7 +267,6 @@ const styles = {
 		color: '#fff',
 		padding: '4px 8px',
 		background: COLORS.blue,
-		//border: `1px solid ${COLORS.secondary}`,
 		position: 'absolute',
 		transform: 'translate(-24px, -26px)',
 		fontSize: 11,
