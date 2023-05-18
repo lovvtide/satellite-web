@@ -286,7 +286,8 @@ const styles = {
 
 	modal: (expanded, clientWidth) => {
 
-		const width = Math.floor(clientWidth / 2) + MENU_WIDTH;
+		//const width = Math.floor(clientWidth / 2) + MENU_WIDTH;
+		const width = clientWidth;
 
 		return {
 			zIndex: 9999,
