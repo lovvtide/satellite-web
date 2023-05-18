@@ -140,6 +140,27 @@ class AliasMenu extends PureComponent {
 		) : null;
 	};
 
+	renderMediaAction = () => {
+
+		const { signedIn } = this.props;
+		const text = 'Media';
+
+		return signedIn ? (
+			<div
+				onClick={() => this.props.viewSidePanel('media')}
+				onMouseOver={() => this.setState({ hover: text })}
+				onMouseOut={() => this.setState({ hover: '' })}
+			>
+				<Icon style={styles.actionIcon(this.state.hover === text)} name='camera' />
+				<div
+					style={styles.link(text === this.state.hover)}
+				>
+					<span>{text}</span>
+				</div>
+			</div>
+		) : null;
+	};
+
 	render = () => {
 
 		const { signedIn } = this.props;
@@ -159,6 +180,7 @@ class AliasMenu extends PureComponent {
 							{this.renderSubscriptionsAction()}
 							{this.renderMessagesAction()}
 							{this.renderRelaysAction()}
+							{this.renderMediaAction()}
 						</div>
 					</div>
 				</div>

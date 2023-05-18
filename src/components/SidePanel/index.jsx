@@ -9,6 +9,7 @@ import Menu from './Menu';
 import MenuMobile from './MenuMobile';
 import DirectMessages from '../Nostr/DirectMessages';
 import Relays from './Relays';
+import Media from './Media';
 
 import { revokeDeviceAuth, showAliasMenuMobile, viewSidePanel, setMobileMenuOpen } from '../../actions';
 import { COLORS, NAV_HEIGHT, CONTENT_MAX_WIDTH } from '../../constants';
@@ -124,6 +125,8 @@ class SidePanel extends PureComponent {
 			return <DirectMessages handleClose={this.handleClose} />
 		} else if (topMode === 'relays') {
 			return <Relays handleClose={this.handleClose} />;
+		} else if (topMode === 'media') {
+			return <Media />;
 		}
 
 		return null;

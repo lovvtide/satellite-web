@@ -12,7 +12,8 @@ const INITIAL_STATE = {
 		preferences: 'Profile Settings',
 		subscriptions: 'Following List',
 		relays: 'Relays',
-		dm: 'Messages'
+		dm: 'Messages',
+		media: 'Media'
 	},
 	subMode: {},
 	sections: [
@@ -31,6 +32,10 @@ const INITIAL_STATE = {
 		{
 			value: 'relays',
 			icon: 'bullseye'
+		},
+		{
+			value: 'media',
+			icon: 'camera'
 		},
 	]
 };

@@ -144,6 +144,22 @@ class AliasMenuMobile extends PureComponent {
 		) : null;
 	};
 
+	renderMediaAction = () => {
+		const { signedIn } = this.props;
+		const text = 'Media';
+		return signedIn ? (
+			<div>
+				<Icon style={styles.actionIcon} name='camera' />
+				<div
+					style={styles.link(false)}
+					onClick={() => this.props.viewSidePanel('media')}
+				>
+					<span>{text}</span>
+				</div>
+			</div>
+		) : null;
+	};
+
 	renderAuthAction = () => {
 
 		return (
@@ -235,6 +251,7 @@ class AliasMenuMobile extends PureComponent {
 						{this.renderSubscriptionsAction()}
 						{this.renderMessagesAction()}
 						{this.renderRelaysAction()}
+						{this.renderMediaAction()}
 						{this.renderAuthAction()}
 					</div>
 				</div>
