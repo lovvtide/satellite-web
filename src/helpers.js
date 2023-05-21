@@ -1,6 +1,24 @@
 import { DEFAULT_LOCALE_CURRENCY } from './constants';
 
 
+// Append query params
+export const query = (base, params = {}) => {
+
+	const kv = Object.keys(params).map(k => {
+		return `${k}=${encodeURIComponent(params[k])}`
+	}).join('&');
+
+	return `${base}?${kv}`;
+};
+
+export const randomID = (n) => {
+	const c = [];
+	for (let i = 0; i < n; i++) {
+		c.push(String(Math.floor(Math.random() * 10)));
+	}
+	return c.join('');
+};
+
 export const formatOrdinal = (n, options = {}) => {
 
 	const str = String(n);

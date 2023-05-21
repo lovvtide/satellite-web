@@ -1,6 +1,14 @@
 import { nip19 } from 'nostr-tools';
 
 
+export const PROD = true;
+
+// Used by client to interact with the backend service
+export const API_BASE_URL = 'https://api.satellite.earth/v1';
+
+// Used by client to load media from content deliver network
+export const CDN_BASE_URL = 'https://cdn.satellite.earth';
+
 // Relays for non-signed in users
 export const DEFAULT_RELAYS = [
 	'wss://relay.damus.io',
@@ -35,9 +43,11 @@ export const MONTHS = [
 ];
 
 // Layout config
+export const GALLERY_MIN_COL_WIDTH = 380;
 export const CONTENT_MAX_WIDTH = 1600;
 export const MOBILE_BREAKPOINT = 884;
 export const EDITOR_LINE_HEIGHT = 24;
+export const MENU_WIDTH = 192;
 export const NAV_HEIGHT = 48;
 
 // Popular accounts for the "featured" feed so  new users

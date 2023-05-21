@@ -770,7 +770,7 @@ class ProfileFeed extends PureComponent {
 						/>
 					) : null}
 				</div>
-				{/*this.props.mobile && !this.props.showAliasMenuMobile && */!this.props.topMode && this.state.profile && this.state.profile.pubkey === this.props.active ? (
+				{/*this.props.mobile && !this.props.showAliasMenuMobile && */!this.props.topMode && this.state.profile/* && this.state.profile.pubkey === this.props.active*/ ? (
 					<MobilePostButton
 						feed={this.state.feed}
 					/>

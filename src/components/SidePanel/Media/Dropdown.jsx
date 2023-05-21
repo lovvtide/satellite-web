@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
 import { Icon } from 'semantic-ui-react';
 
-import Chevron from './Chevron';
+import { Chevron } from '../../CommonUI';
 
-import { COLORS } from '../../constants';
+import { COLORS } from '../../../constants';
 
 
 /* Props

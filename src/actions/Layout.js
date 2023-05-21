@@ -14,6 +14,13 @@ export const setMobileMenuOpen = (open) => {
 export const VIEW_SIDE_PANEL = 'VIEW_SIDE_PANEL';
 export const viewSidePanel = (topMode, subMode) => {
 	return (dispatch, getState) => {
+
+		const { app } = getState();
+
+		if (!app.mobile) {
+			window.scrollTo({ top: 0 });
+		}
+
 		dispatch({ type: VIEW_SIDE_PANEL, data: { topMode, subMode } });
 	};
 };

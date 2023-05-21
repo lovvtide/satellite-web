@@ -5,6 +5,7 @@ import { nip19 } from 'nostr-tools';
 import Feed from './Feed';
 
 import ContentNav from '../DirectoryPage/ContentNav';
+import MobilePostButton from './MobilePostButton';
 
 import { handleZapRequest, handleNostrPublish, openReplyModal, rootPostItem, rootPostAuthor, navigate, nostrFollow, queryProfiles } from '../../actions';
 
@@ -157,6 +158,7 @@ class PostFeed extends PureComponent {
 					/>
 				) : null}
 				<div id='pub_scroll_bottom' />
+				<MobilePostButton />
 			</div>
 		);
 	}

@@ -10,12 +10,13 @@ import MenuMobile from './MenuMobile';
 import DirectMessages from '../Nostr/DirectMessages';
 import Relays from './Relays';
 import Media from './Media';
+import MediaTitleStats from './Media/TitleStats';
 
 import { revokeDeviceAuth, showAliasMenuMobile, viewSidePanel, setMobileMenuOpen } from '../../actions';
-import { COLORS, NAV_HEIGHT, CONTENT_MAX_WIDTH } from '../../constants';
+import { COLORS, NAV_HEIGHT, CONTENT_MAX_WIDTH, MENU_WIDTH } from '../../constants';
 import { transition } from '../../helpers';
 
-const MENU_WIDTH = 192;
+// const MENU_WIDTH = 192;
 
 
 class SidePanel extends PureComponent {
@@ -91,6 +92,24 @@ class SidePanel extends PureComponent {
 		}, 200);
 	};
 
+	renderModeTitleDetails = () => {
+
+		const { topMode } = this.props;
+
+		if (topMode === 'media') {
+			return (
+				<MediaTitleStats
+					style={{
+						marginLeft: 24,
+						marginTop: 2
+					}}
+				/>
+			);
+		}
+
+		return null;
+	};
+
 	renderTitle = () => {
 
 		const { profile, pubkey, mobile } = this.props;
@@ -109,6 +128,19 @@ class SidePanel extends PureComponent {
 					src={profile.picture}
 				/>
 				{name}
+				<span style={{
+					marginLeft: 12,
+					marginRight: 12,
+					color: COLORS.secondaryBright
+				}}>
+					/
+				</span>
+				<span style={{
+					color: COLORS.secondaryBright
+				}}>
+					{this.props.sectionLabels[this.props.topMode]}
+				</span>
+				{this.renderModeTitleDetails()}
 			</div>
 		);
 	};
@@ -251,7 +283,8 @@ const styles = {
 
 		const props = {
 			padding: 0,
-			height: minHeight
+			height: minHeight,
+			overflowX: 'hidden'
 		};
 
 		if (overflowY !== false) {

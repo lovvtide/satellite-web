@@ -57,7 +57,7 @@ const mapState = ({ app, nostr }) => {
 	return {
 		mobile: app.mobile,
 		clientHeight: app.clientHeight,
-		relays: Object.keys(nostr.relays).map(url => {
+		relays: Object.keys(nostr.relays || {}).map(url => {
 			return {
 				url,
 				...nostr.relays[url]

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { Buffer } from 'buffer';
 import { bech32 } from 'bech32';
 import { requestProvider } from 'webln';
 import { nip04, nip19, getPublicKey } from 'nostr-tools';
@@ -863,6 +864,8 @@ export const handleNostrPublish = async (post, params, feeds = [], attached = {}
 			// before sending out to relays
 			for (let feed of feeds) {
 
+				if (!feed) { continue; }
+
 				feed.update(item.event, null, { newpub: true });
 			}
 		}
@@ -897,6 +900,8 @@ export const handleNostrPublish = async (post, params, feeds = [], attached = {}
 	// Update local feeds with new event
 	// before sending out to relays
 	for (let feed of feeds) {
+
+		if (!feed) { continue; }
 
 		feed.update(event, null, { newpub: true });
 	}
