@@ -16,8 +16,6 @@ import { revokeDeviceAuth, showAliasMenuMobile, viewSidePanel, setMobileMenuOpen
 import { COLORS, NAV_HEIGHT, CONTENT_MAX_WIDTH, MENU_WIDTH } from '../../constants';
 import { transition } from '../../helpers';
 
-// const MENU_WIDTH = 192;
-
 
 class SidePanel extends PureComponent {
 
@@ -94,14 +92,15 @@ class SidePanel extends PureComponent {
 
 	renderModeTitleDetails = () => {
 
-		const { topMode } = this.props;
+		const { topMode, mobile } = this.props;
 
 		if (topMode === 'media') {
 			return (
 				<MediaTitleStats
 					style={{
-						marginLeft: 24,
-						marginTop: 2
+						marginLeft: mobile ? 12 : 24,
+						marginTop: mobile ? -2 : 2,
+						float: 'left'
 					}}
 				/>
 			);
@@ -164,6 +163,15 @@ class SidePanel extends PureComponent {
 		return null;
 	};
 
+	renderMobileHeaderActions = () => {
+
+		return (
+			<div>
+				
+			</div>
+		);
+	};
+
 	render = () => {
 
 		const { clientWidth, minHeight, mobile, mobileMenuOpen, mobileHeaderShadow, topMode, subMode, sections, sectionLabels, pubkey } = this.props;
@@ -188,6 +196,7 @@ class SidePanel extends PureComponent {
 							setMenuMode={this.props.viewSidePanel}
 							dropdownStyle={styles.mobileMenuDropdown}
 						/>
+						{this.renderModeTitleDetails()}
 						<div
 							style={{ ...styles.topAction(hover === 'close', true), opacity: showCloseMobile ? 1 : 0, ...transition(showCloseMobile ? 0.2 : 0, 'ease', [ 'opacity' ]) }}
 							onMouseOver={() => this.setState({ hover: 'close' })}

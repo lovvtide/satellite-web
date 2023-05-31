@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import { Icon } from 'semantic-ui-react';
+import { Icon, Popup } from 'semantic-ui-react';
 
-import { PutFile, SearchFiles, SetFilesSort } from '../../../actions';
+import { PutFile, SearchFiles, SetFilesSort, SetAddCreditModalOpen } from '../../../actions';
 import { COLORS, MENU_WIDTH } from '../../../constants';
 
 import { X, Dropdown } from '../../CommonUI'; 
@@ -195,9 +195,49 @@ class Header extends PureComponent {
     );
   };
 
+  renderUploadButton = () => {
+
+    const { timeRemaining } = this.props;
+
+    return (
+      <label
+        htmlFor='upload_file'
+        onClick={timeRemaining !== null && timeRemaining <= 0 ? (() => this.props.SetAddCreditModalOpen(true)) : undefined}
+        onMouseOver={() => this.setState({ hover: 'upload' })}
+        onMouseOut={() => this.setState({ hover: '' })}
+        style={{
+          color: this.state.hover === 'upload' ? '#fff' : 'rgba(255,255,255,0.85)',
+          minWidth: this.props.mobile ? 84 : 120,
+          border: `1px solid ${COLORS.satelliteGold}`,
+          borderRadius: 15,
+          marginLeft: this.props.mobile ? 12 : 24,
+          fontSize: 11,
+          fontFamily: 'JetBrains-Mono-Regular',
+          height: 30,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontWeight: 'bold',
+          cursor: 'pointer'
+        }}
+      >
+        <Icon name='plus' style={{ height: 20, marginRight: 5 }} />
+        {this.props.mobile ? 'UPLOAD' : 'UPLOAD FILE'}
+      </label>
+    );
+
+    // return this.props.timeRemaining ? button : (
+    //   <Popup
+    //     trigger={button}
+    //     content='Click "Add Credit to buy storage with Lightning"'
+    //     position='top center'
+    //   />
+    // );
+  };
+
   render = () => {
 
-    const { mobile } = this.props;
+    const { mobile, timeRemaining } = this.props;
 
     return (
       <div
@@ -212,7 +252,7 @@ class Header extends PureComponent {
           paddingLeft: 12,
           paddingRight: 12,
           background: COLORS.primary,
-          width: this.props.clientWidth,
+          width: mobile ? this.props.clientWidth : this.props.clientWidth - 24,
           justifyContent: 'space-between',
           boxShadow: `${COLORS.primary} 0px 16px 16px 0px`,
           zIndex: 2
@@ -224,32 +264,11 @@ class Header extends PureComponent {
           id='upload_file'
           style={{ width: 188 }}
           onChange={this.handlePutFiles}
+          disabled={timeRemaining !== null && timeRemaining <= 0}
           type='file'
           hidden
         />
-        <label
-          htmlFor='upload_file'
-          onMouseOver={() => this.setState({ hover: 'upload' })}
-          onMouseOut={() => this.setState({ hover: '' })}
-          style={{
-            color: this.state.hover === 'upload' ? '#fff' : 'rgba(255,255,255,0.85)',
-            minWidth: mobile ? 84 : 120,
-            border: `1px solid ${COLORS.satelliteGold}`,
-            borderRadius: 15,
-            marginLeft: mobile ? 12 : 24,
-            fontSize: 11,
-            fontFamily: 'JetBrains-Mono-Regular',
-            height: 30,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 'bold',
-            cursor: 'pointer'
-          }}
-        >
-          <Icon name='plus' style={{ height: 20, marginRight: 5 }} />
-          {mobile ? 'UPLOAD' : 'UPLOAD FILE'}
-        </label>
+        {this.renderUploadButton()}
       </div>
     );
   };
@@ -258,12 +277,13 @@ class Header extends PureComponent {
 const mapState = ({ app, media }) => {
 
   return {
-    clientWidth: app.mobile ? app.clientWidth : (app.clientWidth - (MENU_WIDTH + 36)),
+    //clientWidth: app.mobile ? app.clientWidth : (app.clientWidth - (MENU_WIDTH + 36)),
     mobile: app.mobile,
     query: media.query,
-    sort: media.sort
+    sort: media.sort,
+    timeRemaining: media.timeRemaining
   };
 };
 
 
-export default connect(mapState, { PutFile, SearchFiles, SetFilesSort })(Header);
+export default connect(mapState, { PutFile, SearchFiles, SetFilesSort, SetAddCreditModalOpen })(Header);

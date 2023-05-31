@@ -3,8 +3,6 @@ import { Buffer } from 'buffer';
 import { bech32 } from 'bech32';
 import { requestProvider } from 'webln';
 import { nip04, nip19, getPublicKey } from 'nostr-tools';
-// import createTorrent from 'create-torrent';
-// import parseTorrent from 'parse-torrent';
 import Feed from '../modules/Feed';
 
 import { DEFAULT_RELAYS, FEATURED_AUTHORS } from '../constants';
@@ -224,59 +222,6 @@ export const payWithLightningWallet = async (params) => {
 	return;
 };
 
-/*
-export const uploadTorrentFiles = async (files = [], events = {}) => {
-
-	for (let index of Object.keys(files)) {
-
-		const file = files[index];
-
-		createTorrent(file, {
-			pieceLength: Math.max(16384, 1 << Math.log2(file.size < 1024 ? 1 : file.size / 1024) + 0.5 | 0)
-		}, async (err, torrent) => {
-
-			const parsed = parseTorrent(torrent)
-
-			const event = await window.client.createEvent({
-				content: '',
-				kind: 9,
-				tags: [
-					['i', parsed.infoHash, R2_ENDPOINT ],
-					['m', file.type],
-					['name', parsed.name],
-					['size', String(parsed.length)]
-				]
-			}, {
-				privateKey: getLocalPrivateKey()
-			});
-
-			if (events.onSignedEvent) {
-
-				events.onSignedEvent(file, event);
-			}
-
-			const headers = {
-				'x-nostr-event': JSON.stringify(event)
-			};
-
-			const resp = await axios.put(`${R2_UPLOAD_ENDPOINT}/${parsed.infoHash}`, file, {
-				headers,
-				onUploadProgress: ({ loaded }) => {
-
-					if (events.onProgress) {
-						events.onProgress(file, { loaded });
-					}
-
-					if (loaded === file.size && events.onComplete) {
-						events.onComplete(file);
-					}
-				}
-			});
-		});
-	}
-}
-*/
-
 export const SET_ACTIVE_DM_CHAT = 'SET_ACTIVE_DM_CHAT';
 export const SET_ACTIVE_DM_CHAT_READY = 'SET_ACTIVE_DM_CHAT_READY';
 export const setActiveDirectMessageChat = (chat) => {
@@ -376,7 +321,7 @@ export const receiveDM = (data) => {
 export const SET_PENDING_CONTACTS = 'SET_PENDING_CONTACTS';
 export const LOAD_ACTIVE_NOSTR = 'LOAD_ACTIVE_NOSTR';
 export const RECEIVE_DM_METADATA = 'RECEIVE_DM_METADATA';
-export const loadActiveNostr = () => { // load active address / alias
+export const loadActiveNostr = (callback) => { // load active address / alias
 
 	return async (dispatch, getState) => {
 
@@ -411,7 +356,6 @@ export const loadActiveNostr = () => { // load active address / alias
 			if (!mode) {
 
 				dispatch({ type: SET_PENDING_CONTACTS });
-				//return;
 			}
 		}
 
@@ -502,6 +446,11 @@ export const loadActiveNostr = () => { // load active address / alias
 			}
 
 		})));
+
+		if (typeof callback === 'function') {
+
+			callback();
+		}
 	};
 };
 

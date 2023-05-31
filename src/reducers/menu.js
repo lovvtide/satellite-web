@@ -13,7 +13,7 @@ const INITIAL_STATE = {
 		subscriptions: 'Following List',
 		relays: 'Relays',
 		dm: 'Messages',
-		//media: 'Media'
+		media: 'Media'
 	},
 	subMode: {},
 	sections: [
@@ -33,10 +33,10 @@ const INITIAL_STATE = {
 			value: 'relays',
 			icon: 'bullseye'
 		},
-		// {
-		// 	value: 'media',
-		// 	icon: 'camera'
-		// },
+		{
+			value: 'media',
+			icon: 'camera'
+		},
 	]
 };
 

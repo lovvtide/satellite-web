@@ -8,6 +8,7 @@ import { NAV_HEIGHT } from './constants';
 import { transition } from './helpers';
 
 import ComingSoon from './components/Nostr/ComingSoon';
+import MediaHosting from './components/MediaHosting';
 import PublicationsNav from './components/DirectoryPage/PublicationsNav';
 import FrontPageFeed from './components/Nostr/FrontPageFeed';
 import PostFeed from './components/Nostr/PostFeed';
@@ -118,6 +119,7 @@ class App extends PureComponent {
           <Route path='/auth/:mode' component={SignIn} />
           <Route path='/@:alias' component={ProfileFeed} />
         </div>
+        <Route exact path='/cdn' component={MediaHosting} />
         <Route exact path='/verify' component={ComingSoon} />
         <Route exact path='/theory' component={ComingSoon} />
         <Route exact path='/ln' component={ComingSoon} />

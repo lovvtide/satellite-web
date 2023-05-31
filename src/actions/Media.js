@@ -7,9 +7,96 @@ import { query, randomID } from '../helpers';
 import { getLocalPrivateKey } from './Nostr';
 
 
+export const REQUEST_CDN_CREDIT_EXC = 'REQUEST_CDN_CREDIT_EXC';
+export const REQUEST_CDN_CREDIT_RES = 'REQUEST_CDN_CREDIT_RES';
+export const RequestCredit = (params = {}) => {
+
+  return async (dispatch) => {
+
+    let auth, data;
+
+    dispatch({ type: REQUEST_CDN_CREDIT_EXC });
+
+    try {
+
+      auth = await window.client.createEvent({
+        kind: 22242,
+        content: 'Request Storage',
+        tags: [
+          [ 'gb_months', String(params.gb_months) ]
+        ]
+      }, {
+        privateKey: getLocalPrivateKey()
+      });
+
+    } catch (err) { // Failed to sign auth message
+      
+      console.log('Failed to sign auth message', err);
+    }
+
+    if (!auth) { return; }
+
+    try {
+
+      const uri = query(`${API_BASE_URL}/media/account/credit`, {
+        auth: JSON.stringify(auth)
+      });
+
+      const resp = await axios.get(uri);
+
+      data = resp.data;
+
+    } catch (err) {
+      console.log(err);
+    }
+
+    if (!data) { return; }
+
+    let payment;
+
+    try {
+
+      payment = await window.client.createEvent(data.payment, {
+        privateKey: getLocalPrivateKey()
+      });
+
+    } catch (err) { // Failed to sign auth message
+      
+      console.log('Failed to sign payment event', err);
+    }
+
+    let invoice, amount;
+
+    try {
+
+      const resp = await axios.get(data.callback + `?amount=${data.amount}&nostr=${encodeURIComponent(JSON.stringify(payment))}`);
+
+      invoice = resp.data.pr;
+      amount = data.amount;
+
+    } catch (err) {
+
+      console.log('err fetching invoice', err);
+    }
+
+    if (!invoice) { return; } 
+
+    dispatch({
+      type: REQUEST_CDN_CREDIT_RES,
+      data: { amount, payment, invoice }
+    });
+  };
+};
+
 export const SET_ADD_CREDIT_MODAL_OPEN = 'SET_ADD_CREDIT_MODAL_OPEN';
 export const SetAddCreditModalOpen = (open) => {
   return { type: SET_ADD_CREDIT_MODAL_OPEN, data: { open } };
+};
+
+
+export const DISMISS_TRANSACTION_CONFIRMED = 'DISMISS_TRANSACTION_CONFIRMED';
+export const DismissTransactionConfirmed = () => {
+  return { type: DISMISS_TRANSACTION_CONFIRMED };
 };
 
 /* Sort the local media list */
@@ -39,9 +126,7 @@ export const GetMedia = (options = {}) => {
       auth = await window.client.createEvent({
         kind: 22242,
         content: 'Authenticate User',
-        tags: [
-          [ 'hostname', 'media.satellite.earth' ]
-        ]
+        tags: []
       }, {
         privateKey: getLocalPrivateKey()
       });
@@ -53,7 +138,7 @@ export const GetMedia = (options = {}) => {
 
     if (!auth) { return; }
 
-    const uri = query(`${API_BASE_URL}/media`, {
+    const uri = query(`${API_BASE_URL}/media/account`, {
       auth: JSON.stringify(auth)
     });
 

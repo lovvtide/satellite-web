@@ -57,6 +57,11 @@ const mapState = ({ active, app }) => {
 		mobile: app.mobile,
 		links: ([
 			{
+				key: 'cdn',
+				label: 'MEDIA HOSTING',
+				route: '/cdn'
+			},
+			{
 				key: 'nip05',
 				label: 'NIP-05 VERIFY',
 				route: `/verify`

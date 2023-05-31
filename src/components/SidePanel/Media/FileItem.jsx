@@ -163,7 +163,7 @@ class FileItem extends PureComponent {
 							cursor: 'pointer',
 							outline: 'none',
 							border: 'none',
-							width: '98%',
+							width: this.props.mobile ? '100%' : '98%',
 							paddingRight: 4,
 							background: COLORS.primary,
 							color: `rgba(255,255,255,${hoverLink || copying ? 1 : 0.85})`,
@@ -177,14 +177,45 @@ class FileItem extends PureComponent {
 
 	renderMedia = () => {
 
-		const { dimension, uploadid, progress } = this.props;
+		const { dimension, uploadid, progress, error } = this.props;
 		const { loadError } = this.state;
 
 		const type = this.props.type.split('/')[0];
 
 		let element;
 
+
+
 		if (uploadid) {
+
+			let status;
+
+			if (error) {
+
+				status = (
+					<span style={{ minWidth: 150, textAlign: 'center', color: COLORS.red }}>
+						<Icon name='warning sign' />
+						Upload Error
+					</span>
+				);
+
+			} else if (progress === 100) {
+
+				status = (
+					<span style={{ minWidth: 150, textAlign: 'center' }}>
+						Finalizing Upload
+						<Loader />
+					</span>
+				);
+
+			} else {
+
+				status = (
+					<span style={{ minWidth: 150, textAlign: 'center' }}>
+						Uploading {progress}%
+					</span>
+				);
+			}
 
 			element = (
 				<div style={{
@@ -195,16 +226,7 @@ class FileItem extends PureComponent {
 					width: dimension,
 					fontSize: 13
 				}}>
-					{progress === 100 ? (
-						<span style={{ minWidth: 150, textAlign: 'center' }}>
-							Finalizing Upload
-							<Loader />
-						</span>
-					) : (
-						<span style={{ minWidth: 150, textAlign: 'center' }}>
-							Uploading {progress}%
-						</span>
-					)}
+					{status}
 				</div>
 			);
 
@@ -380,11 +402,11 @@ class FileItem extends PureComponent {
 							onSelect={this.handleDropdownSelect}
 							uniqueid={this.props.sha256 || this.props.uploadid}
 							items={[
-								'VIEW DETAILS',
+								//'VIEW DETAILS',
 								'DELETE FILE'
 							]}
 							icons={[
-								'info circle',
+								//'info circle',
 								'trash alternate'
 							]}
 						/>

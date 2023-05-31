@@ -5,18 +5,17 @@ import { Icon } from 'semantic-ui-react';
 
 import { GetMedia, PromptDeleteFile, DeleteFile, ViewDetails } from '../../../actions';
 import { transition } from '../../../helpers';
-import { GALLERY_MIN_COL_WIDTH, COLORS, MENU_WIDTH } from '../../../constants';
+import { GALLERY_MIN_COL_WIDTH, COLORS, MENU_WIDTH, CONTENT_MAX_WIDTH } from '../../../constants';
 
 import Modal from './Modal';
 import Button from './Button';
 import Header from './Header';
 import FileItem from './FileItem';
 import AddCredit from './AddCredit';
+import PaymentConfirmed from './PaymentConfirmed';
 
 
 class Media extends PureComponent {
-
-  //state = { scrollTop: 0 };
 
   componentDidMount = () => {
 
@@ -28,34 +27,12 @@ class Media extends PureComponent {
     if (!this.props.mobile) {
 
       this.container = document.getElementById('sidepanel_scroll_container');
-
-      // if (this.container) {
-
-      //   this.container.addEventListener('scroll', this.handleScroll);
-      // } 
     }
   };
 
-  // componentWillUnmount = () => {
-
-  //   if (this.container) {
-
-  //     this.container.removeEventListener('scroll', this.handleScroll);
-  //   }
-  // };
-
-  // handleScroll = (e) => {
-
-  //   //const { scrollTop } = e.target;
-
-  //   //console.log('scrollTop', e.srcElement.scrollTop);
-
-  //   this.setState({ scrollTop: e.srcElement.scrollTop });
-  // };
-
   renderConfirmDeleteModal = () => {
 
-    const { promptDeleteFile, clientWidth } = this.props;
+    const { promptDeleteFile, clientWidth, clientHeight, mobile } = this.props;
 
     if (!promptDeleteFile) { return null; }
 
@@ -71,6 +48,16 @@ class Media extends PureComponent {
           minWidth: Math.min(360, clientWidth),
           maxWidth: clientWidth - 24,
           padding: 24
+        }}
+        dimmerStyle={{
+          left: 'unset',
+          right: mobile ? 0 : MENU_WIDTH + 10,
+          borderRight: `1px solid ${COLORS.secondary}`,
+          zIndex: 9999999999,
+          ...(mobile ? {} : {
+            height: clientHeight - 48,
+            top: 48
+          })
         }}
       >
         <div style={{
@@ -113,14 +100,54 @@ class Media extends PureComponent {
 
   renderAddCreditModal = () => {
 
+    const { clientWidth, clientHeight } = this.props;
+
     if (!this.props.addCreditModalOpen) { return null; }
 
-    return <AddCredit />;
+    return <AddCredit clientWidth={clientWidth} clientHeight={clientHeight} />;
+  };
+
+  renderPaymentConfirmedModal = () => {
+
+    const { clientWidth, clientHeight } = this.props;
+
+    if (!this.props.transactionConfirmed) { return null; }
+
+    return <PaymentConfirmed clientWidth={clientWidth} clientHeight={clientHeight} />;
+  };
+
+  renderEmptyContent = () => {
+
+    if (!this.props.initialized || this.props.storageTotal > 0 || this.props.files.length > 0) {
+      return null;
+    }
+
+    return (
+      <div style={{
+        height: this.props.clientHeight - 288,
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        color: COLORS.secondaryBright,
+        fontSize: 13,
+        whiteSpace: 'break-spaces'
+      }}>
+        <div style={{ maxWidth: Math.min(333, this.props.clientWidth - 72), textAlign: 'center' }}>
+          <span>
+            Files you upload will appear here.
+          </span>
+          <span style={{ marginLeft: 7 }}>
+            Click "Add Credit" to buy storage with Lightning.
+          </span>
+        </div>
+      </div>
+    );
   };
 
   render = () => {
 
-    const { itemsPerRow, itemWidth, mobile } = this.props;
+    const { itemsPerRow, itemWidth, mobile, clientWidth } = this.props;
     const rows = [];
 
     let compare;
@@ -169,10 +196,11 @@ class Media extends PureComponent {
         paddingRight: 12,
         paddingBottom: 120
       }}>
-        <Header />
+        <Header clientWidth={clientWidth} />
         <div style={{
           paddingTop: mobile ? 96 : 36
         }}>
+          {this.renderEmptyContent()}
           {rows.map((row, index) => {
             return (
               <div
@@ -186,11 +214,10 @@ class Media extends PureComponent {
                   return (
                     <FileItem
                       key={file.sha256 || file.uploadid}
-                      //scrollTop={this.state.scrollTop}
                       handlePromptDelete={this.props.PromptDeleteFile}
                       handleViewDetails={this.props.ViewDetails}
                       dimension={itemWidth}
-                      margin={12}
+                      margin={mobile ? 0 : 12}
                       mobile={this.props.mobile}
                       {...file}
                     />
@@ -203,6 +230,7 @@ class Media extends PureComponent {
         {this.renderConfirmDeleteModal()}
         {this.renderViewDetailsModal()}
         {this.renderAddCreditModal()}
+        {this.renderPaymentConfirmedModal()}
       </div>
     );
   };
@@ -210,7 +238,9 @@ class Media extends PureComponent {
 
 const mapState = ({ files, app, media }) => {
 
-  const clientWidth = app.mobile ? app.clientWidth : (app.clientWidth - (MENU_WIDTH + 12));
+  const _clientWidth = Math.min(app.clientWidth, CONTENT_MAX_WIDTH);
+
+  const clientWidth = app.mobile ? _clientWidth : (_clientWidth - (MENU_WIDTH + 12));
 
   let itemsPerRow = Math.floor(clientWidth / GALLERY_MIN_COL_WIDTH);
 
@@ -220,8 +250,9 @@ const mapState = ({ files, app, media }) => {
 
   return {
     itemsPerRow,
-    itemWidth: ((clientWidth - (24 * (itemsPerRow + 1))) / itemsPerRow),
+    itemWidth: app.mobile ? clientWidth - 24 : ((clientWidth - (24 * (itemsPerRow + 1))) / itemsPerRow),
     mobile: app.mobile,
+    transactionConfirmed: media.transactionConfirmed,
     promptDeleteFile: media.promptDeleteFile,
     viewDetails: media.viewDetails,
     initialized: media.initialized,
@@ -229,6 +260,7 @@ const mapState = ({ files, app, media }) => {
     query: media.query,
     sort: media.sort,
     addCreditModalOpen: media.addCreditModalOpen,
+    storageTotal: media.storageTotal,
     clientWidth,
     files
   };

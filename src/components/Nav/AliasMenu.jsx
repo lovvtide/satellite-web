@@ -180,7 +180,7 @@ class AliasMenu extends PureComponent {
 							{this.renderSubscriptionsAction()}
 							{this.renderMessagesAction()}
 							{this.renderRelaysAction()}
-							{/*{this.renderMediaAction()}*/}
+							{this.renderMediaAction()}
 						</div>
 					</div>
 				</div>

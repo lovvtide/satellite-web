@@ -2,10 +2,21 @@ import React, { PureComponent } from 'react';
 
 import { COLORS } from '../../../constants';
 
+import Loader from './Loader';
+
 
 class Button extends PureComponent {
 
 	state = {};
+
+	renderLoader = () => {
+
+		return (
+			<div style={{ height: 24 }}>
+				<Loader />
+			</div>
+		);
+	};
 
 	render = () => {
 
@@ -13,7 +24,7 @@ class Button extends PureComponent {
 			<div
 				onMouseOver={() => this.setState({ hover: true })}
 				onMouseOut={() => this.setState({ hover: false })}
-				onClick={this.props.onClick}
+				onClick={this.props.pending ? undefined : this.props.onClick}
 				style={{
 					opacity: this.state.hover && !this.props.pending ? 1 : 0.85,
 					cursor: this.props.pending ? 'default' : 'pointer',
@@ -31,7 +42,7 @@ class Button extends PureComponent {
 					...(this.props.style || {})
 				}}
 			>
-				{this.props.label}
+				{this.props.pending ? this.renderLoader() : this.props.label}
 			</div>
 		);
 	};

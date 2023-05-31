@@ -14,7 +14,13 @@ export const DEFAULT_RELAYS = [
 	'wss://relay.damus.io',
 	'wss://nos.lol',
 	'wss://relay.current.fyi',
-	'wss://relay.snort.social'
+	'wss://relay.snort.social',
+	'wss://relay.orangepill.dev',
+	'wss://relay.nostrplebs.com',
+	'wss://eden.nostr.land',
+	'wss://relay.plebstr.com',
+	'wss://relay.nostr.band',
+	'wss://nostr.wine'
 ];
 
 export const COLORS = {

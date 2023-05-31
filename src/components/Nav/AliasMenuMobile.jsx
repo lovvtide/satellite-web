@@ -251,7 +251,7 @@ class AliasMenuMobile extends PureComponent {
 						{this.renderSubscriptionsAction()}
 						{this.renderMessagesAction()}
 						{this.renderRelaysAction()}
-						{/*{this.renderMediaAction()}*/}
+						{this.renderMediaAction()}
 						{this.renderAuthAction()}
 					</div>
 				</div>

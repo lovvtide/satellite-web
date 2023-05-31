@@ -3,6 +3,7 @@ import {
 	GET_MEDIA_RES,
 	PUT_FILE_PROGRESS,
 	PUT_FILE_COMPLETE,
+	PUT_FILE_ERROR,
 	REVOKE_DEVICE_AUTH,
 	DELETE_FILE_COMPLETE
 } from '../actions';
@@ -15,6 +16,14 @@ export default (state = INITIAL_STATE, action) => {
 	const { type, data } = action;
 
 	switch (type) {
+
+		case PUT_FILE_ERROR:
+			return state.map(file => {
+				if (file.uploadid === data.uploadid) {
+					file.error = true;
+				}
+				return file;
+			});
 
 		case DELETE_FILE_COMPLETE:
 			return state.filter(file => {
@@ -46,7 +55,12 @@ export default (state = INITIAL_STATE, action) => {
 			});
 
 		case GET_MEDIA_RES:
-			return data;
+			return [
+				...state.filter(file => {
+					return file.uploadid;
+				}),
+				...data.files
+			];
 
 		case REVOKE_DEVICE_AUTH:
 			return INITIAL_STATE;

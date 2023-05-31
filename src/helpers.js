@@ -244,11 +244,32 @@ export const timeFormat = (unixTime, options = {}) => {
 	return `${d} ${M} ${y} ${h}:${m.substr(-2)} ${meridian}`;
 };
 
-export const intervalTime = (delta) => {
+export const intervalTime = (delta, options = {}) => {
 
 	const d = Math.floor(delta / 86400);
 	const h = Math.floor((delta - (d * 86400)) / 3600);
 	const m = Math.floor((delta - ((d * 86400) + (h * 3600))) / 60);
+
+	if (options.round) {
+
+		if (d >= 1095) {
+			return `${Math.floor(d / 365)} years`;
+		}
+
+		if (d >= 90) {
+			return `${Math.floor(d / 30)} months`;
+		}
+
+		if (d >= 3) {
+			return `${d} days`;
+		}
+
+		if (h >= 1) {
+			return `${h} hours`;
+		}
+
+		return `${m} minutes`;
+	}
 
 	return `${d}D ${h}H ${m}M`;
 };

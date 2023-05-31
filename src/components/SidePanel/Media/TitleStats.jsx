@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 
 import Button from './Button';
 
+import { transition, formatDataSize, intervalTime } from '../../../helpers';
 import { SetAddCreditModalOpen } from '../../../actions';
 import { COLORS } from '../../../constants';
 
@@ -10,8 +11,13 @@ import { COLORS } from '../../../constants';
 class TitleStats extends PureComponent {
 
 	render = () => {
+
+		if (this.props.mobileMenuOpen) { return null; }
+
 		return (
 			<div style={{
+				opacity: this.props.initialized ? 1 : 0,
+				pointerEvents: this.props.initialized ? 'auto' : 'none',
 				color: COLORS.secondaryBright,
 				fontFamily: 'JetBrains-Mono-Regular',
 				fontSize: 11,
@@ -19,10 +25,11 @@ class TitleStats extends PureComponent {
 				display: 'flex',
 				alignItems: 'center',
 				fontWeight: 'normal',
+				...transition(0.2, 'ease', [ 'opacity' ]),
 				...(this.props.style || {})
 			}}>
-				<span style={{ marginRight: 8, color: COLORS.satelliteGold }}>4.2 GB</span>
-				<span style={{ marginRight: 8, color: '#fff' }}>(10 months)</span>
+				<span style={{ marginRight: 8, color: COLORS.satelliteGold }}>{formatDataSize(this.props.storageTotal)} hosted</span>
+				{/*<span style={{ marginRight: 8, color: '#fff' }}>({intervalTime(this.props.timeRemaining, { round: true })} remaining)</span>*/}
 	      <Button
 	      	style={{ padding: 8 }}
 	        label='ADD CREDIT'
@@ -33,4 +40,16 @@ class TitleStats extends PureComponent {
 	};
 }
 
-export default connect(null, { SetAddCreditModalOpen })(TitleStats);
+const mapState = ({ media, menu }) => {
+
+	return {
+		timeRemaining: media.timeRemaining,
+		storageTotal: media.storageTotal,
+		creditTotal: media.creditTotal,
+		usageTotal: media.usageTotal,
+		initialized: media.initialized,
+		mobileMenuOpen: menu.mobileMenuOpen
+	};
+};
+
+export default connect(mapState, { SetAddCreditModalOpen })(TitleStats);
