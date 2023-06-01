@@ -86,11 +86,11 @@ const transform = (props) => {
 			...(props.linkStyle || {})
 		})} href="${href}" target="_blank">${text}</a>`;
 
-		let _image, _video, _audio, _tag;
+		let _image, _video, _audio, _tag, ext;
 
 		if (props.showImagePreviews && props.scriptContextId) {
 
-			let ext = href.slice(href.lastIndexOf('.') + 1);
+			ext = href.slice(href.lastIndexOf('.') + 1);
 
 			if (ext.indexOf('&') !== -1) {
 				ext = ext.split('&')[0];
@@ -98,7 +98,7 @@ const transform = (props) => {
 
 			const previewImage = [ 'jpeg', 'jpg', 'png', 'webp', 'gif' ];
 			const previewVideo = props.showFullsizeMedia ? [ 'mp4' ] : [];
-			const previewAudio = []/*[ 'mp3' ]*/;
+			const previewAudio = [ 'mp3', 'm4a', 'ogg' ];
 			
 			// _preview = ([
 			// 	...previewImage,
@@ -169,13 +169,18 @@ const transform = (props) => {
 				//'border': `1px solid ${COLORS.secondary}`,
 				'padding': '1px',
 				'border-radius': '4px'
-			})}></video>`;
+			})} />`;
 
-		} else if (/*audio*/false) {
+		} else if (_audio) {
 
 			// support audio
+			return `<audio controls src=${href} ${stylize({
+				'margin-top': '6px',
+				'margin-right': '12px',
+				'width': '100%'
+			})} />`;
 
-			return;
+			//return;
 		}
 
 		return link;
