@@ -144,7 +144,7 @@ class MediaHosting extends PureComponent {
 						height: mobile ? null : 108,
 						marginBottom: 48,
 						width: this.props.maxWidth,
-						lineHeight: '8vh',
+						lineHeight: '54px',
 						fontFamily: 'JetBrains-Mono-Bold',
 						margin: '8px auto 28px auto'
 					}}>
