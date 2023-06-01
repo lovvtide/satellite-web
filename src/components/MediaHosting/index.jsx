@@ -26,6 +26,13 @@ class MediaHosting extends PureComponent {
 
 			const char = headline[c];
 
+			this.setState({
+				//headline: this.state.headline + headline[c]
+				headline: headline.substring(0, c)
+			});
+
+			c++; // no pun intended
+
 			if (typeof char === 'undefined') {
 
 				clearInterval(this._type);
@@ -55,14 +62,10 @@ class MediaHosting extends PureComponent {
 
 				}, 400);
 
+				this.setState({ headline });
+
 				return;
 			}
-
-			this.setState({
-				headline: this.state.headline + headline[c]
-			});
-
-			c++; // no pun intended
 
 		}, 25);
 	};
@@ -115,8 +118,12 @@ class MediaHosting extends PureComponent {
 				marginTop: mobile ? -12 : -48
 			}}>
 				<div style={{
-					paddingTop: 48,
-					paddingBottom: 48
+					paddingTop: mobile ? null : 48,
+					paddingBottom: 48,
+					...(mobile ? {
+						position: 'absolute',
+						top: 72
+					} : {})
 				}}>
 					<div style={{
 						color: COLORS.satelliteGold,
