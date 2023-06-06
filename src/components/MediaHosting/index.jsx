@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { Icon } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
 
 import { COLORS } from '../../constants';
 import { transition } from '../../helpers';
@@ -191,7 +192,7 @@ class MediaHosting extends PureComponent {
 						<div style={styles.bullet(this.state, 5)}>
 							<img src={star} style={styles.star} />
 							<div style={styles.bulletText}>
-								Developer-friendly API (docs coming soon...)
+								Developer-friendly API (<a style={{ color: '#fff', textDecoration: 'underline' }} href="https://github.com/lovvtide/satellite-web/blob/master/docs/cdn.md" target='_blank'>read the docs</a>)
 							</div>
 						</div>
 					</div>
