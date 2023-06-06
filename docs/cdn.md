@@ -76,7 +76,7 @@ Note that the account object contains much more information than just `creditTot
 ### Step 4: Upload a file
 
 ```js
-// Prompt user to sign auth event requesting account info
+// Prompt user to sign auth event for file upload
 const uploadAuth = await window.nostr.signEvent({
   created_at: Math.ceil(Date.now() / 1000),
   kind: 22242,
