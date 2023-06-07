@@ -20,7 +20,7 @@
     "history": "4.9.0",
     "jsdom": "^16.4.0",
     "marked": "0.6.2",
-    "nostr-tools": "^1.4.1",
+    "nostr-tools": "^1.11.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-qr-code": "^2.0.2",

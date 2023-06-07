@@ -315,11 +315,6 @@ const insertMentions = (s, tags = [], mentions = {}, context) => {
 
 	const ss = segments.join('');
 
-	// if (ss.indexOf('nostr:') === -1) {
-
-	// 	return ss;
-	// }
-
 	// Parse and insert mentions according to NIP-27
 	const _ss = ss.split('nostr:');
 
@@ -327,29 +322,34 @@ const insertMentions = (s, tags = [], mentions = {}, context) => {
 
 	for (let segment of _ss) {
 
-		//const r = segment.split(' ')[0];
-
-		//let r;
 		let decoded;
 		let replaced = '';
-		// let splitIndex = -1;
 
-		// if (segment.indexOf(' ') !== -1) {
-		// 	splitIndex = segment.indexOf(' ');
-		// }
+		if (
+			segment.indexOf('npub1') === 0 ||
+			segment.indexOf('note1') === 0 ||
+			segment.indexOf('nevent1') === 0
+		) {
 
-		// if (segment.indexOf('\n') < splitIndex) {
-		// 	splitIndex = segment.indexOf('\n');
-		// }
+			let seglen = segment.length;
 
-		// if (splitIndex > -1) {
+			if (segment.indexOf('nevent1') === 0) {
 
-		// 	r = segment.substring(0, splitIndex);
-		// }
+				let alphanum = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
-		if (segment.indexOf('npub1') === 0 || segment.indexOf('note1') === 0) {
+				for (let c = 0; c < segment.length; c++) {
+					if (alphanum.indexOf(segment[c]) === -1) {
+						seglen = c;
+						break;
+					}
+				}
 
-			const parsed = segment.substring(0, 63);
+			} else {
+
+				seglen = 63;
+			}
+
+			const parsed = segment.substring(0, seglen);
 
 			try {
 
@@ -373,34 +373,23 @@ const insertMentions = (s, tags = [], mentions = {}, context) => {
 
 					const name = profile.display_name || profile.name || (parsed.slice(0, 8) + '...' + parsed.slice(-4));
 
-					replaced = `<a href="${`https://satellite.earth/@${parsed}`}" style="font-weight:bold;color:#fff;cursor:pointer" class="mention">@${name}</a>` + segment.slice(63);
+					replaced = `<a href="${`https://satellite.earth/@${parsed}`}" style="font-weight:bold;color:#fff;cursor:pointer" class="mention">@${name}</a>` + segment.slice(seglen);
 
-				} else if (decoded.type === 'note') {
+				} else if (decoded.type === 'note' || decoded.type === 'nevent') {
 
-					replaced = `<a href="${`https://satellite.earth/thread/${parsed}`}" style="font-weight:bold;color:#fff;cursor:pointer" class="mention">#note</a>` + segment.slice(63);
+					let noteId = parsed;
+
+					if (decoded.type === 'nevent') {
+
+						noteId = nip19.noteEncode(decoded.data.id);
+					}
+
+					replaced = `<a href="${`https://satellite.earth/thread/${/*parsed*/noteId}`}" style="font-weight:bold;color:#fff;cursor:pointer" class="mention">#note</a>` + segment.slice(seglen);
 				}
 			}
 		}
 
 		__ss.push(replaced || segment);
-
-		// if (replaced) {
-
-		// 	__ss.push(replaced);
-		// 	//__ss.push(segment.slice(63));
-
-		// } else {
-
-		// 	__ss.push(segment);
-		// }
-
-		// __ss.push(replaced ? segment.slice(63) : segment);
-
-		// if (replaced) {
-
-		// 	__ss.push(replaced);
-		// }
-
 	}
 
 	context.awaitingMetadata = awaitingMetadata;

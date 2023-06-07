@@ -266,7 +266,6 @@ const styles = {
 			...transition(2, 'ease', [ 'opacity' ])
 		};
 	}
-
 };
 
 export default connect(mapState, { loadActiveNostr, viewSidePanel, navigate })(MediaHosting);
