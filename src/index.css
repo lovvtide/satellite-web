@@ -48,3 +48,8 @@ code {
 .blurring.dimmable>:not(.dimmer) {
   transition: .2s filter ease,.2s -webkit-filter ease;
 }
+.quoted {
+  display: inline-flex;
+  width: -webkit-fill-available;
+  width: -moz-available;
+}

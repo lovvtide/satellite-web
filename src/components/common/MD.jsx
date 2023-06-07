@@ -8,23 +8,24 @@ import { COLORS, EDITOR_LINE_HEIGHT } from '../../constants';
 import { navigate } from '../../actions';
 
 
+const stylize = (attrs) => {
+	let s = '';
+	for (let attr of Object.keys(attrs)) {
+		s += `${attr}:${attrs[attr]};`;
+	}
+	return `style="${s}"`;
+};
+
 const transform = (props) => {
 
 	const r = new marked.Renderer();
 	const { comment, bio } = props;
 
-	const stylize = (attrs) => {
-		let s = '';
-		for (let attr of Object.keys(attrs)) {
-			s += `${attr}:${attrs[attr]};`;
-		}
-		return `style="${s}"`;
-	};
-
 	const paragraph = (text) => {
+
 		return `<div ${stylize({
 			'margin-bottom': comment ? '4px' : '12px',
-			'-webkit-font-smoothing': 'antialiased',
+			//'-webkit-font-smoothing': 'antialiased',
 			'color': 'rgba(255,255,255,0.85)',
 			'font-family': 'Lexend-Deca-Regular',
 			'font-size': bio ? '14px' : (comment ? '14px' : '16px'),
@@ -41,7 +42,7 @@ const transform = (props) => {
 		const lineHeight = { '3': 34,'4': 28 }
 		return `<div ${stylize({
 			'margin-top': '24px',
-			'-webkit-font-smoothing': 'antialiased',
+			//'-webkit-font-smoothing': 'antialiased',
 			'font-size': `${fontSize[level]}px`,
 			'line-height': `${lineHeight[level]}px`,
 			'margin-bottom': '8px',
@@ -378,13 +379,31 @@ const insertMentions = (s, tags = [], mentions = {}, context) => {
 				} else if (decoded.type === 'note' || decoded.type === 'nevent') {
 
 					let noteId = parsed;
+					let noteIdHex = decoded.data;
 
 					if (decoded.type === 'nevent') {
 
 						noteId = nip19.noteEncode(decoded.data.id);
+						noteIdHex = decoded.data.id;
 					}
 
-					replaced = `<a href="${`https://satellite.earth/thread/${/*parsed*/noteId}`}" style="font-weight:bold;color:#fff;cursor:pointer" class="mention">#note</a>` + segment.slice(seglen);
+					const referenced = `<a class="quoted" href="${`https://satellite.earth/thread/${noteId}`}"><span ${stylize({
+						'padding': '12px',
+						'border': `1px dotted ${COLORS.secondary}`,
+						'border-radius': '12px',
+						'cursor': 'pointer',
+						'margin-top': '12px',
+						'margin-bottom': '8px',
+						'font-size': '14px',
+						'color': COLORS.secondaryBright,
+						'white-space': 'nowrap',
+						'overflow': 'hidden',
+						'text-overflow': 'ellipsis',
+						'min-height': '48px',
+						'display': 'block'
+					})}>${noteId}</span></a>`;
+
+					replaced = referenced + segment.slice(seglen);
 				}
 			}
 		}

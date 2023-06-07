@@ -94,7 +94,7 @@ class PostFeed extends PureComponent {
 
 			// TODO listen for EOSE to load metadata for everyone involved
 
-			this.setState({ updating: false })
+			this.setState({ updating: false });
 
 			this.props.main.listenForItem(this.props.postId, (item) => {
 
