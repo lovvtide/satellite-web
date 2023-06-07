@@ -178,9 +178,11 @@ class Client {
 
 			const pub = relay.publish(event);
 
-			for (let status of [ 'ok', 'seen', 'failed' ]) {
+			for (let status of [ 'ok' ]) {
 				
 				pub.on(status, () => {
+
+					console.log('status', status);
 
 					handleStatus(status, relay);
 				});
