@@ -15,7 +15,7 @@
     "bech32": "^2.0.0",
     "buffer": "^6.0.3",
     "connected-react-router": "6.3.1",
-    "dompurify": "^2.2.2",
+    "dompurify": "^3.0.3",
     "express": "^4.17.1",
     "history": "4.9.0",
     "jsdom": "^16.4.0",
