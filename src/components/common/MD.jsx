@@ -7,7 +7,6 @@ import DOMPurify from 'dompurify';
 import { COLORS, EDITOR_LINE_HEIGHT } from '../../constants';
 import { navigate } from '../../actions';
 
-
 const stylize = (attrs) => {
 	let s = '';
 	for (let attr of Object.keys(attrs)) {
@@ -572,7 +571,21 @@ class MD extends Component {
 			__html = insertMentions(__html, this.props.tags, this.props.mentions, this);
 
 			// Make sure html is safe to inject
-			this.__html = DOMPurify.sanitize(__html, { ADD_ATTR: [ 'target', 'onmouseover' ] });
+			this.__html = DOMPurify.sanitize(__html, {
+				ADD_ATTR: [ 'target', 'onmouseover' ],
+				ALLOWED_TAGS: [
+					'a',
+					'p',
+					'b',
+					'i',
+					'em',
+					'span',
+					'div',
+					'img',
+					'video',
+					'audio'
+				]
+			});
 		}
 
 		return (
