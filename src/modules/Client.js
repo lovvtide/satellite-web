@@ -682,14 +682,14 @@ class Client {
 
 				if (tag[0] === 'p') {
 					p[tag[1]] = true;
-				} else if (tag[0] === 'e') {
+				} else if (tag[0] === 'e' || tag[0] === 'q') {
 
 					if (!options.rootOnly || !gotRoot) {
 						e[tag[1]] = true;
 						gotRoot = true;
 					}
 
-					if (items[tag[1]] && items[tag[1]].event && items[tag[1]].event) {
+					if (items[tag[1]] && items[tag[1]].event) {
 						if (items[tag[1]].event.pubkey) {
 							p[items[tag[1]].event.pubkey] = true;
 						}
