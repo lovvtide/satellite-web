@@ -303,7 +303,7 @@ class Nav extends Component {
 					float: 'right'
 				}}
 			>
-				{this.props.mobile || this.props.profilePubkey === this.props.pubkey ? null : (
+				{this.props.mobile || this.props.profilePubkey === this.props.pubkey || this.props.routeComponents[0] === 's' ? null : (
 					<div
 						onClick={this.handleNewPostClicked}
 						style={{

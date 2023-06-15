@@ -1,7 +1,7 @@
 import { nip19 } from 'nostr-tools';
 
 
-export const PROD = true;
+export const PROD = false;
 
 // Used by client to interact with the backend service
 export const API_BASE_URL = 'https://api.satellite.earth/v1';
@@ -11,15 +11,16 @@ export const CDN_BASE_URL = 'https://cdn.satellite.earth';
 
 // Relays for non-signed in users
 export const DEFAULT_RELAYS = [
-	'wss://relay.damus.io',
-	'wss://nos.lol',
-	'wss://relay.current.fyi',
-	'wss://relay.orangepill.dev',
-	'wss://relay.nostrplebs.com',
-	'wss://eden.nostr.land',
-	'wss://relay.plebstr.com',
-	'wss://relay.nostr.band',
-	'wss://nostr.wine'
+	'ws://localhost:3030'
+	// 'wss://relay.damus.io',
+	// 'wss://nos.lol',
+	// 'wss://relay.current.fyi',
+	// 'wss://relay.orangepill.dev',
+	// 'wss://relay.nostrplebs.com',
+	// 'wss://eden.nostr.land',
+	// 'wss://relay.plebstr.com',
+	// 'wss://relay.nostr.band',
+	// 'wss://nostr.wine'
 ];
 
 export const COLORS = {

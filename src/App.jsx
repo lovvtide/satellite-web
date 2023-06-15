@@ -18,6 +18,7 @@ import NewPostModal from './components/Nostr/NewPostModal';
 import ZapRequest from './components/Nostr/ZapRequest';
 import AliasMenuMobile from './components/Nav/AliasMenuMobile';
 import LoadingText from './components/common/LoadingText';
+import CommunityPage from './components/CommunityPage';
 import DirectoryPage from './components/DirectoryPage';
 import EpochsPage from './components/EpochsPage';
 import SidePanel from './components/SidePanel';
@@ -115,6 +116,7 @@ class App extends PureComponent {
             <Route exact path='/register' component={SignUp} />
             <Route path='/register/:mode' component={SignUp} />
           </Switch>
+           <Route path='/s/:name' component={CommunityPage} />
           <Route exact path='/auth' component={SignIn} />
           <Route path='/auth/:mode' component={SignIn} />
           <Route path='/@:alias' component={ProfileFeed} />
