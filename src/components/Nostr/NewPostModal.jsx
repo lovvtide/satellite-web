@@ -59,14 +59,14 @@ class NewPostModal extends PureComponent {
 
 		return (
 			<Modal
-				fixed
+				//fixed
 				handleClose={this.handleClose}
 				clientHeight={this.props.clientHeight}
 				clientWidth={this.props.clientWidth}
 				style={{
-					padding: '36px 36px 24px',
+					padding: '96px 36px 96px',
 					width: 587,
-					transform: 'translate(-50%, -50%)',
+					transform: `translate(-50%, ${-1 * (this.props.clientHeight / 2)}px)`,
 					top: '50%'
 				}}
 			>

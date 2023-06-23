@@ -871,7 +871,7 @@ class DirectMessages extends PureComponent {
 					}}
 				>
 					{newChat ? null : (<Icon name='edit outline' />)}
-					<span>{newChat ? 'CANCEL' : 'NEW'}</span>
+					<span>{newChat ? 'CANCEL' : 'NEW CHAT'}</span>
 				</div>
 			</div>
 		);

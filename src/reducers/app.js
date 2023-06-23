@@ -62,6 +62,12 @@ export default (state = {}, action) => {
 				displayQR: data.value
 			};
 
+		case '@@router/LOCATION_CHANGE':
+			return {
+				...state,
+				mobileDimmer: false
+			};
+
 		case SET_MOBILE_DIMMER:
 			return {
 				...state,

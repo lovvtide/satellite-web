@@ -44,6 +44,49 @@ class Item extends Component {
 		this.media = [];
 	}
 
+	componentDidMount = () => {
+
+		if (this.props.replaceTitle) {
+
+			let content = this.props.event.content;
+			let title, link;
+
+			for (let tag of this.props.event.tags) {
+
+				if (tag[0] === 'subject') {
+
+					title = tag[1];
+
+					if (this.props.event.content === title) {
+						content = '';
+					} else if (this.props.event.content.indexOf(`${tag[1]}\n\n`) === 0) {
+						content = this.props.event.content.slice(title.length + 2);
+					}
+				}
+			}
+
+			for (let tag of this.props.event.tags) {
+
+				if (tag[0] === 'r') {
+
+					link = tag[1];
+
+					if (this.props.event.content === link) {
+						content = '';
+					} else if (content.indexOf(`${tag[1]}\n\n`) === 0) {
+						content = content.slice(link.length + 2);
+					}
+				}
+			}
+
+			this.setState({
+				title,
+				link,
+				content
+			});
+		}
+	};
+
 	componentWillUnmount = () => {
 
 		clearTimeout(this._update);
@@ -402,6 +445,46 @@ class Item extends Component {
 		);
 	};
 
+	renderReplacedTitleElements = () => {
+
+		if (!this.props.replaceTitle) { return null; }
+
+		const { title, link } = this.state;
+
+		if (!title && !link) { return null; }
+
+		return (
+			<div style={{
+				marginBottom: 6
+			}}>
+				{title ? (
+					<div
+						style={{
+							fontWeight: 'bold',
+							fontSize: 18,
+							color: '#fff',
+							marginBottom: 6,
+							lineHeight: '24px'
+						}}
+					>
+						{title}
+					</div>
+				) : null}
+				{link ? (
+					<a href={link} target='_blank'>
+						<div
+							style={{
+								fontSize: 13
+							}}
+						>
+							{link}
+						</div>
+					</a>
+				) : null}
+			</div>
+		);
+	};
+
 	renderEventInfoTrigger = () => {
 
 		return (
@@ -601,19 +684,26 @@ class Item extends Component {
 		const mentions = {};
 
 		for (let tag of this.props.event.tags) {
+
 			if (metadata[tag[1]]) {
 				mentions[tag[1]] = metadata[tag[1]];
 			}
 		}
 
+		if (this.props.replaceTitle && !this.state.content) {
+			return null;
+		}
+
 		return (
-			<div>
+			<div style={{
+				//marginTop: 24
+			}}>
 				<MD
 					showFullsizeMedia={this.props.showFullsizeMedia}
 					showImagePreviews
 					attachMediaPreviewListeners={this.attachMediaPreviewListeners}
 					scriptContextId={this.contextId()}
-					markdown={this.props.event.content}
+					markdown={this.state.content || this.props.event.content}
 					style={styles.text}
 					comment
 					mentions={mentions}
@@ -821,6 +911,7 @@ class Item extends Component {
 				}}
 			>
 				{this.renderMediaPreview()}
+				{this.renderReplacedTitleElements()}
 				<div style={styles.meta}>
 					<Author
 						infoHover

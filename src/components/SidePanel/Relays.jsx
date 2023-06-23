@@ -10,8 +10,6 @@ class Relays extends PureComponent {
 
 		const { mobile, relays } = this.props;
 
-		//console.log('relays', relays);
-
 		return (
 			<div style={{
 				padding: mobile ? 12 : 24,

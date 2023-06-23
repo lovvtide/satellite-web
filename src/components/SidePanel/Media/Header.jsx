@@ -207,8 +207,8 @@ class Header extends PureComponent {
         onMouseOut={() => this.setState({ hover: '' })}
         style={{
           color: this.state.hover === 'upload' ? '#fff' : 'rgba(255,255,255,0.85)',
-          minWidth: this.props.mobile ? 84 : 120,
-          border: `1px solid ${COLORS.satelliteGold}`,
+          minWidth: this.props.mobile ? 82 : 118,
+          border: `0.5px solid ${COLORS.satelliteGold}`,
           borderRadius: 15,
           marginLeft: this.props.mobile ? 12 : 24,
           fontSize: 11,
@@ -218,10 +218,11 @@ class Header extends PureComponent {
           alignItems: 'center',
           justifyContent: 'center',
           fontWeight: 'bold',
-          cursor: 'pointer'
+          cursor: 'pointer',
+          userSelect: 'none'
         }}
       >
-        <Icon name='plus' style={{ height: 20, marginRight: 5 }} />
+        <Icon name='plus' style={{ height: 20, marginLeft: -3, marginRight: 5 }} />
         {this.props.mobile ? 'UPLOAD' : 'UPLOAD FILE'}
       </label>
     );

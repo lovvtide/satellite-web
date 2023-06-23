@@ -116,7 +116,10 @@ class App extends PureComponent {
             <Route exact path='/register' component={SignUp} />
             <Route path='/register/:mode' component={SignUp} />
           </Switch>
-           <Route path='/s/:name' component={CommunityPage} />
+          <Switch>
+            <Route path='/n/:name/:founder/:note' component={CommunityPage} />
+            <Route path='/n/:name/:founder' component={CommunityPage} />
+          </Switch>
           <Route exact path='/auth' component={SignIn} />
           <Route path='/auth/:mode' component={SignIn} />
           <Route path='/@:alias' component={ProfileFeed} />

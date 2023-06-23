@@ -154,6 +154,7 @@ class Feed extends PureComponent {
 					metadata={this.props.feed.metadata}
 					//metadataCount={Object.keys(this.props.feed.metadata).length}
 					showFullsizeMedia={this.props.profile && (this.props.profile === item.event.pubkey || item._repost || (item.upvotes && item.upvotes[this.props.profile]))}
+					replaceTitle={item.event.id === this.props.replaceTitle}
 				/>
 			);
 		});

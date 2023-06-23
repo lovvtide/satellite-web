@@ -10,6 +10,7 @@ import MenuMobile from './MenuMobile';
 import DirectMessages from '../Nostr/DirectMessages';
 import Relays from './Relays';
 import Media from './Media';
+import Communities from './Communities';
 import MediaTitleStats from './Media/TitleStats';
 
 import { revokeDeviceAuth, showAliasMenuMobile, viewSidePanel, setMobileMenuOpen } from '../../actions';
@@ -158,6 +159,8 @@ class SidePanel extends PureComponent {
 			return <Relays handleClose={this.handleClose} />;
 		} else if (topMode === 'media') {
 			return <Media />;
+		} else if (topMode === 'communities') {
+			return <Communities />
 		}
 
 		return null;

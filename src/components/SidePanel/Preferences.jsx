@@ -59,7 +59,7 @@ class Preferences extends PureComponent {
 		const { mobile, pubkey } = this.props;
 
 		return (
-			<div style={styles.sectionContainer(mobile)}>
+			<div style={{ ...styles.sectionContainer(mobile), paddingBottom: 0 }}>
 				<div style={{ display: 'flex', alignItems: 'center' }}>
 					<span style={styles.sectionLabel}>Nostr Public Key</span>
 					<span style={{ ...styles.sectionLabel, color: COLORS.secondaryBright, marginLeft: 8 }}>(safe to share)</span>
@@ -134,9 +134,9 @@ const styles = {
 
 	sectionContainer: (mobile) => {
 		return {
-			borderBottom: '1px solid #2f363d',
+			//borderBottom: '1px solid #2f363d',
 			whiteSpace: 'normal',
-			padding: mobile ? 16 : 24
+			padding: mobile ? 16 : '24px 24px 96px 24px'
 		};
 	},
 
@@ -158,7 +158,8 @@ const styles = {
 	sectionLabel: {
 		textTransform: 'uppercase',
 		fontFamily: 'JetBrains-Mono-Bold',
-		fontSize: 12
+		fontSize: 12,
+		color: COLORS.satelliteGold
 	},
 
 	sectionInfo: {
@@ -203,6 +204,7 @@ const styles = {
 			color: '#fff',
 			marginTop: 1,
 			opacity: display ? 1 : 0,
+			maxWidth: 612,
 			...transition(0.2, 'ease', [ 'opacity' ])
 		};
 	}

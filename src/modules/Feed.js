@@ -102,7 +102,7 @@ class Feed {
 		});
 	}
 
-	/* Return a deduplicated array of author's pubkeys */
+	/* Return a deduplicated array of authors' pubkeys */
 	authors (options = {}) {
 
 		const p = {};
@@ -112,6 +112,13 @@ class Feed {
 			if (!item.phantom) {
 
 				p[item.event.pubkey] = true;
+
+				for (let tag of item.event.tags) {
+
+					if (tag[0] === 'p') {
+						p[tag[1]] = true;
+					}
+				}
 			}
 		}
 
@@ -146,7 +153,7 @@ class Feed {
 
 			// Pass received events to handler
 			req.on('event', event => {
-
+				
 				this.update(event, relay, {
 					subscription: name,
 					listMode: options.listMode
@@ -300,23 +307,48 @@ class Feed {
 			}
 		};
 
-		for (let event of events) {
+		for (let _event of events) {
 
-			if (this.items[event.id]) { // Already have event?
+			let event, approval;
 
-				// Still need to mark it with list mode
-				if (options.listMode) {
-					this.items[event.id].labels[options.listMode] = true;
-				}
+			// If the event is a moderator approval event, parse the
+			// content and treat that at the event (the one approved)
+			if (_event.kind === 4550) {
 
-				// If not a phantom, it's a duplicate
-				if (!this.items[event.id].phantom) {
+				event = JSON.parse(_event.content);
 
-					// Don't need to insert it though
+				// If the approved event already exists, save
+				// the kind 4550 event on the item and continue
+				if (this.items[event.id]) {
+
+					this.items[event.id].approval = _event;
 					continue;
+
+				} else { // Otherwise save for when item is created
+
+					approval = _event;
 				}
 
-				delete this.items[event.id];
+			} else { // Proceed normally
+
+				event = _event;
+
+				if (this.items[event.id]) { // Already have event?
+
+					// Still need to mark it with list mode
+					if (options.listMode) {
+						this.items[event.id].labels[options.listMode] = true;
+					}
+
+					// If not a phantom, it's a duplicate
+					if (!this.items[event.id].phantom) {
+
+						// Don't need to insert it though
+						continue;
+					}
+
+					delete this.items[event.id];
+				}
 			}
 
 			/* Handle special events */
@@ -438,6 +470,13 @@ class Feed {
 
 				continue;
 
+			} else if (event.kind === 34550) {
+
+				if (this.communityListener) {
+
+					this.communityListener(event);
+				}
+
 			}
 
 			let eroot, ereply
@@ -491,6 +530,11 @@ class Feed {
 				labels: {},
 				author: this.metadata[event.pubkey] ? this.metadata[event.pubkey].profile : undefined
 			};
+
+			if (approval) {
+
+				this.items[event.id].approval = approval;
+			}
 
 			if (options.listMode) {
 
@@ -796,6 +840,11 @@ class Feed {
 	listenForDM (handler) {
 
 		this.dmListener = handler;
+	}
+
+	listenForCommunity (handler) {
+
+		this.communityListener = handler;
 	}
 
 	// Listen for relay EOSE notice

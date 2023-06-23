@@ -185,7 +185,8 @@ const styles = {
 			padding: mobile ? '8px 14px' : '8px 14px',
 			fontSize: 12,
 			userSelect: 'none',
-			border: `1px solid ${COLORS.secondary}`
+			borderRadius: 5,
+			border: `0.5px solid ${COLORS.secondary}`
 		};
 	},
 
@@ -201,7 +202,7 @@ const styles = {
 
 	label: ({ mobile }) => {
 		return {
-			color: '#fff',
+			color: COLORS.satelliteGold,
 			fontSize: 12,
 			marginBottom: 6,
 			fontFamily: 'JetBrains-Mono-Bold',
@@ -214,7 +215,7 @@ const styles = {
 			fontFamily: 'JetBrains-Mono-Regular',
 			marginBottom: mobile ? 16 : 16,
 			width: '100%',
-			background: hover || focus ? 'rgba(47, 54, 61, 0.25)' : 'transparent',
+			background: /*hover || focus*/true ? 'rgba(47, 54, 61, 0.25)' : 'transparent',
 			border: `1px dotted ${COLORS.secondary}`,
 			outline: 'none',
 			color: 'rgba(255,255,255,0.85)',

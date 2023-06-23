@@ -81,7 +81,7 @@ class Author extends PureComponent {
 
 	renderName = () => {
 
-		let name = this.props.displayName || this.props.name;
+		let name = this.props.display_name || this.props.displayName || this.props.name;
 		let npub;
 
 		if (!name && this.props.pubkey) {

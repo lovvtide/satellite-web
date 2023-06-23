@@ -161,6 +161,27 @@ class AliasMenu extends PureComponent {
 		) : null;
 	};
 
+	renderCommunitiesAction = () => {
+
+		const { signedIn } = this.props;
+		const text = 'Communities';
+
+		return signedIn ? (
+			<div
+				onClick={() => this.props.viewSidePanel('communities')}
+				onMouseOver={() => this.setState({ hover: text })}
+				onMouseOut={() => this.setState({ hover: '' })}
+			>
+				<Icon style={styles.actionIcon(this.state.hover === text)} name='globe' />
+				<div
+					style={styles.link(text === this.state.hover)}
+				>
+					<span>{text}</span>
+				</div>
+			</div>
+		) : null;
+	};
+
 	render = () => {
 
 		const { signedIn } = this.props;
@@ -181,6 +202,7 @@ class AliasMenu extends PureComponent {
 							{this.renderMessagesAction()}
 							{this.renderRelaysAction()}
 							{this.renderMediaAction()}
+							{this.renderCommunitiesAction()}
 						</div>
 					</div>
 				</div>

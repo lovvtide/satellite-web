@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { Popup } from 'semantic-ui-react';
 import autosize from 'autosize';
 
 import ProfileQuery from './ProfileQuery';
@@ -30,7 +31,7 @@ class Editor extends PureComponent {
 
 		this.handleAutosize();
 
-		if (this.props.id) {
+		if (this.props.id && !this.props.disableAutoFocus) {
 
 			const composeNewEditor = document.getElementById(this.props.id);
 
@@ -362,6 +363,30 @@ class Editor extends PureComponent {
 
 		const trimmed = this.state.value.trim();
 
+		/*
+		const sendButtonElement = (
+			<Button
+				text={this.props.confirmText || 'SEND'}
+				disabledOpacity={1}
+				disableStatusMessage
+				status=''
+				//status={trimmed && !this.state.pendingUploads ? '' : 'disabled'}
+				color={trimmed && !this.state.pendingUploads && !this.props.disableSendHighlight ? COLORS.satelliteGold : (trimmed || this.props.disableSendHighlight ? '#fff' : 'rgba(255,255,255,0.85)')}
+				style={{ fontSize: this.props.mobile ? 14 : 12, border: 'none', marginRight: this.props.mobile ? 0 : -9, fontFamily: trimmed || this.props.disableSendHighlight ? 'JetBrains-Mono-Bold' : 'JetBrains-Mono-Regular', ...transition(0.2, 'ease', [ 'color']) }}
+				chevronStyle={{ color: trimmed && !this.props.disableSendHighlight ? COLORS.satelliteGold : (trimmed || this.props.disableSendHighlight ? '#fff' : 'rgba(255,255,255,0.85)'), ...transition(0.2, 'ease', [ 'border' ]) }}
+				onClick={this.handlePost}
+				chevronRight
+			/>
+		);
+		*/
+
+		// const sendButton = this.props.sendButtonPopup ? (
+		// 	<Popup
+		// 		trigger={sendButtonElement}
+		// 		content={sendButtonPopup}
+		// 	/>
+		// ) : sendButtonElement;
+
 		return (
 			<div style={{ ...styles.container, ...(this.props.style) }}>
 				{/*{this.renderAttachedMediaPreview()}*/}
@@ -407,7 +432,7 @@ class Editor extends PureComponent {
 					}}>
 						{/*{this.renderUploadButton()}*/}
 					</div>
-					<div style={{ display: 'flex' }}>
+					<div style={{ display: 'flex', ...(this.props.actionsStyle || {}) }}>
 						{this.props.showCancel && !this.state.sending ? (this.state.confirmCancel ? (
 							<ConfirmInline
 								style={{ marginTop: 6, fontSize: 12, fontFamily: 'JetBrains-Mono-Regular' }}
@@ -426,17 +451,20 @@ class Editor extends PureComponent {
 								onClick={() => this.handleCancel(!trimmed)}
 							/>
 						)) : null}
-						{!this.state.sending && !this.state.confirmCancel ? (<Button
-							text='SEND'
-							disabledOpacity={1}
-							disableStatusMessage
-							status={trimmed && !this.state.pendingUploads ? '' : 'disabled'}
-							color={trimmed && !this.state.pendingUploads ? COLORS.satelliteGold : (trimmed ? '#fff' : 'rgba(255,255,255,0.85)')}
-							style={{ fontSize: this.props.mobile ? 14 : 12, border: 'none', marginRight: this.props.mobile ? 0 : -9, fontFamily: trimmed ? 'JetBrains-Mono-Bold' : 'JetBrains-Mono-Regular', ...transition(0.2, 'ease', [ 'color']) }}
-							chevronStyle={{ color: trimmed ? COLORS.satelliteGold : (trimmed ? '#fff' : 'rgba(255,255,255,0.85)'), ...transition(0.2, 'ease', [ 'border' ]) }}
-							onClick={this.handlePost}
-							chevronRight
-						/>) : null}
+						{!this.state.sending && !this.state.confirmCancel ? (
+							<Button
+								text={this.props.confirmText || 'SEND'}
+								disabledOpacity={1}
+								disableStatusMessage
+								status=''
+								//status={trimmed && !this.state.pendingUploads ? '' : 'disabled'}
+								color={trimmed && !this.state.pendingUploads && !this.props.disableSendHighlight ? COLORS.satelliteGold : (trimmed || this.props.disableSendHighlight ? '#fff' : 'rgba(255,255,255,0.85)')}
+								style={{ fontSize: this.props.mobile ? 14 : 12, border: 'none', marginRight: this.props.mobile ? 0 : -9, fontFamily: trimmed || this.props.disableSendHighlight ? 'JetBrains-Mono-Bold' : 'JetBrains-Mono-Regular', ...transition(0.2, 'ease', [ 'color']) }}
+								chevronStyle={{ color: trimmed && !this.props.disableSendHighlight ? COLORS.satelliteGold : (trimmed || this.props.disableSendHighlight ? '#fff' : 'rgba(255,255,255,0.85)'), ...transition(0.2, 'ease', [ 'border' ]) }}
+								onClick={this.handlePost}
+								chevronRight
+							/>
+						) : null}
 					</div>
 				</div>)}
 			</div>
@@ -485,7 +513,7 @@ const styles = {
 			overflow: 'hidden',
 			fontFamily: 'Lexend-Deca-Regular',
 			lineHeight: '22px',
-			'WebkitFontSmoothing': 'antialiased',
+			//'WebkitFontSmoothing': 'antialiased',
 			marginLeft: mobile ? (replyTo ? -12 : -24) : 0,
 			fontSize: mobile ? 15 : null
 		};

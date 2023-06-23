@@ -182,8 +182,6 @@ class Client {
 				
 				pub.on(status, () => {
 
-					console.log('status', status);
-
 					handleStatus(status, relay);
 				});
 			}
@@ -257,6 +255,11 @@ class Client {
 			feed.listenForDM(handlers.onDM);
 		}
 
+		if (handlers.onCommunity) {
+
+			feed.listenForCommunity(handlers.onCommunity)
+		}
+
 		// Listen for user's contacts
 		feed.listenForContacts(pubkey, ({ contacts, content }) => {
 
@@ -319,10 +322,10 @@ class Client {
 
 		});
 
-		// Pull metadata, contacts, for user
+		// Pull metadata, contacts, communities, for user
 		this.subscribe(profileFeedName, feed, [{
 			authors: [ pubkey ],
-			kinds: [ 0, 3 ]
+			kinds: [ 0, 3, 34550 ]
 		}]);
 
 		// Pull direct messages for user
@@ -599,6 +602,8 @@ class Client {
 
 		const tags = this.populateReplyTags(params);
 
+		this.populateMentionTags(tags, post.content);
+
 		return {
 			...post,
 			kind: 1,
@@ -660,7 +665,34 @@ class Client {
 			kind: 7,
 			tags
 		};
+	}
 
+	/* Community */
+	type34550 (post, params) {
+
+		const tags = [ [ 'd', params.name ] ];
+
+		if (params.description) {
+			tags.push([ 'description', params.description ]);
+		}
+
+		if (params.image) {
+			tags.push([ 'image', params.image ]);
+		}
+
+		if (params.rules) {
+			tags.push([ 'rules', params.rules ]);
+		}
+
+		for (let pubkey of params.moderators) {
+			tags.push([ 'p', pubkey, '', 'moderator' ]);
+		}
+
+		return {
+			...post,
+			kind: 34550,
+			tags
+		};
 	}
 
 
@@ -803,6 +835,41 @@ class Client {
 			...etags,
 			...pubk.map(pubkey => { return [ 'p', pubkey ]; })
 		];
+	}
+
+	populateMentionTags (tags, content) {
+
+		const mentioned = {};
+
+		for (let s of content.split('nostr:')) {
+
+			if (s.indexOf('npub1') === 0) {
+
+				let pubkey;
+
+				try {
+
+					const decoded = nip19.decode(s.substring(0, 63));
+
+					if (decoded.type === 'npub') {
+						mentioned[decoded.data] = true;
+					}
+
+				} catch (err) {}
+			}
+		}
+
+		for (let tag of tags) {
+
+			if (tag[0] === 'p' && mentioned[tag[1]]) {
+				delete mentioned[tag[1]]
+			}
+		}
+
+		for (let p of Object.keys(mentioned)) {
+
+			tags.push([ 'p', p ]);
+		}	
 	}
 
 	normalizeKey (value) {

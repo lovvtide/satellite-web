@@ -13,7 +13,8 @@ const INITIAL_STATE = {
 		subscriptions: 'Following List',
 		relays: 'Relays',
 		dm: 'Messages',
-		media: 'Media'
+		media: 'Media',
+		communities: 'Communities'
 	},
 	subMode: {},
 	sections: [
@@ -37,6 +38,10 @@ const INITIAL_STATE = {
 			value: 'media',
 			icon: 'camera'
 		},
+		{
+			value: 'communities',
+			icon: 'globe'
+		}
 	]
 };
 
@@ -49,7 +54,10 @@ export default (state = INITIAL_STATE, action) => {
 		case '@@router/LOCATION_CHANGE':
 			return {
 				...state,
-				topMode: null
+				topMode: null,
+				// mobileMenuOpen: false,
+				// showAliasMenuMobile: false,
+				// mobileDimmer: false
 			};
 
 		case SET_MOBILE_MENU_OPEN:

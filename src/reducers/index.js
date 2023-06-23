@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux';
 import { connectRouter } from 'connected-react-router';
 
+import communities from './communities';
 import dm from './dm';
 import app from './app';
 import files from './files';
@@ -11,6 +12,7 @@ import query from './query';
 
 export default (history) => combineReducers({
 	router: connectRouter(history),
+	communities,
 	dm,
 	app,
 	files,

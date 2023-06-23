@@ -47,7 +47,7 @@ class Modal extends PureComponent {
 				style={styles.container(this.props, this.state)}
 				onClick={this.props.closeOnDimmerClick ? this.props.handleClose : null}
 			>
-				<div style={this.props.mobile ? styles.contentMobile(this.props) : styles.content(this.props)} onClick={e => e.stopPropagation()}>
+				<div style={{ ...(this.props.mobile ? styles.contentMobile(this.props) : styles.content(this.props)), ...(this.props.contentStyle || {}) }} onClick={e => e.stopPropagation()}>
 					{this.props.children}
 				</div>
 			</div>

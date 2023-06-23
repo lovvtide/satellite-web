@@ -160,6 +160,22 @@ class AliasMenuMobile extends PureComponent {
 		) : null;
 	};
 
+	renderCommunitiesAction = () => {
+		const { signedIn } = this.props;
+		const text = 'Communities';
+		return signedIn ? (
+			<div>
+				<Icon style={styles.actionIcon} name='globe' />
+				<div
+					style={styles.link(false)}
+					onClick={() => this.props.viewSidePanel('communities')}
+				>
+					<span>{text}</span>
+				</div>
+			</div>
+		) : null;
+	};
+
 	renderAuthAction = () => {
 
 		return (
@@ -252,6 +268,7 @@ class AliasMenuMobile extends PureComponent {
 						{this.renderMessagesAction()}
 						{this.renderRelaysAction()}
 						{this.renderMediaAction()}
+						{this.renderCommunitiesAction()}
 						{this.renderAuthAction()}
 					</div>
 				</div>

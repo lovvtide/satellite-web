@@ -321,6 +321,7 @@ export const receiveDM = (data) => {
 export const SET_PENDING_CONTACTS = 'SET_PENDING_CONTACTS';
 export const LOAD_ACTIVE_NOSTR = 'LOAD_ACTIVE_NOSTR';
 export const RECEIVE_DM_METADATA = 'RECEIVE_DM_METADATA';
+export const RECEIVE_COMMUNITY_EVENT = 'RECEIVE_COMMUNITY_EVENT';
 export const loadActiveNostr = (callback) => { // load active address / alias
 
 	return async (dispatch, getState) => {
@@ -365,6 +366,14 @@ export const loadActiveNostr = (callback) => { // load active address / alias
 		});
 
 		dispatch(nostrProfileInit(window.client.listenForProfile(pubkey, {
+
+			onCommunity: (event) => {
+
+				dispatch({
+					type: RECEIVE_COMMUNITY_EVENT,
+					data: { event, pubkey }
+				});
+			},
 
 			onDM: (event) => {
 
@@ -838,6 +847,10 @@ export const handleNostrPublish = async (post, params, feeds = [], attached = {}
 	} else if (post.kind === 0) { // Metadata
 
 		data = await window.client.type0(post);
+
+	} else if (post.kind === 34550) { // Community definition
+
+		data = await window.client.type34550(post, params);		
 	}
 
 	const event = await window.client.createEvent(data, {
@@ -865,7 +878,7 @@ export const handleNostrPublish = async (post, params, feeds = [], attached = {}
 
 			} else if (status === 'failed') {
 
-				reject();
+				//reject();
 			}
 
 		});
