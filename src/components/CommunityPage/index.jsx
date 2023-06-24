@@ -202,7 +202,7 @@ class CommunityPage extends PureComponent {
 					[ 'a', `34550:${this.props.ownerpubkey}:${this.props.name}` ],
 					[ 'e', item.event.id ],
 					[ 'p', item.event.pubkey ],
-					[ 'k', item.event.kind ]
+					[ 'k', String(item.event.kind) ]
 				]
 			}, {
 				privateKey: getLocalPrivateKey()
@@ -220,11 +220,7 @@ class CommunityPage extends PureComponent {
 
 			await new Promise((resolve, reject) => {
 				window.client.publishEvent(event, (status, relay) => {
-					if (status === 'ok' || status === 'seen') {
-						resolve();
-					} else if (status === 'failed') {
-						//reject();
-					}
+					console.log(status, relay.url);
 				});
 			});
 
