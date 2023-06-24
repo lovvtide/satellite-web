@@ -109,10 +109,11 @@ class Header extends PureComponent {
           paddingLeft: mobile ? 12 : 24,
           paddingRight: mobile ? 12 : 24,
           background: COLORS.primary,
-          width: mobile ? this.props.clientWidth : this.props.clientWidth - (12 + MENU_WIDTH),
+          //width: mobile ? this.props.clientWidth : this.props.clientWidth - (12 + MENU_WIDTH),
           justifyContent: 'space-between',
           boxShadow: `${COLORS.primary} 0px 16px 16px 0px`,
-          zIndex: 2
+          zIndex: 2,
+          width: '100%'
         }}
       >
         {this.renderMode()}
