@@ -16,6 +16,7 @@ class NewPost extends PureComponent {
 
 		const { title, link } = this.state;
 
+		/*
 		if (!title) {
 
 			this.setState({
@@ -24,6 +25,7 @@ class NewPost extends PureComponent {
 
 			return;
 		}
+		*/
 
 		const data = {
 			kind: 1,
@@ -164,7 +166,7 @@ class NewPost extends PureComponent {
 						borderLeft: this.props.mobile ? 'none' : `6px solid rgb(29, 30, 31)`
 					}}>
 						<div style={styles.label}>
-							TITLE <span style={{ marginLeft: 3 }}>(REQUIRED)</span>
+							TITLE
 						</div>
 						<input
 							style={styles.input}
@@ -172,7 +174,7 @@ class NewPost extends PureComponent {
 							onChange={this.handleTitleChange}
 						/>
 						<div style={styles.label}>
-							LINK <span style={{ color: COLORS.secondaryBright, marginLeft: 3 }}>(OPTIONAL)</span>
+							LINK
 						</div>
 						<input
 							style={styles.input}
@@ -180,7 +182,7 @@ class NewPost extends PureComponent {
 							onChange={this.handleLinkChange}
 						/>
 						<div style={styles.label}>
-							TEXT <span style={{ color: COLORS.secondaryBright, marginLeft: 3 }}>(OPTIONAL)</span>
+							TEXT
 						</div>
 						<Editor
 							rows={5}

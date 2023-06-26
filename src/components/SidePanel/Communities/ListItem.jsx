@@ -29,7 +29,7 @@ class ListItem extends PureComponent {
 						<img
 							src={item.image}
 							style={{
-								//border: `1px dotted ${COLORS.secondary}`,
+								border: `1px dotted ${COLORS.secondary}`,
 								//backgroundImage: `url(${item.image})`,
 								//backgroundPosition: 'center center',
 								//backgroundSize: 'cover',

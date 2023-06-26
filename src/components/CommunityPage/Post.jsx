@@ -13,7 +13,7 @@ class Post extends PureComponent {
 
 	state = {};
 
-	renderTitle = (title) => {
+	renderTitle = (title, content) => {
 
 		return (
 			<div
@@ -26,16 +26,29 @@ class Post extends PureComponent {
 				<Link
 					to={`${this.props.base}/${nip19.noteEncode(this.props.event.id)}`}
 				>
-					<span
-						onMouseOver={() => this.setState({ hover: 'title' })}
-						onMouseOut={() => this.setState({ hover: '' })}
-						style={{
-							textDecoration: this.state.hover === 'title' ? 'underline' : 'none',
-							color: '#fff'
-						}}
-					>
-						{title || 'Untitled Post'}
-					</span>
+					{title ? (
+						<span
+							onMouseOver={() => this.setState({ hover: 'title' })}
+							onMouseOut={() => this.setState({ hover: '' })}
+							style={{
+								textDecoration: this.state.hover === 'title' ? 'underline' : 'none',
+								color: '#fff'
+							}}
+						>
+							{title || 'Untitled Post'}
+						</span>
+					) : (
+						<span
+							onMouseOver={() => this.setState({ hover: 'title' })}
+							onMouseOut={() => this.setState({ hover: '' })}
+							style={{
+								textDecoration: this.state.hover === 'title' ? 'underline' : 'none',
+								color: '#fff'
+							}}
+						>
+							{content.length > 300 ? content.substring(0, 300) + '...' : content}
+						</span>
+					)}
 				</Link>
 			</div>
 		);
@@ -148,7 +161,7 @@ class Post extends PureComponent {
 					display: 'flex',
 					justifyContent: 'space-between'
 				}}>
-					{this.renderTitle(title)}
+					{this.renderTitle(title, this.props.event.content)}
 					{this.renderApproveAction()}
 				</div>
 				{this.renderLink(link)}
