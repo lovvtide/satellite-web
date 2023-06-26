@@ -76,13 +76,14 @@ class CommunityList extends PureComponent {
 								width: '100%',
 								backgroundSize: 'cover',
 								backgroundPosition: 'center',
-								border: `1px dotted ${COLORS.secondary}`
+								border: `0.5px solid ${COLORS.secondary}`
 							}}
 						/>
 						<div style={{
 							display: 'flex',
 							alignItems: 'center',
-							marginTop: 6
+							marginTop: 6,
+							whiteSpace: 'nowrap'
 						}}>
 							<div style={{
 								fontSize: 14,
