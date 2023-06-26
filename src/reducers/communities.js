@@ -1,5 +1,6 @@
 import {
-	RECEIVE_COMMUNITY_EVENT
+	RECEIVE_COMMUNITY_EVENT,
+	RECEIVE_COMMUNITY_METADATA
 } from '../actions';
 
 // Get d-identifer community name
@@ -85,7 +86,8 @@ const receiveCommunityEvent = (state, { event, pubkey }) => {
 };
 
 const INITIAL_STATE = {
-	list: []
+	list: [],
+	metadata: {}
 };
 
 export default (state = INITIAL_STATE, action) => {
@@ -96,6 +98,15 @@ export default (state = INITIAL_STATE, action) => {
 
 		case RECEIVE_COMMUNITY_EVENT:
 			return receiveCommunityEvent(state, data);
+
+		case RECEIVE_COMMUNITY_METADATA:
+			return {
+				...state,
+				metadata: {
+					...state.metadata,
+					[data.pubkey]: data.profile
+				}
+			};
 
 		default:
 			return state;

@@ -181,7 +181,7 @@ class PublicationsNav extends PureComponent {
 		if (this.props.searchActive === 'frontpage') { return null; }
 
 		const modes = [
-			{ label: 'FEATURED', key: 'featured', color: '#fff', icon: svgearth, height: 18 },
+			{ label: 'COMMUNITIES', key: 'featured', color: '#fff', icon: svgearth, height: 18 },
 			{ label: 'FOLLOWING', key: 'following', color: '#fff', icon: /*svgstar*/svgfollowing, height: /*20*/33, marginRight: 6 }
 		];
 
@@ -235,7 +235,7 @@ const styles = {
 		return {
 			display: 'flex',
 			justifyContent: mobile ? 'space-evenly' : 'left',
-			alignItems: 'center',
+			alignItems: 'left',
 			background: COLORS.primary,
 			position: 'absolute',
 			top: NAV_HEIGHT,

@@ -7,6 +7,7 @@ import { initialize, showAliasMenuMobile, windowResize, handleNostrPublish, open
 import { NAV_HEIGHT } from './constants';
 import { transition } from './helpers';
 
+import CommunityList from './components/Nostr/CommunityList';
 import ComingSoon from './components/Nostr/ComingSoon';
 import MediaHosting from './components/MediaHosting';
 import PublicationsNav from './components/DirectoryPage/PublicationsNav';
@@ -72,7 +73,15 @@ class App extends PureComponent {
     return mobile ? (
       <div>
         <PublicationsNav hidden={r === 'thread'} onSelectSort={() => { return; }} />
-        <FrontPageFeed hidden={r === 'thread'} style={{ paddingTop: 60 }} />
+        {this.props.mode === 'following' ? <FrontPageFeed hidden={r === 'thread'} style={{ paddingTop: 60 }} /> : (
+          <div style={{
+            paddingTop: 72,
+            paddingRight: 12,
+            paddingLeft: 12
+          }}>
+            <CommunityList/>
+          </div>
+        )}
       </div>
     ) : <DirectoryPage />;
   };
@@ -152,6 +161,7 @@ const mapState = ({ app, menu, nostr }) => {
 
   return {
     ...app,
+    mode: nostr.mode,
     zapRequest: nostr.zapRequest,
     metadata: nostr.metadata || {},
     main: nostr.main,

@@ -118,7 +118,9 @@ class Communities extends PureComponent {
 				paddingLeft: mobile ? 12 : 24,
 				paddingRight: mobile ? 12 : 24
 			}}>
-				{this.props.list.map(item => {
+				{this.props.list.filter(item => {
+					return item.founder || item.moderator;
+				}).map(item => {
 					return (
 						<ListItem
 							key={item.event.id}

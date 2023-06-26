@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Route } from 'react-router-dom';
 
 import WelcomeContent from '../Nostr/WelcomeContent';
+import CommunityList from '../Nostr/CommunityList';
 import FrontPageFeed from '../Nostr/FrontPageFeed';
 import PostFeed from '../Nostr/PostFeed';
 import PublicationsNav from './PublicationsNav';
@@ -210,7 +211,7 @@ class DirectoryPage extends PureComponent {
 
 	render = () => {
 
-		const { height, dirExpanded, awaitingData, showNavMeta, showContentNav, currentEpochOrdinal, contentWidth, clientWidth } = this.props;
+		const { height, dirExpanded, awaitingData, showNavMeta, showContentNav, currentEpochOrdinal, contentWidth, clientWidth, mode } = this.props;
 
 		return (
 			<div style={styles.container(height, dirExpanded, clientWidth, contentWidth)}>
@@ -225,7 +226,8 @@ class DirectoryPage extends PureComponent {
 					<TopLevelLinks />
 				</div>
 				<div id='dir_col_2' className='no-scroll' style={{ ...styles.col2(dirExpanded, height, this.state.listVisible, contentWidth), scrollbarWidth: 'none' }}>
-					{this.col2 ? <FrontPageFeed overflowContainer={this.col2} hideNsfw={!this.props.adminMode} parentWidth={this.col2.contentWidth} visible={this.state.listVisible} onSelect={this.handleSelectPubItem} /> : null}
+					{this.col2 && mode === 'following' ? <FrontPageFeed overflowContainer={this.col2} parentWidth={this.col2.contentWidth} visible={this.state.listVisible} onSelect={this.handleSelectPubItem} /> : null}
+					{this.col2 && mode === 'featured' ? <CommunityList overflowContainer={this.col2} parentWidth={this.col2.contentWidth} visible={this.state.listVisible} /> : null}
 				</div>
 				<div id='dir_col_3' style={styles.col3(dirExpanded, height, awaitingData, contentWidth, clientWidth)}>
 					{this.props.main ? (<Route exact path='/' component={WelcomeContent} />) : null}
@@ -245,6 +247,7 @@ const mapState = ({ app, nostr }) => {
 		showNavMeta: app.showNavMeta,
 		currentEpochOrdinal: 1, // TODO DEV ONLY this is hardcoded
 		main: nostr.main,
+		mode: nostr.mode,
 		dirExpanded: app.dirExpanded,
 		dirScroll: app.dirScroll,
 		height: app.minHeight,

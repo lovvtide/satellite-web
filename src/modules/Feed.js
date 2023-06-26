@@ -67,6 +67,9 @@ class Feed {
 		// <id> : { event, replies, ...<attrs> }
 		this.items = {};
 
+		// <d-ident:founder> : { <event> }
+		//this.communities = [];
+
 		// <pubkey> : <bool>
 		this.metadataRequested = {};
 
@@ -92,6 +95,7 @@ class Feed {
 		this.dms = {};
 
 		this._mod = 0;
+
 	}
 
 	/* Return an array of all items */
@@ -145,11 +149,14 @@ class Feed {
 		if (this.subscriptions[name][relay.url]) { // Found active sub
 
 			// Update filters with provided value
-			this.subscriptions[name][relay.url].req.sub(filters);
+			this.subscriptions[name][relay.url].req.sub(filters, { skipVerification: true });
 
 		} else { // Need to open a new sub
 
-			const req = relay.sub(filters, options);
+			const req = relay.sub(filters, {
+				...options,
+				skipVerification: true
+			});
 
 			// Pass received events to handler
 			req.on('event', event => {
@@ -472,11 +479,12 @@ class Feed {
 
 			} else if (event.kind === 34550) {
 
+
+
 				if (this.communityListener) {
 
 					this.communityListener(event);
 				}
-
 			}
 
 			let eroot, ereply

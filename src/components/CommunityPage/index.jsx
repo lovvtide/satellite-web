@@ -233,6 +233,24 @@ class CommunityPage extends PureComponent {
 	renderBanner = () => {
 
 		return this.state.image ? (
+			<div
+				id='banner_image'
+				style={{
+					backgroundImage: `url(${this.state.image})`,
+					height: this.props.mobile ? 150 : this.props.clientHeight - 196,
+					width: '100%',
+					backgroundSize: 'cover',
+					backgroundPosition: 'center',
+					border: `1px dotted ${COLORS.secondary}`,
+					zIndex: 1,
+					width: '100%',
+					marginTop: 1,
+					//marginBottom: -3
+				}}
+			/>
+		) : null;
+
+		return this.state.image ? (
 			<img
 				id='banner_image'
 				src={this.state.image}

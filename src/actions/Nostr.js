@@ -322,6 +322,7 @@ export const SET_PENDING_CONTACTS = 'SET_PENDING_CONTACTS';
 export const LOAD_ACTIVE_NOSTR = 'LOAD_ACTIVE_NOSTR';
 export const RECEIVE_DM_METADATA = 'RECEIVE_DM_METADATA';
 export const RECEIVE_COMMUNITY_EVENT = 'RECEIVE_COMMUNITY_EVENT';
+export const RECEIVE_COMMUNITY_METADATA = 'RECEIVE_COMMUNITY_METADATA';
 export const loadActiveNostr = (callback) => { // load active address / alias
 
 	return async (dispatch, getState) => {
@@ -513,6 +514,32 @@ export const nostrMainInit = () => {
 				return;
 			}
 
+			if (options.subscription === 'community_index') {
+
+				main.listenForMetadata('*', (pubkey, profile) => {
+
+					dispatch({
+						type: RECEIVE_COMMUNITY_METADATA,
+						data: {
+							pubkey,
+							profile
+						}
+					});
+
+				});
+
+				const { communities } = getState();
+
+				main.subscribe(`community_index_metadata`, relay, [{
+					authors: communities.list.map(item => {
+						return item.event.pubkey;
+					}),
+					kinds: [ 0 ]
+				}]);
+
+				return;
+			}
+
 			// Only create secondary subscriptions when
 			// the end of the primary feed is reached
 			if (options.subscription.indexOf('frontpage_primary') !== 0) { return; }
@@ -577,6 +604,19 @@ export const nostrMainInit = () => {
 					listMode
 				});
 			}
+		});
+
+		main.listenForCommunity(community => {
+
+			dispatch({
+				type: RECEIVE_COMMUNITY_EVENT,
+				data: { event: community }
+			});
+
+			// dispatch({
+			// 	type: DETECTED_COMMUNITY
+			// })
+
 		});
 
 		dispatch({ type: NOSTR_MAIN_INIT, data: { main } });
