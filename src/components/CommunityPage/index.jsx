@@ -237,15 +237,14 @@ class CommunityPage extends PureComponent {
 				id='banner_image'
 				style={{
 					backgroundImage: `url(${this.state.image})`,
-					height: this.props.mobile ? 150 : this.props.clientHeight - 196,
+					height: this.props.mobile ? 196 : this.props.clientHeight - 196,
 					width: '100%',
 					backgroundSize: 'cover',
 					backgroundPosition: 'center',
 					border: `1px dotted ${COLORS.secondary}`,
 					zIndex: 1,
 					width: '100%',
-					marginTop: 1,
-					//marginBottom: -3
+					marginTop: 1
 				}}
 			/>
 		) : null;
@@ -309,7 +308,7 @@ class CommunityPage extends PureComponent {
 							}}
 						>
 							<div>
-								{this.props.name}
+								n/{this.props.name}
 							</div>
 						</div>
 					</Link>

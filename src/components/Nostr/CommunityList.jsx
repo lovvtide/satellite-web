@@ -83,7 +83,9 @@ class CommunityList extends PureComponent {
 							display: 'flex',
 							alignItems: 'center',
 							marginTop: 6,
-							whiteSpace: 'nowrap'
+							whiteSpace: 'nowrap',
+							overflow: 'hidden',
+							textOverflow: 'ellipsis'
 						}}>
 							<div style={{
 								fontSize: 14,

@@ -99,7 +99,7 @@ class AdminEditor extends PureComponent {
     this.setState({
       name: target.value.split('').filter(c => {
         return c !== ' ';
-      }).join('').toLowerCase()
+      }).join('')
     });
   };
 
@@ -133,7 +133,7 @@ class AdminEditor extends PureComponent {
         {this.props.createNew ? (<div style={styles.section}>
           <div style={styles.label}>Name</div>
           <div style={styles.description}>
-            What should your community be called? (all-lowercase, no spaces)
+            What should your community be called? (no spaces)
           </div>
           <input
             disabled={!this.props.createNew}
