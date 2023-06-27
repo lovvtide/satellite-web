@@ -1,6 +1,6 @@
 # Satellite - Web Client for the Nostr Protocol
 
-![branding](/src/assets/branding.png)
+![branding](https://cdn.satellite.earth/e94560bd0bc38fb404cfaef7b73bc4b28170bdea262d65c91d1359bbe14ec93c.jpg)
 
 
 Live instance -> https://satellite.earth/
