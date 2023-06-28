@@ -22,15 +22,15 @@ const transform = (props) => {
 
 	const paragraph = (text) => {
 
-		return `<div ${stylize({
-			'margin-bottom': comment ? '4px' : '12px',
+		return `<p ${stylize({
+			'margin-bottom': comment ? '1em' : '12px',
 			//'-webkit-font-smoothing': 'antialiased',
 			'color': 'rgba(255,255,255,0.85)',
 			'font-family': 'Lexend-Deca-Regular',
 			'font-size': bio ? '14px' : (comment ? '14px' : '16px'),
-			'line-height': comment ? `21px` : `${EDITOR_LINE_HEIGHT}px`,
+			'line-height': comment ? `1.4` : `${EDITOR_LINE_HEIGHT}px`,
 			...(props.paragraphStyle || {})
-		})}>${text}</div>`;
+		})}>${text}</p>`;
 	};
 
 	r.heading = comment ? paragraph : (text, level) => {
