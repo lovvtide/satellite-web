@@ -511,6 +511,16 @@ export const nostrMainInit = () => {
 					}]);
 				}
 
+				const rootId = options.subscription.slice(5);
+				const rootItem = main.items[rootId];
+
+				if (rootItem && rootItem.replies) {
+
+					main.subscribe(`thread_quoted_${rootId}`, relay, [{
+						ids: window.client.getThreadRefs(rootItem)
+					}]);
+				}
+
 				return;
 			}
 

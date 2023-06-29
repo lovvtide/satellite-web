@@ -46,6 +46,23 @@ class Note extends PureComponent {
 				});
 			}
 
+
+			this.props.feed.listenForEose((relay, options) => {
+
+				if (options.subscription !== `post_${postId}`) { return; }
+
+				const rootItem = this.props.feed.items[postId];
+
+				if (rootItem && rootItem.replies) {
+
+					this.props.feed.subscribe(`thread_quoted_${postId}`, relay, [{
+						ids: window.client.getThreadRefs(rootItem)
+					}]);
+				}
+
+			});
+
+
 			window.client.subscribe(`post_${postId}`, this.props.feed, filters);
 
 			const banner = document.getElementById('banner_image');

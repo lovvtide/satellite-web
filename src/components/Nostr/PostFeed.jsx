@@ -89,7 +89,7 @@ class PostFeed extends PureComponent {
 					kinds: [ 7 ]
 				});
 			}
-
+			
 			window.client.subscribe(`post_${postId}`, this.props.main, filters);
 
 			// TODO listen for EOSE to load metadata for everyone involved

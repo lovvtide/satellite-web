@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Icon, Popup } from 'semantic-ui-react';
 import { nip19 } from 'nostr-tools';
+import { Link } from 'react-router-dom';
 
 import { InfoBox, CanonicalValue, Chevron } from '../CommonUI';
 import RelativeTime from '../common/RelativeTime';
@@ -42,50 +43,25 @@ class Item extends Component {
 		}
 
 		this.media = [];
+		this.ident = {};
 	}
 
 	componentDidMount = () => {
 
-		if (this.props.replaceTitle) {
-
-			let content = this.props.event.content;
-			let title, link;
-
-			for (let tag of this.props.event.tags) {
-
-				if (tag[0] === 'subject') {
-
-					title = tag[1];
-
-					if (this.props.event.content === title) {
-						content = '';
-					} else if (this.props.event.content.indexOf(`${tag[1]}\n\n`) === 0) {
-						content = this.props.event.content.slice(title.length + 2);
-					}
-				}
-			}
-
-			for (let tag of this.props.event.tags) {
-
-				if (tag[0] === 'r') {
-
-					link = tag[1];
-
-					if (this.props.event.content === link) {
-						content = '';
-					} else if (content.indexOf(`${tag[1]}\n\n`) === 0) {
-						content = content.slice(link.length + 2);
-					}
-				}
-			}
-
-			this.setState({
-				title,
-				link,
-				content
-			});
+		if (this.props.replaceTitle && this.props.event.tags) {
+			this.replaceTitle();
 		}
 	};
+
+	componentDidUpdate = (prevProps) => {
+
+		if (this.props.replaceTitle) {
+
+			if (this.props.event.tags && !prevProps.event.tags) {
+				this.replaceTitle();
+			}
+		}
+	}
 
 	componentWillUnmount = () => {
 
@@ -101,6 +77,46 @@ class Item extends Component {
 				item.removeEventListener('mouseleave', this.handleMediaMouseOut);
 			}
 		}
+	};
+
+	replaceTitle = () => {
+
+		let content = this.props.event.content;
+		let title, link;
+
+		for (let tag of this.props.event.tags) {
+
+			if (tag[0] === 'subject') {
+
+				title = tag[1];
+
+				if (this.props.event.content === title) {
+					content = '';
+				} else if (this.props.event.content.indexOf(`${tag[1]}\n\n`) === 0) {
+					content = this.props.event.content.slice(title.length + 2);
+				}
+			}
+		}
+
+		for (let tag of this.props.event.tags) {
+
+			if (tag[0] === 'r') {
+
+				link = tag[1];
+
+				if (this.props.event.content === link) {
+					content = '';
+				} else if (content.indexOf(`${tag[1]}\n\n`) === 0) {
+					content = content.slice(link.length + 2);
+				}
+			}
+		}
+
+		this.setState({
+			title,
+			link,
+			content
+		});
 	};
 
 	handleMediaPreviewClick = (e) => {
@@ -616,9 +632,9 @@ class Item extends Component {
 
 	renderReplies = () => {
 
-		const { depth, mobile, active, highlight, event, replies, handlePost, handleMobileReply, thread } = this.props;
+		const { depth, mobile, active, highlight, event, replies, handlePost, handleMobileReply, thread, quote } = this.props;
 
-		if (thread || !replies || replies.length === 0) { return null; }
+		if (thread || !replies || replies.length === 0 || quote) { return null; }
 
 		if (depth >= (mobile ? 10 : 20)) {
 
@@ -669,6 +685,8 @@ class Item extends Component {
 							author={item.author}
 							feedName={this.props.feedName}
 							showFullsizeMedia={this.props.profile && (this.props.profile === item.event.pubkey || item._repost || (item.upvotes && item.upvotes[this.props.profile]))}
+							items={this.props.items}
+							feedPostId={this.props.feedPostId}
 						/>
 					);
 				})}
@@ -694,6 +712,222 @@ class Item extends Component {
 			return null;
 		}
 
+		const replaced = (this.state.content || this.props.event.content).split('nostr:').map(s => {
+
+			let qid;
+
+			// TODO cache the results of transforming s -> qid
+			// as a performance optimization
+
+			if (s.indexOf('note1') === 0) {
+
+				qid = s.substring(0, 63);
+
+			} else if (s.indexOf('nevent1') === 0) {
+
+				const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz';
+
+				for (let c = 0; c < s.length; c++) {
+					if (alphanum.indexOf(s[c]) === -1) {
+						qid = s.substring(0, c);
+						break;
+					}
+				}
+
+				if (!qid) {
+
+					qid = s;
+				}
+
+			} else if (s.indexOf('npub1') === 0) {
+
+				return `nostr:${s}`;
+			}
+
+			if (!qid) { return s; }
+
+			if (this.ident[qid] === undefined) {
+
+				try {
+
+					const decoded = nip19.decode(qid);
+
+					if (decoded.type === 'note') {
+
+						this.ident[qid] = decoded.data;
+
+					} else if (decoded.type === 'nevent') {
+
+						this.ident[qid] = decoded.data.id;
+
+					} else {
+
+						this.ident[qid] = null;
+					}
+
+				} catch (err) {
+					this.ident[qid] = null;
+				}
+			}
+
+			if (this.ident[qid]) {
+
+				return `__replace__quote:${this.ident[qid]}${s.slice(qid.length)}__replace__`;
+			}
+
+			return s;
+
+		}).join('');
+
+		return (
+			<div>
+				{replaced.split('__replace__').map((markdown, index) => {
+				
+					const renderQuote = (id) => {
+
+						if (id === this.props.feedPostId) { return null; }
+
+						const item = this.props.items[id];
+						const nnote = nip19.noteEncode(id);
+
+						return item && !item.phantom ? (
+							<div
+								key={index}
+								onClick={(e) => {
+									e.preventDefault();
+									e.stopPropagation();
+									this.props.navigate(`/thread/${nnote}`);
+								}}
+								onMouseOver={(e) => {
+									this.setState({ hover: `quote_${id}` });
+								}}
+								onMouseOut={(e) => {
+									this.setState({ hover: '' });
+								}}
+								style={{
+									padding: 12,
+									border: `1px dotted ${COLORS.secondary}`,
+									borderRadius: 12,
+									marginTop: 12,
+									marginBottom: 12,
+									cursor: 'pointer',
+									background: this.state.hover === `quote_${id}` ? 'rgba(255,255,255,0.015)' : null
+								}}
+							>
+								<div style={{
+									pointerEvents: 'none'
+								}}>
+									<Item
+										quote
+										_mod={this.props._mod}
+										searchActive={this.props.searchActive}
+										depth={this.props.depth + 1}
+										index={0}
+										mobile={this.props.mobile}
+										active={this.props.active}
+										profile={this.props.profile}
+										event={item.event}
+										eroot={item.eroot}
+										replies={item.replies}
+										deleted={item.deleted}
+										phantom={item.phantom}
+										highlight={this.props.highlight}
+										repost={item._repost}
+										upvotes={item.upvotes}
+										handlePost={this.props.handlePost}
+										handleMobileReply={this.props.handleMobileReply}
+										navigate={this.props.navigate}
+										handleFollow={this.props.handleFollow}
+										handleQueryProfiles={this.props.handleQueryProfiles}
+										handleZapRequest={this.props.handleZapRequest}
+										contacts={this.props.contacts}
+										metadata={this.props.metadata}
+										author={item.author}
+										feedName={this.props.feedName}
+										//showFullsizeMedia={this.props.profile && (this.props.profile === item.event.pubkey || item._repost || (item.upvotes && item.upvotes[this.props.profile]))}
+										items={this.props.items}
+										feedPostId={this.props.feedPostId}
+									/>
+								</div>
+							</div>
+						) : (
+							<Link
+								to={`/thread/${nnote}`}
+								key={index}
+							>
+								<div
+									onMouseOver={() => this.setState({ hover: `quote_${id}` })}
+									onMouseOut={() => this.setState({ hover: '' })}
+									style={{
+										padding: 12,
+										border: `1px dotted ${COLORS.secondary}`,
+										borderRadius: 12,
+										marginTop: 12,
+										marginBottom: 12,
+										whiteSpace: 'nowrap',
+										overflow: 'hidden',
+										textOverflow: 'ellipsis',
+										color: COLORS.secondaryBright,
+										cursor: 'pointer',
+										background: this.state.hover === `quote_${id}` ? 'rgba(255,255,255,0.015)' : null
+									}}
+								>
+									<Icon
+										name='quote left'
+										style={{
+											fontSize: 13,
+											marginRight: 10
+										}}
+									/>
+									{nnote}
+								</div>
+							</Link>
+						);
+					};
+
+					let quoted;
+
+					if (markdown.indexOf('quote:') === 0) {
+
+						return (
+							<div key={index}>
+								{renderQuote(markdown.substring(6, 70))}
+								<MD
+									//key={index}
+									showFullsizeMedia={this.props.showFullsizeMedia}
+									showImagePreviews
+									attachMediaPreviewListeners={this.attachMediaPreviewListeners}
+									scriptContextId={this.contextId()}
+									markdown={markdown.slice(70)}
+									style={styles.text}
+									comment
+									mentions={mentions}
+									tags={this.props.event.tags}
+								/>
+							</div>
+						);
+					}
+
+					return (
+						<div key={index}>
+							<MD
+								showFullsizeMedia={this.props.showFullsizeMedia}
+								showImagePreviews
+								attachMediaPreviewListeners={this.attachMediaPreviewListeners}
+								scriptContextId={this.contextId()}
+								markdown={markdown}
+								style={styles.text}
+								comment
+								mentions={mentions}
+								tags={this.props.event.tags}
+							/>
+						</div>
+					);
+				})}
+			</div>
+		);
+
+		/*
 		return (
 			<div style={{
 				//marginTop: 24
@@ -711,6 +945,8 @@ class Item extends Component {
 				/>
 			</div>
 		);
+		*/
+		
 
 	};
 
@@ -742,10 +978,10 @@ class Item extends Component {
 
 	renderActions = () => {
 
-		const { repost, event, upvotes, active, thread } = this.props;
+		const { repost, event, upvotes, active, thread, quote } = this.props;
 		const { hover, pendingZapRequest } = this.state;
 
-		if (thread || this.state.compose || this.props.event.kind === 6) { return null; }
+		if (thread || quote || this.state.compose || this.props.event.kind === 6) { return null; }
 
 		const activeRepost = repost && repost.event.pubkey === active;
 		const ownEvent = event.pubkey === active;
@@ -935,7 +1171,8 @@ class Item extends Component {
 				</div>
 				<div style={styles.bodyContainer({
 					mobile: this.props.mobile,
-					thread: this.props.thread
+					thread: this.props.thread,
+					quote: this.props.quote
 				})}>
 					<div style={{ transform: 'translate(0px, -4px)' }}>
 						{this.renderBody()}
@@ -1129,10 +1366,10 @@ const styles = {
 		};
 	},
 
-	bodyContainer: ({ mobile, thread }) => {
+	bodyContainer: ({ mobile, thread, quote }) => {
 		return {
 			color: '#fff',
-			marginBottom: thread ? 0 : 16,
+			marginBottom: quote ? -4 : (thread ? 0 : 16),
 			marginTop: 8
 		};
 	}

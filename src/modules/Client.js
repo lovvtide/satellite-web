@@ -26,7 +26,6 @@ class Client {
 		// Prevent opening duplicate connection
 		for (let _relay of this.relays) {
 			if (_relay.url === url) {
-				//console.log('attempted to open dup');
 				return;
 			}
 		}
@@ -702,12 +701,14 @@ class Client {
 
 		const e = {};
 		const p = {};
+		const ids = {};
 
 		for (let event of events) {
 
 			e[event.id] = true;
 			p[event.pubkey] = true;
 
+			// Get notes to pubkeys and events from tags
 			for (let tag of (event.tags || [])) {
 
 				let gotRoot;
@@ -736,11 +737,14 @@ class Client {
 					}
 				}
 			}
+
+			Object.assign(ids, this.parseContentRefs(event.content)['e']);
 		}
 
 		return {
 			e: Object.keys(e),
-			p: Object.keys(p)
+			p: Object.keys(p),
+			ids: Object.keys(ids)
 		};
 	}
 
@@ -795,7 +799,64 @@ class Client {
 			}
 		}
 
+		if (ref.ids.length > 0) {
+
+			filters.push({
+				ids: ref.ids
+			});
+		}
+
 		return filters;
+	}
+
+	parseContentRefs (content) {
+
+		const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz';
+		const e = {};
+
+		// Parse references to events from content string
+		content.split('nostr:').forEach(s => {
+
+			let parsed;
+
+			if (s.indexOf('note1') === 0) {
+
+				parsed = s.substring(0, 63);
+
+			} else if (s.indexOf('nevent1') === 0) {
+
+				for (let c = 0; c < s.length; c++) {
+
+					if (alphanum.indexOf(s[c]) === -1) {
+
+						parsed = s.substring(0, c);
+						break;
+					}
+				}
+
+				if (!parsed) {
+					parsed = s;
+				}
+			}
+
+			if (parsed) {
+
+				try {
+
+					const decoded = nip19.decode(parsed);
+
+					if (decoded.type === 'note') {
+						e[decoded.data] = true;
+					} else if (decoded.type === 'nevent') {
+						e[decoded.data.id] = true;
+					}
+
+				} catch (err) {}
+			}
+
+		});
+
+		return { e };
 	}
 
 	populateReplyTags (replyTo) {
@@ -871,6 +932,32 @@ class Client {
 			tags.push([ 'p', p ]);
 		}	
 	}
+
+	getThreadRefs = (item, options = {}) => {
+
+		const ids = {};
+
+		const get = (replies) => {
+
+			for (let reply of replies) {
+
+				if (options.includeEventIds) {
+
+					ids[reply.event.id] = true;
+				}
+
+				if (reply.event.content) {
+					Object.assign(ids, this.parseContentRefs(reply.event.content)['e']);
+				}
+
+				get(reply.replies);
+			}
+		};
+
+		get([ item ]);
+
+		return Object.keys(ids);
+	};
 
 	normalizeKey (value) {
 
