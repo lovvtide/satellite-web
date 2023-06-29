@@ -88,7 +88,7 @@ const uploadAuth = await window.nostr.signEvent({
 
 // Prompt user to select a file to upload and
 // send it as the body of a PUT request 
-const response = await fetch(`https://api.satellite.earth/v1/media/account?auth=${encodeURIComponent(JSON.stringify(uploadAuth))}`, {
+const response = await fetch(`https://api.satellite.earth/v1/media/item?auth=${encodeURIComponent(JSON.stringify(uploadAuth))}`, {
   method: 'PUT',
   body: file
 });
