@@ -154,7 +154,8 @@ class Post extends PureComponent {
 		return (
 			<div
 				style={{
-					marginBottom: 14
+					marginBottom: 14,
+					overflowWrap: 'anywhere'
 				}}
 			>	
 				<div style={{
