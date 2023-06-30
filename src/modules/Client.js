@@ -20,12 +20,48 @@ class Client {
 
 	/* Core API */
 
-	// Connect to a relay
-	async connectToRelay ({ url }) {
+	async disconnectFromRelay (params) {
+		
+		const url = params.url[params.url.length - 1] === '/' ? params.url.slice(0, -1) : params.url;
 
 		// Prevent opening duplicate connection
 		for (let _relay of this.relays) {
+
 			if (_relay.url === url) {
+
+				_relay.close();
+
+				this.relays = this.relays.filter(item => {
+					return url !== item.url;
+				});
+
+				if (this.relayStatusListener) {
+
+					this.relayStatusListener({ url: params.url }, {
+						close: true
+					});
+				}
+
+				return;
+			}
+		}
+
+	}
+
+	// Connect to a relay
+	async connectToRelay (params) {
+
+		const url = params.url[params.url.length - 1] === '/' ? params.url.slice(0, -1) : params.url;
+
+		// Prevent opening duplicate connection
+		for (let _relay of this.relays) {
+
+			if (_relay.url === url) {
+
+				if (this.relayStatusListener && params.maintain) {
+					this.relayStatusListener({ url: params.url }, { maintain: true });
+				}
+
 				return;
 			}
 		}
@@ -50,11 +86,18 @@ class Client {
 
 			if (this.relayStatusListener) {
 
-				this.relayStatusListener(relay, {
+				const onConnectStatus = {
 					error: false,
 					connected: true,
 					connecting: false
-				});
+				};
+
+				if (params.maintain) {
+
+					onConnectStatus.maintain = true;
+				}
+
+				this.relayStatusListener(relay, onConnectStatus);
 			}
 
 			Object.keys(this.subscriptions).forEach(name => {
@@ -539,7 +582,10 @@ class Client {
 					profile.pubkey = _nprofile.data.pubkey;
 				}
 
+				console.log('_nprofile', _nprofile)
+
 				if (_nprofile.data.relays) {
+
 					profile.relays = _nprofile.data.relays;
 				}
 

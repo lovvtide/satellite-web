@@ -29,7 +29,8 @@ class ProfileFeed extends PureComponent {
 		composeNewPostReady: false,
 		loadMorePending: true,
 		loadedMetadata: false,
-		metadata: {}
+		metadata: {},
+		profileRelays: []
 	};
 
 	constructor (props) {
@@ -45,6 +46,8 @@ class ProfileFeed extends PureComponent {
 	};
 
 	componentWillUnmount = () => {
+
+		this.disconnectProfileRelays();
 
 		this.props.setProfilePubkey(null);
 
@@ -73,6 +76,8 @@ class ProfileFeed extends PureComponent {
 
 		if (this.props.match.params.alias !== prevProps.match.params.alias) {
 
+			this.disconnectProfileRelays();
+
 			this.setState({
 				hover: '',
 				feed: null,
@@ -80,12 +85,20 @@ class ProfileFeed extends PureComponent {
 				composeNewPost: false,
 				composeNewPostReady: false,
 				loadedMetadata: false,
-				metadata: {}
+				metadata: {},
+				profileRelays: []
 			});
 
 			this._reload = setTimeout(() => {
 				this.handleLoad();
 			}, 200);
+		}
+	};
+
+	disconnectProfileRelays = () => {
+
+		for (let url of this.state.profileRelays) {
+			window.client.disconnectFromRelay({ url });
 		}
 	};
 
@@ -103,6 +116,15 @@ class ProfileFeed extends PureComponent {
 		const profile = await window.client.identify(this.props.match.params.alias, {
 			defaultDomain: 'satellite.earth'
 		});
+
+		if (profile && profile.relays) {
+
+			for (let relay of profile.relays) {
+
+				this.setState({ profileRelays: profile.relays });
+				window.client.connectToRelay({ url: relay });
+			}
+		}
 
 		if (profile && profile.pubkey) {
 

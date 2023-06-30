@@ -423,7 +423,7 @@ export const loadActiveNostr = (callback) => { // load active address / alias
 				}
 
 				if (userRelays) {
-					connectToRelays(userRelays);
+					connectToRelays(userRelays, { maintain: true });
 				}
 
 				const _contacts = contacts.filter(p => {
@@ -464,14 +464,14 @@ export const loadActiveNostr = (callback) => { // load active address / alias
 	};
 };
 
-export const connectToRelays = (relays) => {
+export const connectToRelays = (relays, params = {}) => {
 
 	for (let url of relays) {
 
 		try {
 
 			// Connect to Satellite relay
-			window.client.connectToRelay({ url });
+			window.client.connectToRelay({ url, ...params });
 
 		} catch (err) {
 
@@ -481,6 +481,7 @@ export const connectToRelays = (relays) => {
 };
 
 export const RELAY_STATUS = 'RELAY_STATUS';
+export const RELAY_CLOSE = 'RELAY_CLOSE';
 export const NOSTR_MAIN_INIT = 'NOSTR_MAIN_INIT';
 export const RELAY_CONNECTED = 'RELAY_CONNECTED';
 export const SHOW_NAV_ACTIONS = 'SHOW_NAV_ACTIONS';
@@ -489,11 +490,20 @@ export const nostrMainInit = () => {
 	return (dispatch, getState) => {
 
 		window.client.listenForRelayStatus((relay, status) => {
-			dispatch({ type: RELAY_STATUS, data: { relay, status } });
+
+			if (status.close) {
+
+				dispatch({ type: RELAY_CLOSE, data: relay });
+
+			} else {
+
+				dispatch({ type: RELAY_STATUS, data: { relay, status } });
+			}
+
 		});
 
 		// Connect to default relays
-		connectToRelays(DEFAULT_RELAYS);
+		connectToRelays(DEFAULT_RELAYS, { maintain: true });
 
 		const main = new Feed();
 		

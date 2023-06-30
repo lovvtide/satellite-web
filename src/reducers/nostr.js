@@ -9,6 +9,7 @@ import {
 	SET_ROOT_POST_AUTHOR,
 	SET_FRONTPAGE_MODE,
 	RELAY_STATUS,
+	RELAY_CLOSE,
 	SET_PENDING_CONTACTS,
 	SHOW_ZAP_REQUEST,
 	LOAD_ACTIVE_NOSTR,
@@ -60,6 +61,22 @@ export default (state = {}, action) => {
 						...data.status
 					}
 				}
+			};
+
+		case RELAY_CLOSE:
+
+			const _relays = {};
+			const _url = data.url[data.url.length - 1] === '/' ? data.url.slice(0, -1) : data.url;
+
+			for (let url of Object.keys(state.relays || {})) {
+				if (url !== _url) {
+					_relays[url] = state.relays[url];
+				}
+			}
+
+			return {
+				...state,
+				relays: _relays
 			};
 
 		case SET_PENDING_CONTACTS:

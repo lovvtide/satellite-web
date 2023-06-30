@@ -403,7 +403,7 @@ class Feed {
 					}).map(tag => {
 						return tag[1];
 					});
-
+					
 					this.contacts[event.pubkey] = {
 						created_at: event.created_at,
 						content: event.content || '',
