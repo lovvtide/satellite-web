@@ -46,7 +46,6 @@ class Note extends PureComponent {
 				});
 			}
 
-
 			this.props.feed.listenForEose((relay, options) => {
 
 				if (options.subscription !== `post_${postId}`) { return; }
@@ -55,13 +54,35 @@ class Note extends PureComponent {
 
 				if (rootItem && rootItem.replies) {
 
-					this.props.feed.subscribe(`thread_quoted_${postId}`, relay, [{
-						ids: window.client.getThreadRefs(rootItem)
-					}]);
+					const ref = window.client.getThreadRefs(rootItem, {
+						includeEventIds: true,
+						includeParsedIds: true
+					});
+
+					const parsedIds = Object.keys(ref.parsed);
+					const eventIds = Object.keys(ref.events);
+					const filters = [];
+
+					if (parsedIds.length > 0) {
+						filters.push({
+							ids: parsedIds
+						});
+					}
+
+					if (eventIds.length > 0) {
+						filters.push({
+							kinds: [ 1 ],
+							'#e': eventIds
+						});
+					}
+
+					if (filters.length > 0) {
+
+						this.props.feed.subscribe(`thread_extra_${postId}`, relay, filters);
+					}
 				}
 
 			});
-
 
 			window.client.subscribe(`post_${postId}`, this.props.feed, filters);
 

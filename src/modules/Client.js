@@ -981,7 +981,8 @@ class Client {
 
 	getThreadRefs = (item, options = {}) => {
 
-		const ids = {};
+		const events = {};
+		const parsed = {};
 
 		const get = (replies) => {
 
@@ -989,11 +990,11 @@ class Client {
 
 				if (options.includeEventIds) {
 
-					ids[reply.event.id] = true;
+					events[reply.event.id] = true;
 				}
 
-				if (reply.event.content) {
-					Object.assign(ids, this.parseContentRefs(reply.event.content)['e']);
+				if (options.includeParsedIds && reply.event.content) {
+					Object.assign(parsed, this.parseContentRefs(reply.event.content)['e']);
 				}
 
 				get(reply.replies);
@@ -1001,8 +1002,8 @@ class Client {
 		};
 
 		get([ item ]);
-
-		return Object.keys(ids);
+		
+		return { events, parsed };
 	};
 
 	normalizeKey (value) {

@@ -526,9 +526,32 @@ export const nostrMainInit = () => {
 
 				if (rootItem && rootItem.replies) {
 
-					main.subscribe(`thread_quoted_${rootId}`, relay, [{
-						ids: window.client.getThreadRefs(rootItem)
-					}]);
+					const ref = window.client.getThreadRefs(rootItem, {
+						includeEventIds: true,
+						includeParsedIds: true
+					});
+
+					const parsedIds = Object.keys(ref.parsed);
+					const eventIds = Object.keys(ref.events);
+					const filters = [];
+
+					if (parsedIds.length > 0) {
+						filters.push({
+							ids: parsedIds
+						});
+					}
+
+					if (eventIds.length > 0) {
+						filters.push({
+							kinds: [ 1 ],
+							'#e': eventIds
+						});
+					}
+
+					if (filters.length > 0) {
+
+						main.subscribe(`thread_extra_${rootId}`, relay, filters);
+					}
 				}
 
 				return;
