@@ -86,6 +86,12 @@ class Author extends PureComponent {
 
 		if (!name && this.props.pubkey) {
 
+			// Workaround to prevent crash caused by another
+			// client improperly encodings pubkey in p tag
+			if (this.props.pubkey.indexOf('npub1') === 0) {
+				return '';
+			}
+
 			const encoded = nip19.npubEncode(this.props.pubkey);
 			name = encoded.slice(0, 8) + '...' + encoded.slice(-4);
 			npub = true;
