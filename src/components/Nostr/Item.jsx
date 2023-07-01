@@ -1095,7 +1095,7 @@ class Item extends Component {
 
 		const { upvotes, thread, selected, event, highlight, phantom, recent, deleted, repost, active, mobile, topLevel, profile } = this.props;
 
-		if (recent || (event && event.kind === 7)) { return null; }
+		if (/*recent*/false || (event && event.kind === 7)) { return null; }
 
 		if (phantom) {
 

@@ -177,6 +177,8 @@ class Feed extends PureComponent {
 
 	renderLoadRecent = () => {
 
+		return null; // TODO fix recent indicator
+
 		const { recent, _blink } = this.state;
 
 		return (
