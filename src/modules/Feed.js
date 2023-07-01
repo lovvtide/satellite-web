@@ -479,8 +479,6 @@ class Feed {
 
 			} else if (event.kind === 34550) {
 
-				console.log('kind 34550', event);
-
 				if (this.communityListener) {
 
 					this.communityListener(event);
