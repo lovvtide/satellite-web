@@ -318,6 +318,11 @@ export const receiveDM = (data) => {
 	return { type: RECEIVE_DM, data };
 };
 
+export const RECEIVE_NOTIFICATIONS = 'RECEIVE_NOTIFICATIONS';
+export const receiveNotifications = (data) => {
+	return { type: RECEIVE_NOTIFICATIONS, data };
+};
+
 export const SET_PENDING_CONTACTS = 'SET_PENDING_CONTACTS';
 export const LOAD_ACTIVE_NOSTR = 'LOAD_ACTIVE_NOSTR';
 export const RECEIVE_DM_METADATA = 'RECEIVE_DM_METADATA';
@@ -374,6 +379,11 @@ export const loadActiveNostr = (callback) => { // load active address / alias
 					type: RECEIVE_COMMUNITY_EVENT,
 					data: { event, pubkey }
 				});
+			},
+
+			onNotify: (events = []) => {
+
+				dispatch(receiveNotifications({ events }));
 			},
 
 			onDM: (event) => {

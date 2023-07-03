@@ -1,3 +1,5 @@
+import { nip19 } from 'nostr-tools';
+
 
 /* Model of a threaded feed of events */
 
@@ -66,6 +68,12 @@ class Feed {
 
 		// <id> : { event, replies, ...<attrs> }
 		this.items = {};
+
+		// <id>: <bool>
+		this.seen = {};
+
+		// <id>: <bool>
+		this._containsMention = {};
 
 		// <d-ident:founder> : { <event> }
 		//this.communities = [];
@@ -160,6 +168,10 @@ class Feed {
 
 			// Pass received events to handler
 			req.on('event', event => {
+
+				if (this.eventListener) {
+					this.eventListener(event);
+				}
 				
 				this.update(event, relay, {
 					subscription: name,
@@ -310,7 +322,7 @@ class Feed {
 
 					reflect();
 
-				}, 500);
+				}, 1000);
 			}
 		};
 
@@ -321,6 +333,10 @@ class Feed {
 			// If the event is a moderator approval event, parse the
 			// content and treat that at the event (the one approved)
 			if (_event.kind === 4550) {
+
+				if (this.seen[_event.id]) { continue; }
+
+				this.seen[_event.id] = true;
 
 				event = JSON.parse(_event.content);
 
@@ -683,6 +699,45 @@ class Feed {
 					return true;
 				}
 
+				/**********************/
+				const containsMention = (event) => {
+
+					if (!options.surfaceMentions) { return false; }
+
+					// Cache result of parsing mentions for increased performance
+					if (typeof this._containsMention[event.id] !== 'undefined') {
+						return this._containsMention[event.id];
+					}
+
+					for (let s of event.content.split('nostr:')) {
+
+						if (s.indexOf('npub1') === 0) {
+
+							let pubkey;
+
+							try {
+
+								const decoded = nip19.decode(s.substring(0, 63));
+
+								if (decoded.type === 'npub') {
+
+									if (decoded.data === options.pubkey) {
+										this._containsMention[event.id] = true;
+										return true;
+									}
+								}
+
+							} catch (err) {
+
+								console.log('err', err);
+							}
+						}
+					}
+
+					this._containsMention[event.id] = false;
+					return false;
+				};
+
 				if (
 					item.event.pubkey !== options.pubkey
 					&& !this.items[item.event.id]._nest
@@ -696,7 +751,7 @@ class Feed {
 
 						for (let reply of parent.replies) {
 
-							if (reply.event.pubkey === options.pubkey) {
+							if (reply.event.pubkey === options.pubkey || containsMention(reply.event)) {
 								return true;
 							}
 
@@ -704,18 +759,34 @@ class Feed {
 						}
 					};
 
-					if (!findNests(item)) { return false; }
+					if (!findNests(item)) {
+
+						if (containsMention(item.event)) return true;
+
+						return false;
+					}
 
 					this.items[item.event.id]._nest = true;
 				}
 
-				if (this.items[item.event.id]._nest && (!this.items[item.ereply] || this.items[item.ereply].phantom)) {
+				if (
+					this.items[item.event.id]._nest
+					&& (
+						!this.items[item.ereply]
+						|| this.items[item.ereply].phantom
+						//|| containsMention(item.event)
+					)
+				) {
 					return true;
 				}
 
+				// if (!this.items[item.event.id]._nest && containsMention(item.event)) {
+				// 	return true;
+				// }
+
 				return !item.ereply || !this.items[item.ereply] || (
 					this.items[item.ereply] && this.items[item.ereply].event.kind === 9
-				);
+				)/* || containsMention(item.event)*/;
 
 			}), item => {
 
@@ -829,6 +900,11 @@ class Feed {
 		}
 
 		return this;
+	}
+
+	listenForEvent (handler) {
+
+		this.eventListener = handler;
 	}
 
 	listenForItem (id, handler) {

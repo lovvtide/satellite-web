@@ -80,6 +80,28 @@ class AliasMenuMobile extends PureComponent {
 		) : null;
 	};
 
+	renderNotificationsAction = () => {
+		const { signedIn, notificationsCount } = this.props;
+		const text = 'Notifications';
+		return signedIn ? (
+			<div>
+				<Icon
+					name='bell'
+					style={{
+						...styles.actionIcon,
+						color: notificationsCount > 0 ? COLORS.satelliteGold : '#fff'
+					}}
+				/>
+				<div
+					style={styles.link(false)}
+					onClick={() => this.props.viewSidePanel('notifications')}
+				>
+					<span>{text}</span>
+				</div>
+			</div>
+		) : null;
+	};
+
 	renderPreferencesAction = () => {
 		const { signedIn } = this.props;
 		const text = 'Profile Settings';
@@ -263,6 +285,7 @@ class AliasMenuMobile extends PureComponent {
 					</div>
 					<div style={{ fontSize: 14, paddingTop: 12, paddingBottom: 12 }}>
 						{this.renderProfileAction()}
+						{/*{this.renderNotificationsAction()}*/}
 						{this.renderPreferencesAction()}
 						{this.renderSubscriptionsAction()}
 						{this.renderMessagesAction()}
@@ -277,7 +300,7 @@ class AliasMenuMobile extends PureComponent {
 	};
 }
 
-const mapState = ({ nostr, app }) => {
+const mapState = ({ nostr, app, notifications }) => {
 
 	return {
 		signedIn: nostr.pubkey,
@@ -286,7 +309,8 @@ const mapState = ({ nostr, app }) => {
 		profile: nostr.metadata && nostr.metadata[nostr.pubkey] ? nostr.metadata[nostr.pubkey] : {},
 		clientWidth: app.clientWidth,
 		panelWidth: app.clientWidth - 64,
-		open: app.showAliasMenuMobile
+		open: app.showAliasMenuMobile,
+		notificationsCount: Object.keys(notifications).length
 	};
 };
 

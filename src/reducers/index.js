@@ -8,6 +8,7 @@ import files from './files';
 import media from './media';
 import menu from './menu';
 import nostr from './nostr';
+import notifications from './notifications';
 import query from './query';
 
 export default (history) => combineReducers({
@@ -19,5 +20,6 @@ export default (history) => combineReducers({
 	media,
 	menu,
 	nostr,
+	notifications,
 	query
 });

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { Icon, Popup } from 'semantic-ui-react';
 import { nip19 } from 'nostr-tools';
 import { Link } from 'react-router-dom';
@@ -23,7 +23,7 @@ import { COLORS } from '../../constants';
 
 /* Renders an item and its replies */
 
-class Item extends Component {
+class Item extends PureComponent {
 
 	state = {
 		compose: false,
@@ -1237,38 +1237,46 @@ class Item extends Component {
 					</div>
 				);
 
-			} else if (upvotes && upvotes[profile]) {
+			} else if (upvotes && Object.keys(upvotes).length > 0/* && upvotes[profile]*/) {
 
-				const upvoteEvent = upvotes[profile];
-				const activeUpvote = upvoteEvent.pubkey === active;
-				const upvoteAuthor = ((this.props.metadata || {})[profile] || {}).profile || {};
+				const renderUpvote = (_pubkey) => {
 
-				// Render generic upvote events a star, others as emoji
-				const upvoteReaction = upvoteEvent.content === '+' ? (
-					<img
-						style={{ marginBottom: 2 }}
-						src={svgupactive}
-						height={13}
-						width={13}
-					/>
-				) : (
-					<span>
-						{upvoteEvent.content}
-					</span>
-				);
+					const upvoteEvent = upvotes[_pubkey];
+					const activeUpvote = upvoteEvent.pubkey === active;
+					const upvoteAuthor = ((this.props.metadata || {})[_pubkey] || {}).profile || {};
 
-				const upvoteReactionElement = (
-					<div
-						style={{ marginRight: 5, cursor: activeUpvote ? 'cursor' : 'default' }}
-						onClick={activeUpvote ? this.handleStar : undefined}
-					>
-						{upvoteReaction}
-					</div>
-				);
+					// if (highlight && event.pubkey !== highlight && upvoteEvent.pubkey !== highlight) {
+					// 	return item;
+					// }
 
-				return (
-					<div>
-						<div style={{ ...styles.meta, marginBottom: 4 }}>
+					// Render generic upvote events a star, others as emoji
+					const upvoteReaction = upvoteEvent.content === '+' ? (
+						<img
+							style={{ marginBottom: 2 }}
+							src={svgupactive}
+							height={13}
+							width={13}
+						/>
+					) : (
+						<span>
+							{upvoteEvent.content}
+						</span>
+					);
+
+					const upvoteReactionElement = (
+						<div
+							style={{ marginRight: 5, cursor: activeUpvote ? 'cursor' : 'default' }}
+							onClick={activeUpvote ? this.handleStar : undefined}
+						>
+							{upvoteReaction}
+						</div>
+					);
+
+					return (
+						<div
+							key={_pubkey}
+							style={{ ...styles.meta, marginBottom: 4 }}
+						>
 							{activeUpvote && !mobile ? (
 								<Popup
 									style={{ fontSize: 12, zIndex: 99999, filter: 'invert(85%)', boxShadow: 'none', color: '#000' }}
@@ -1296,6 +1304,89 @@ class Item extends Component {
 							/>
 							<RelativeTime time={upvoteEvent.created_at} />
 						</div>
+					);
+				};
+				
+				// return profile ? renderUpvote(profile) : Object.keys(upvotes).map(_pubkey => {
+				// 	return renderUpvote(_pubkey);
+				// });
+				
+				if (profile) {
+
+					if (!upvotes[profile]) { return item; }
+
+					const upvoteEvent = upvotes[profile];
+					const activeUpvote = upvoteEvent.pubkey === active;
+					const upvoteAuthor = ((this.props.metadata || {})[profile] || {}).profile || {};
+
+					// Render generic upvote events a star, others as emoji
+					const upvoteReaction = upvoteEvent.content === '+' ? (
+						<img
+							style={{ marginBottom: 2 }}
+							src={svgupactive}
+							height={13}
+							width={13}
+						/>
+					) : (
+						<span>
+							{upvoteEvent.content}
+						</span>
+					);
+
+					const upvoteReactionElement = (
+						<div
+							style={{ marginRight: 5, cursor: activeUpvote ? 'cursor' : 'default' }}
+							onClick={activeUpvote ? this.handleStar : undefined}
+						>
+							{upvoteReaction}
+						</div>
+					);
+
+					return (
+						<div>
+							<div style={styles.meta}>
+								{activeUpvote && !mobile ? (
+									<Popup
+										style={{ fontSize: 12, zIndex: 99999, filter: 'invert(85%)', boxShadow: 'none', color: '#000' }}
+										position='top center'
+										trigger={upvoteReactionElement}
+										content='Click to remove reaction'
+									/>
+								) : upvoteReactionElement}
+								<Author
+									infoHover
+									hideImage
+									mobile={this.props.mobile}
+									active={this.props.active}
+									infoTriggerId={`${upvoteEvent.id}_${this.props.depth}`}
+									pubkey={upvoteEvent.pubkey}
+									name={upvoteAuthor.name}
+									displayName={upvoteAuthor.display_name}
+									about={upvoteAuthor.about}
+									nip05={upvoteAuthor.nip05}
+									picture={upvoteAuthor.picture}
+									highlight={highlight === upvoteEvent.pubkey}
+									navigate={this.props.navigate}
+									following={this.props.contacts[upvoteEvent.pubkey]}
+									handleFollow={this.props.handleFollow}
+								/>
+								<RelativeTime time={upvoteEvent.created_at} />
+							</div>
+							{item}
+						</div>
+					);
+				}
+
+				return (
+					<div
+						//key={event.id}
+						style={{
+							marginBottom: 4
+						}}
+					>
+						{Object.keys(upvotes).map((_pubkey, index) => {
+							return renderUpvote(_pubkey, index);
+						})}
 						{item}
 					</div>
 				);

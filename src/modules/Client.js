@@ -250,9 +250,11 @@ class Client {
 
 	unregisterFeed ({ id }) {
 
+		console.log('unregistered!', id);
+
 		let name;
 
-		for (let key of this.subscriptions) {
+		for (let key of Object.keys(this.subscriptions)) {
 
 			const { feed } = this.subscriptions[key];
 
@@ -280,6 +282,7 @@ class Client {
 
 		const profileFeedName = `profile_${pubkey}`;
 		const messageFeedName = `message_${pubkey}`;
+		const notificationsFeedName = `notifications_${pubkey}`;
 
 		// Listen for user's metadata
 		if (handlers.onMetadata) {
@@ -335,32 +338,108 @@ class Client {
 
 		});
 
-		// Listen for end of saved direct messages
-		feed.listenForEose((relay, options) => {
+		const detectNotification = (event) => {
 
-			if (options.subscription !== messageFeedName) { return; }
+			if (event.pubkey === pubkey) {
+				return false;
+			}
 
-			const p = {};
+			if (([ 1, 6, 7 ]).indexOf(event.kind) === -1) {
+				return false;
+			}
 
-			for (let _id of Object.keys(feed.dms)) {
+			let notify;
 
-				const _message = feed.dms[_id];
-
-				if (_message.pubkey !== pubkey) {
-					p[_message.pubkey] = true;
-				}
-
-				for (let tag of _message.tags) {
-					if (tag[0] === 'p' && tag[1] !== pubkey) {
-						p[tag[1]] = true;
-					}
+			for (let tag of event.tags) {
+				if (tag[0] === 'p' && tag[1] === pubkey) {
+					return true;
 				}
 			}
 
-			this.subscribe(`dm_metadata_${pubkey}`, feed, [{
-				kinds: [ 0 ],
-				authors: Object.keys(p)
-			}]);
+			return false;
+		};
+
+		// Listen for end of saved direct messages
+		feed.listenForEose((relay, options) => {
+
+			if (options.subscription === profileFeedName) {
+
+				const communityIds = feed.list().filter(item => {
+					return item.event.kind === 34550;
+				}).map(item => {
+					for (let tag of item.event.tags) {
+						if (tag[0] === 'd') {
+							return `34550:${item.event.pubkey}:${tag[1]}`;
+						}
+					}
+				}).filter(id => {
+					return id;
+				});
+
+				const now = Math.floor(Date.now() / 1000);
+
+				// Pull notifications for user
+				this.subscribe(notificationsFeedName, feed, [{
+					kinds: [ 1, 6, 7 ],
+					'#p': [ pubkey ],
+					since: now - (86400 * 7)
+				}, {
+					kinds: [ 1 ],
+					'#a': communityIds
+				}]);
+
+			} else if (options.subscription === notificationsFeedName) {
+
+				/* After initial batch of notifications
+				is loaded, listen for additional */
+
+				if (handlers.onNotify) {
+
+					setTimeout(() => {
+
+						if (!feed.eventListener) {
+
+							feed.listenForEvent(event => {
+								if (!feed.items[event.id] && detectNotification(event)) {
+									handlers.onNotify([ event ]);
+								}
+							});
+
+							handlers.onNotify(feed.list().filter(item => {
+								return detectNotification(item.event);
+							}).map(item => {
+								return item.event;
+							}));
+						}
+
+					}, 1500);
+				}
+
+			} else if (options.subscription === messageFeedName) {
+
+				const p = {};
+
+				for (let _id of Object.keys(feed.dms)) {
+
+					const _message = feed.dms[_id];
+
+					if (_message.pubkey !== pubkey) {
+						p[_message.pubkey] = true;
+					}
+
+					for (let tag of _message.tags) {
+						if (tag[0] === 'p' && tag[1] !== pubkey) {
+							p[tag[1]] = true;
+						}
+					}
+				}
+
+				this.subscribe(`dm_metadata_${pubkey}`, feed, [{
+					kinds: [ 0 ],
+					authors: Object.keys(p)
+				}]);
+
+			}
 
 		});
 
@@ -368,6 +447,9 @@ class Client {
 		this.subscribe(profileFeedName, feed, [{
 			authors: [ pubkey ],
 			kinds: [ 0, 3, 34550 ]
+		}, {
+			'#p': [ pubkey ],
+			kinds: [ 34550 ]
 		}]);
 
 		// Pull direct messages for user

@@ -56,6 +56,33 @@ class AliasMenu extends PureComponent {
 		);
 	};
 
+	renderNotificationsAction = () => {
+
+		const { signedIn, notificationsCount } = this.props;
+		const text = 'Notifications';
+
+		return signedIn ? (
+			<div
+				onClick={() => this.props.viewSidePanel('notifications')}
+				onMouseOver={() => this.setState({ hover: text })}
+				onMouseOut={() => this.setState({ hover: '' })}
+			>
+				<Icon
+					style={{
+						...styles.actionIcon(this.state.hover === text),
+						color: notificationsCount > 0 ? COLORS.satelliteGold : '#fff'
+					}}
+					name='bell'
+				/>
+				<div
+					style={styles.link(text === this.state.hover)}
+				>
+					<span>{text}</span>
+				</div>
+			</div>
+		) : null;
+	};
+
 	renderPreferencesAction = () => {
 
 		const { signedIn } = this.props;
@@ -197,6 +224,7 @@ class AliasMenu extends PureComponent {
 							{this.renderAliasLink()}
 						</div>
 						<div style={{ fontSize: 14, paddingTop: signedIn ? 12 : 0, paddingBottom: 12 }}>
+							{/*{this.renderNotificationsAction()}*/}
 							{this.renderPreferencesAction()}
 							{this.renderSubscriptionsAction()}
 							{this.renderMessagesAction()}
@@ -211,9 +239,10 @@ class AliasMenu extends PureComponent {
 	};
 }
 
-const mapState = ({ nostr }) => {
+const mapState = ({ nostr, notifications }) => {
 	return {
-		signedIn: nostr.pubkey
+		signedIn: nostr.pubkey,
+		notificationsCount: Object.keys(notifications).length
 	};
 };
 

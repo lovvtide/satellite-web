@@ -53,6 +53,8 @@ class ProfileFeed extends PureComponent {
 
 		window.removeEventListener('scroll', this.handleScroll);
 
+		this.state.feed.unsubscribe(window.client);
+
 		clearTimeout(this._resetLoadMore);
 		clearTimeout(this._reload);
 	}
@@ -75,6 +77,8 @@ class ProfileFeed extends PureComponent {
 		}
 
 		if (this.props.match.params.alias !== prevProps.match.params.alias) {
+
+			this.state.feed.unsubscribe(window.client);
 
 			this.disconnectProfileRelays();
 

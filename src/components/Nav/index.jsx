@@ -117,6 +117,7 @@ class Nav extends Component {
 		);
 	};
 
+	/*
 	renderViewToggle = () => {
 
 		if (!this.props.showNavActions) { return null; }
@@ -193,6 +194,7 @@ class Nav extends Component {
 			</div>
 		);
 	};
+	*/
 
 	renderUserIcon = () => {
 
@@ -279,6 +281,40 @@ class Nav extends Component {
 		);
 	};
 
+	renderNotifications = () => {
+
+		const { notificationsCount, mobile } = this.props;
+
+		if (!notificationsCount) { return null; }
+
+		return (
+			<div
+				style={{
+					marginLeft: mobile ? 8 : 10,
+					marginRight: mobile ? -4 : -10,
+					opacity: notificationsCount > 0 ? 1 : 0,
+					//...transition(0.2, 'ease', [ 'opacity' ])
+				}}
+			>
+				<Icon
+					onMouseOver={() => this.setState({ hover: 'notifications' })}
+					onMouseOut={() => this.setState({ hover: '' })}
+					onClick={() => this.props.viewSidePanel('notifications')}
+					name='bell'
+					style={{
+						opacity: this.state.hover === 'notifications' ? 1 : 0.9,
+						cursor: 'pointer',
+						fontSize: mobile ? 14 : 15,
+						color: COLORS.satelliteGold,
+						marginRight: 0
+					}}
+				/>
+			</div>
+		);
+
+		return null;
+	};
+
 	renderNostrAuthenticated = () => {
 
 		if (!this.props.pubkey) { return null; }
@@ -363,6 +399,7 @@ class Nav extends Component {
 						}}
 					/>
 				</div>
+				{/*{this.renderNotifications()}*/}
 			</div>
 		);
 	};
@@ -379,7 +416,7 @@ class Nav extends Component {
 	};
 }
 
-const mapState = ({ app, nostr }) => {
+const mapState = ({ app, nostr, notifications }) => {
 	return {
 		profilePubkey: nostr.profilePubkey,
 		pubkey: nostr.pubkey,
@@ -393,7 +430,8 @@ const mapState = ({ app, nostr }) => {
 		route: app.route,
 		showNavActions: app.showNavActions,
 		mobileEditor: nostr.mobileEditor || {},
-		profile: (nostr.metadata || {})[nostr.pubkey]
+		profile: (nostr.metadata || {})[nostr.pubkey],
+		notificationsCount: Object.keys(notifications).length
 	};
 };
 

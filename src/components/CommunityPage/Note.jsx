@@ -61,7 +61,22 @@ class Note extends PureComponent {
 
 					const parsedIds = Object.keys(ref.parsed);
 					const eventIds = Object.keys(ref.events);
+					const authors = {};
 					const filters = [];
+
+					const findUnknownAuthors = (items) => {
+
+						for (let item of items) {
+
+							const { pubkey } = item.event;
+
+							if (!this.props.feed.metadata[pubkey]) {
+								authors[pubkey] = true;
+							}
+
+							findUnknownAuthors(item.replies);
+						}
+					};
 
 					if (parsedIds.length > 0) {
 						filters.push({
@@ -73,6 +88,16 @@ class Note extends PureComponent {
 						filters.push({
 							kinds: [ 1 ],
 							'#e': eventIds
+						});
+					}
+
+					findUnknownAuthors([ rootItem ]);
+
+					if (Object.keys(authors).length > 0) {
+
+						filters.push({
+							authors: Object.keys(authors),
+							kinds: [ 0 ]
 						});
 					}
 
