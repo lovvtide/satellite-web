@@ -17,6 +17,18 @@ export default defineConfig({
           src: '/favicon.png',
           sizes: '196x196',
           type: 'image/png'
+        },
+        {
+          src: '/favicon.png',
+          sizes: '196x196',
+          type: 'image/png',
+          purpose: 'apple-touch-icon'
+        },
+        {
+          src: '/favicon.png',
+          sizes: '196x196',
+          type: 'image/png',
+          purpose: 'any maskable'
         }
       ]
     },
