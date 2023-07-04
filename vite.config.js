@@ -13,23 +13,23 @@ export default defineConfig({
       short_name: 'Satellite',
       description: 'Nostr client',
       icons: [
-        {
-          src: '/favicon.png',
-          sizes: '196x196',
-          type: 'image/png'
-        },
+        // {
+        //   src: '/favicon.png',
+        //   sizes: '196x196',
+        //   type: 'image/png'
+        // },
         {
           src: '/favicon.png',
           sizes: '196x196',
           type: 'image/png',
           purpose: 'apple touch icon'
         },
-        {
-          src: '/favicon.png',
-          sizes: '196x196',
-          type: 'image/png',
-          purpose: 'any maskable'
-        }
+        // {
+        //   src: '/favicon.png',
+        //   sizes: '196x196',
+        //   type: 'image/png',
+        //   purpose: 'any maskable'
+        // }
       ]
     },
     theme_color: '#171819',
