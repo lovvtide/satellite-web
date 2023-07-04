@@ -1,11 +1,12 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-//import { VitePWA } from 'vite-plugin-pwa';
+import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  //base: '/dist',
-  plugins: [react()/*, VitePWA({
+  base: './',
+  selfDestroying: true,
+  plugins: [react(), VitePWA({
     registerType: 'prompt',
     includeAssets: ['favicon.png'],
     manifest: {
@@ -27,5 +28,5 @@ export default defineConfig({
     scope: '/',
     start_url: '/',
     orientation: 'portrait'
-  })*/]
+  })]
 });
