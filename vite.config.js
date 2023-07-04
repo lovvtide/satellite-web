@@ -1,11 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { VitePWA } from 'vite-plugin-pwa';
+//import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: './',
-  plugins: [react(), VitePWA({
+  //base: './',
+  plugins: [react()/*, VitePWA({
     registerType: 'prompt',
     includeAssets: ['favicon.png'],
     manifest: {
@@ -13,23 +13,12 @@ export default defineConfig({
       short_name: 'Satellite',
       description: 'Nostr client',
       icons: [
-        // {
-        //   src: '/favicon.png',
-        //   sizes: '196x196',
-        //   type: 'image/png'
-        // },
         {
           src: '/favicon.png',
           sizes: '196x196',
           type: 'image/png',
           purpose: 'apple touch icon'
-        },
-        // {
-        //   src: '/favicon.png',
-        //   sizes: '196x196',
-        //   type: 'image/png',
-        //   purpose: 'any maskable'
-        // }
+        }
       ]
     },
     theme_color: '#171819',
@@ -38,5 +27,5 @@ export default defineConfig({
     scope: '/',
     start_url: '/',
     orientation: 'portrait'
-  })]
+  })*/]
 });
