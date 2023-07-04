@@ -480,7 +480,8 @@ class Item extends PureComponent {
 							fontSize: 18,
 							color: '#fff',
 							marginBottom: 6,
-							lineHeight: '24px'
+							lineHeight: '24px',
+							overflowWrap: 'anywhere'
 						}}
 					>
 						{title}
@@ -490,7 +491,10 @@ class Item extends PureComponent {
 					<a href={link} target='_blank'>
 						<div
 							style={{
-								fontSize: 13
+								fontSize: 13,
+								whiteSpace: 'nowrap',
+								overflow: 'hidden',
+								textOverflow: 'ellipsis'
 							}}
 						>
 							{link}
