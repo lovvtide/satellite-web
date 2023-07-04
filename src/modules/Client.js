@@ -250,8 +250,6 @@ class Client {
 
 	unregisterFeed ({ id }) {
 
-		console.log('unregistered!', id);
-
 		let name;
 
 		for (let key of Object.keys(this.subscriptions)) {
@@ -478,6 +476,10 @@ class Client {
 
 		const primaryFeedName = `profile_primary_${params.pubkey}`;
 		const contextFeedName = `profile_context_${params.pubkey}`;
+		const quotedFeedName = `profile_quoted_${params.pubkey}`;
+
+		const parsedEventId = {};
+		const didParseEvent = {};
 
 		// Listen for user's contacts
 		feed.listenForContacts(params.pubkey, ({ contacts }) => {
@@ -488,6 +490,28 @@ class Client {
 		});
 
 		feed.listenForEose((relay, options) => {
+
+			if (options.subscription === contextFeedName) {
+
+				for (let item of feed.list()) {
+
+					if (didParseEvent[item.event.id] || !item.event.content) { continue; }
+
+					Object.assign(parsedEventId, this.parseContentRefs(item.event.content)['e']);
+					didParseEvent[item.event.id] = true;
+				}
+
+				const ids = Object.keys(parsedEventId);
+
+				if (ids.length > 0) {
+
+					feed.subscribe(quotedFeedName, relay, [{
+						ids
+					}]);
+				}
+
+				return;
+			}
 
 			// Only create secondary subscriptions when
 			// the end of the primary feed is reached
@@ -663,8 +687,6 @@ class Client {
 				if (_nprofile.data.pubkey) {
 					profile.pubkey = _nprofile.data.pubkey;
 				}
-
-				console.log('_nprofile', _nprofile)
 
 				if (_nprofile.data.relays) {
 
