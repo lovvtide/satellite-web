@@ -152,6 +152,7 @@ const transform = (props) => {
 					'border-radius': '4px'
 				})} /><div ${stylize({
 					'display': '-webkit-box',
+					'overflow-wrap': 'anywhere',
 					'-webkit-line-clamp': 2,
 					'-webkit-box-orient': 'vertical',
 					'overflow': 'hidden'
