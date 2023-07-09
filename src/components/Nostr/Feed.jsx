@@ -157,6 +157,7 @@ class Feed extends PureComponent {
 					replaceTitle={item.event.id === this.props.replaceTitle}
 					items={this.props.feed.items}
 					feedPostId={(this.props.buildOptions || {}).id}
+					previewReplacedLinks={this.props.previewReplacedLinks}
 				/>
 			);
 		});

@@ -18,113 +18,130 @@ class Note extends PureComponent {
 
 	componentDidMount = () => {
 
-		const decoded = nip19.decode(this.props.id);
-		const postId = decoded.data;
+		this.handleLoad();
+	};
 
-		this.setState({ loaded: true, postId }, () => {
+	componentDidUpdate = (prevProps) => {
 
-			const filters = [];
+		if (prevProps.id && this.props.id && prevProps.id !== this.props.id) {
 
-			if (!this.props.feed.items[postId]) {
+			this.handleLoad();
+		}
+	};
 
-				filters.push({
-					ids: [ postId ]
-				});
-			}
+	handleLoad = () => {
 
-			filters.push({
-				kinds: [ 1 ],
-				'#e': [ postId ]
-			});
+		//console.log('LOADING NOTE', this.props.id);
 
-			if (this.props.pubkey) {
+		this.setState({ loaded: false, postId: null }, () => {
 
-				filters.push({
-					authors: [ this.props.pubkey ],
-					'#e': [ postId ],
-					kinds: [ 7 ]
-				});
-			}
+			const decoded = nip19.decode(this.props.id);
+			const postId = decoded.data;
 
-			this.props.feed.listenForEose((relay, options) => {
+			this.setState({ loaded: true, postId }, () => {
 
-				if (options.subscription !== `post_${postId}`) { return; }
+				const filters = [];
 
-				const rootItem = this.props.feed.items[postId];
+				if (!this.props.feed.items[postId]) {
 
-				if (rootItem && rootItem.replies) {
-
-					const ref = window.client.getThreadRefs(rootItem, {
-						includeEventIds: true,
-						includeParsedIds: true
+					filters.push({
+						ids: [ postId ]
 					});
+				}
 
-					const parsedIds = Object.keys(ref.parsed);
-					const eventIds = Object.keys(ref.events);
-					const authors = {};
-					const filters = [];
+				filters.push({
+					kinds: [ 1 ],
+					'#e': [ postId ]
+				});
 
-					const findUnknownAuthors = (items) => {
+				if (this.props.pubkey) {
 
-						for (let item of items) {
+					filters.push({
+						authors: [ this.props.pubkey ],
+						'#e': [ postId ],
+						kinds: [ 7 ]
+					});
+				}
 
-							const { pubkey } = item.event;
+				this.props.feed.listenForEose((relay, options) => {
 
-							if (!this.props.feed.metadata[pubkey]) {
-								authors[pubkey] = true;
+					if (options.subscription !== `post_${postId}`) { return; }
+
+					const rootItem = this.props.feed.items[postId];
+
+					if (rootItem && rootItem.replies) {
+
+						const ref = window.client.getThreadRefs(rootItem, {
+							includeEventIds: true,
+							includeParsedIds: true
+						});
+
+						const parsedIds = Object.keys(ref.parsed);
+						const eventIds = Object.keys(ref.events);
+						const authors = {};
+						const filters = [];
+
+						const findUnknownAuthors = (items) => {
+
+							for (let item of items) {
+
+								const { pubkey } = item.event;
+
+								if (!this.props.feed.metadata[pubkey]) {
+									authors[pubkey] = true;
+								}
+
+								findUnknownAuthors(item.replies);
 							}
+						};
 
-							findUnknownAuthors(item.replies);
+						if (parsedIds.length > 0) {
+							filters.push({
+								ids: parsedIds
+							});
 						}
-					};
 
-					if (parsedIds.length > 0) {
-						filters.push({
-							ids: parsedIds
-						});
+						if (eventIds.length > 0) {
+							filters.push({
+								kinds: [ 1 ],
+								'#e': eventIds
+							});
+						}
+
+						findUnknownAuthors([ rootItem ]);
+
+						if (Object.keys(authors).length > 0) {
+
+							filters.push({
+								authors: Object.keys(authors),
+								kinds: [ 0 ]
+							});
+						}
+
+						if (filters.length > 0) {
+
+							this.props.feed.subscribe(`thread_extra_${postId}`, relay, filters);
+						}
 					}
 
-					if (eventIds.length > 0) {
-						filters.push({
-							kinds: [ 1 ],
-							'#e': eventIds
-						});
-					}
+				});
 
-					findUnknownAuthors([ rootItem ]);
+				window.client.subscribe(`post_${postId}`, this.props.feed, filters);
 
-					if (Object.keys(authors).length > 0) {
+				const banner = document.getElementById('banner_image');
 
-						filters.push({
-							authors: Object.keys(authors),
-							kinds: [ 0 ]
-						});
-					}
+				if (banner) {
 
-					if (filters.length > 0) {
+					const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+					const rect = banner.getBoundingClientRect();
 
-						this.props.feed.subscribe(`thread_extra_${postId}`, relay, filters);
+					if (scrollTop > rect.height + 52) {
+						window.scrollTo({ top: rect.height + 52 });
 					}
 				}
 
+				this.setState({ visible: true });
 			});
-
-			window.client.subscribe(`post_${postId}`, this.props.feed, filters);
-
-			const banner = document.getElementById('banner_image');
-
-			if (banner) {
-
-				const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-				const rect = banner.getBoundingClientRect();
-
-				if (scrollTop > rect.height + 52) {
-					window.scrollTo({ top: rect.height + 52 });
-				}
-			}
-
-			this.setState({ visible: true });
-
 		});
 	};
 
@@ -156,6 +173,7 @@ class Note extends PureComponent {
 		const { loaded, postId } = this.state;
 
 		if (
+			!this.props.loaded ||
 			!loaded ||
 			!postId ||
 			!this.props.feed.items[postId] ||
@@ -226,11 +244,12 @@ class Note extends PureComponent {
 	};
 }
 
-const mapState = ({ nostr, query }) => {
+const mapState = ({ nostr, query, app }) => {
 
 	return {
 		searchActive: query.active,
-		pubkey: nostr.pubkey
+		pubkey: nostr.pubkey,
+		mobile: app.mobile
 	};
 };
 

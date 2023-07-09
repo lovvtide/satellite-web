@@ -70,7 +70,7 @@ class ListItem extends PureComponent {
 									marginBottom: 3
 								}}
 							>
-								{item.name}
+								n/{item.name}
 							</div>
 						</Link>
 						<div style={{

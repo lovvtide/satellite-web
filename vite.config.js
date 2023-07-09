@@ -5,9 +5,9 @@ import { VitePWA } from 'vite-plugin-pwa';
 // https://vitejs.dev/config/
 export default defineConfig({
   base: './',
-  selfDestroying: true,
   plugins: [react(), VitePWA({
     registerType: 'prompt',
+    selfDestroying: true,
     includeAssets: ['favicon.png'],
     manifest: {
       name: 'Satellite',

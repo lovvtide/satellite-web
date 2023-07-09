@@ -1,6 +1,31 @@
 import { DEFAULT_LOCALE_CURRENCY } from './constants';
 
 
+export const parseMediaURL = (url) => {
+
+	const parsed = {};
+
+	parsed.ext = url.slice(url.lastIndexOf('.') + 1);
+
+	if (parsed.ext.indexOf('&') !== -1) {
+		parsed.ext = parsed.ext.split('&')[0];
+	}
+
+	const _image = [ 'jpeg', 'jpg', 'png', 'webp', 'gif' ];
+	const _audio = [ 'mp3', 'm4a', 'ogg' ];
+	const _video = [ 'mp4', 'mov' ];
+
+	if (_image.indexOf(parsed.ext) !== -1) {
+		parsed.media = 'image';
+	} else if (_video.indexOf(parsed.ext) !== -1) {
+		parsed.media = 'video';
+	} else if (_audio.indexOf(parsed.ext) !== -1) {
+		parsed.media = 'audio';
+	}
+
+	return parsed;
+};
+
 // Append query params
 export const query = (base, params = {}) => {
 

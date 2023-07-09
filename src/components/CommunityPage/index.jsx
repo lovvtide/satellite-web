@@ -21,7 +21,7 @@ import { COLORS } from '../../constants';
 import { transition } from '../../helpers';
 import crownsvg from '../../assets/crown.svg';
 import svgearth from '../../assets/earth.svg';
-import { navigate, nostrFollow, getLocalPrivateKey } from '../../actions';
+import { navigate, nostrFollow, getLocalPrivateKey, handleApprovePost, subscribeToCommunity } from '../../actions';
 
 
 class CommunityPage extends PureComponent {
@@ -47,6 +47,8 @@ class CommunityPage extends PureComponent {
 
 	componentDidUpdate = (prevProps) => {
 
+		//return;
+
 		if (
 			this.props.ownernpub !== prevProps.ownernpub ||
 			this.props.name !== prevProps.name
@@ -67,14 +69,23 @@ class CommunityPage extends PureComponent {
 
 	loadCommunity = () => {
 
-		this.feed = new Feed();
+		if (this.state.feed) {
+			this.state.feed.unsubscribe(window.client);
+			this.setState({ feed: null });
+		}
+
+		const parsedEventId = {};
+		const didParseEvent = {};
+		const feed = new Feed();
+
+		this.setState({ feed });
 		this.version = 0;
 
 		const primaryFeedName = `${this.props.ownerpubkey}:${this.props.name}_primary`;
 		const secondaryFeedName = `${this.props.ownerpubkey}:${this.props.name}_secondary`;
 		const postMetadataFeedName = `${this.props.ownerpubkey}:${this.props.name}_post_metadata`;
 
-		this.feed.listenForCommunity(event => {
+		feed.listenForCommunity(event => {
 
 			if (event.created_at >= this.version) {
 
@@ -121,18 +132,18 @@ class CommunityPage extends PureComponent {
 						moderatorPubkeys.push(this.props.ownerpubkey);
 					}
 
-					this.feed.listenForMetadata('*', (pubkey, profile) => {
+					feed.listenForMetadata('*', (pubkey, profile) => {
 
 						this.setState({
 							metadata: {
 								...this.state.metadata,
-								[pubkey]: profile
+								[pubkey]: { profile }
 							}
 						});
 
 					});
 
-					window.client.subscribe(secondaryFeedName, this.feed, [{
+					window.client.subscribe(secondaryFeedName, feed, [{
 						kinds: [ 4550 ], // TODO support kind 1063
 						authors: moderatorPubkeys,
 						'#a': [ `34550:${this.props.ownerpubkey}:${this.props.name}` ]
@@ -145,11 +156,11 @@ class CommunityPage extends PureComponent {
 			}
 		});
 
-		this.feed.registerObserver(primaryFeedName, (items) => {
+		feed.registerObserver(primaryFeedName, (items) => {
 
 			const modqueue = [];
 			const approved = [];
-			const pubkeys = {};
+			//const pubkeys = {};
 
 			for (let item of items) {
 
@@ -159,26 +170,63 @@ class CommunityPage extends PureComponent {
 					modqueue.push(item);
 				}
 
-				pubkeys[item.event.pubkey] = true;
+				// pubkeys[item.event.pubkey] = true;
 
-				for (let tag of item.event.tags) {
+				// for (let tag of item.event.tags) {
 
-					if (tag[0] === 'p') {
-						pubkeys[tag[1]] = true;
-					}
-				}
+				// 	if (tag[0] === 'p') {
+				// 		pubkeys[tag[1]] = true;
+				// 	}
+				// }
 			}
 
 			this.setState({ modqueue, approved });
 
-			window.client.subscribe(postMetadataFeedName, this.feed, [{
-				kinds: [ 0 ],
-				authors: Object.keys(pubkeys)
-			}]);
 
 		}, { mode: 'list' });
 
-		window.client.subscribe(primaryFeedName, this.feed, [{
+		feed.listenForEose((relay, options) => {
+
+			if (options.subscription === secondaryFeedName) {
+
+				const filters = [];
+
+				for (let item of feed.list()) {
+
+					if (didParseEvent[item.event.id] || !item.event.content) { continue; }
+
+					Object.assign(parsedEventId, window.client.parseContentRefs(item.event.content)['e']);
+					didParseEvent[item.event.id] = true;
+				}
+
+				const ids = Object.keys(parsedEventId);
+
+				if (ids.length > 0) {
+
+					filters.push({
+						ids
+					});
+				}
+
+				const authors = feed.authors();
+
+				if (authors.length > 0) {
+
+					filters.push({
+						authors,
+						kinds: [ 0 ]
+					})
+				}
+
+				if (filters.length > 0) {
+
+					feed.subscribe(`community_quoted`, relay, filters);
+				}
+			}
+
+		});
+
+		window.client.subscribe(primaryFeedName, feed, [{
 			kinds: [ 34550 ],
 			authors: [ this.props.ownerpubkey ],
 			'#d': [ this.props.name ]
@@ -187,47 +235,41 @@ class CommunityPage extends PureComponent {
 			'#a': [ `34550:${this.props.ownerpubkey}:${this.props.name}` ]
 		}]);
 
+		//this.setState({ feed });
+
+	};
+
+	handleFollowCommunity = () => {
+
+		const { name, ownerpubkey, subscribed } = this.props;
+
+		this.props.subscribeToCommunity({
+			a: `34550:${ownerpubkey}:${name}`,
+			subscribe: !subscribed
+		});
+	};
+
+	handleMobileReply = (replyTo) => {
+
+		const { main, active } = this.props;
+
+		this.props.openReplyModal({
+			author: { pubkey: active },
+			open: true,
+			replyTo,
+			feed: main
+		});
 	};
 
 	handleApprovePost = async (item) => {
 
-		let event;
-
-		try {
-
-			event = await window.client.createEvent({
-				content: JSON.stringify(item.event),
-				kind: 4550,
-				tags: [
-					[ 'a', `34550:${this.props.ownerpubkey}:${this.props.name}` ],
-					[ 'e', item.event.id ],
-					[ 'p', item.event.pubkey ],
-					[ 'k', String(item.event.kind) ]
-				]
-			}, {
-				privateKey: getLocalPrivateKey()
-			});
-
-		} catch (err) {
-			console.log('err', err);
-		}
-
-		if (!event) { return; }
-
-		this.feed.update(event, null, { newpub: true });
-
-		try {
-
-			await new Promise((resolve, reject) => {
-				window.client.publishEvent(event, (status, relay) => {
-					console.log(status, relay.url);
+		handleApprovePost(item, this.props, {
+			onSignedEvent: (event) => {
+				this.state.feed.update(event, null, {
+					newpub: true
 				});
-			});
-
-		} catch (err) {
-			console.log(err);
-		}
-		
+			}
+		});		
 	};
 
 	renderBanner = () => {
@@ -265,7 +307,10 @@ class CommunityPage extends PureComponent {
 
 	renderHeader = () => {
 
-		const profile = this.state.metadata[this.props.ownerpubkey] || {};
+		//const profile = this.state.metadata[this.props.ownerpubkey] || {};
+
+		const profile = this.state.metadata[this.props.ownerpubkey] ? (this.state.metadata[this.props.ownerpubkey].profile) || {} : {}
+		const { mobile, subscribed } = this.props;
 
 		return (
 			<div
@@ -283,7 +328,7 @@ class CommunityPage extends PureComponent {
 					borderBottom: `1px dotted ${COLORS.secondary}`,
 					borderTop: this.state.image ? `1px solid ${COLORS.secondary}` : 'none',
 					background: COLORS.primary,
-					justifyContent: 'space-between'
+					justifyContent: mobile ? 'space-between' : 'left'
 				}}
 			>
 				<div style={{
@@ -311,7 +356,7 @@ class CommunityPage extends PureComponent {
 								n/{this.props.name}
 							</div>
 						</div>
-					</Link>
+					</Link>					
 					<div style={{
 						fontSize: 13,
 						height: 18,
@@ -328,7 +373,7 @@ class CommunityPage extends PureComponent {
 						<Link to={`/@${this.props.ownernpub}`}>
 							<Name
 								npub={this.props.ownernpub}
-								profile={this.state.metadata[this.props.ownerpubkey]}
+								profile={this.state.metadata[this.props.ownerpubkey] ? (this.state.metadata[this.props.ownerpubkey].profile) || {} : {}}
 								style={{
 									color: COLORS.satelliteGold
 								}}
@@ -336,19 +381,50 @@ class CommunityPage extends PureComponent {
 						</Link>
 					</div>
 				</div>
-				{this.props.mobile ? (
-					<Icon
-						onClick={() => this.setState({ showMobileSidebar: !this.state.showMobileSidebar })}
-						name={this.state.showMobileSidebar ? 'chevron right' : 'info circle'}
+				<div style={{
+					display: 'flex',
+					alignItems: 'center'
+				}}>
+					<div
+						onMouseOver={() => this.setState({ hover: 'follow_community' })}
+						onMouseOut={() => this.setState({ hover: '' })}
+						onClick={this.handleFollowCommunity}
 						style={{
+							fontFamily: 'JetBrains-Mono-Bold',
+							color: subscribed ? '#fff' : COLORS.secondaryBright,
+							fontSize: mobile ? 18 : 11,
+							borderRadius: 4,
+							marginTop: mobile ? 0 : 2,
 							cursor: 'pointer',
-							marginRight: this.state.showMobileSidebar ? -2 : 0,
-							fontSize: 18,
-							width: 20,
-							height: 20
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+							height: 26,
+							userSelect: 'none',
+							paddingLeft: mobile ? 0 : 6,
+							paddingRight: mobile ? 0 : 6,
+							marginRight: mobile ? 10 : 0,
+							marginLeft: 10,
+							opacity: mobile || this.state.hover === 'follow_community' ? 1 : 0.85
 						}}
-					/>
-				) : null}
+					>
+						{subscribed || mobile ? (<Icon name='circle check' style={{ height: 20, marginRight: mobile ? 0 : 5 }} />) : null}
+						{mobile ? null : (subscribed ? 'SUBSCRIBED' : 'SUBSCRIBE')}
+					</div>
+					{this.props.mobile ? (
+						<Icon
+							onClick={() => this.setState({ showMobileSidebar: !this.state.showMobileSidebar })}
+							name={this.state.showMobileSidebar ? 'chevron left' : 'info circle'}
+							style={{
+								cursor: 'pointer',
+								marginRight: this.state.showMobileSidebar ? -2 : 0,
+								fontSize: 18,
+								width: this.state.showMobileSidebar ? 22 : 20,
+								height: 20
+							}}
+						/>
+					) : null}
+				</div>
 			</div>
 		);
 	};
@@ -369,7 +445,7 @@ class CommunityPage extends PureComponent {
 		const { description } = this.state;
 
 		return (
-			<div style={{ ...styles.sidebarSection(this.state), paddingTop: 6 }}>
+			<div style={{ ...styles.sidebarSection(this.state),  paddingTop: 6 }}>
 				<div style={styles.sidebarTitle}>
 					Community Description
 				</div>
@@ -427,7 +503,9 @@ class CommunityPage extends PureComponent {
 				</div>
 				{(this.state.moderators || []).map(pubkey => {
 
-					const profile = this.state.metadata[pubkey] || {};
+					//const profile = this.state.metadata[pubkey] || {};
+
+					const profile = this.state.metadata[pubkey] ? (this.state.metadata[pubkey].profile) || {} : {}
 
 					return (
 						<div
@@ -477,6 +555,7 @@ class CommunityPage extends PureComponent {
 					marginTop: 19
 				}}
 			>
+				{/*{this.renderFollowButton()}*/}
 				{this.renderDescription()}
 				{this.renderRules()}
 				{this.renderModerators()}
@@ -576,7 +655,7 @@ class CommunityPage extends PureComponent {
 						<Switch>
 							<Route path='/n/:name/:founder/submit'>
 								<NewPost
-									feed={this.feed}
+									feed={this.state.feed}
 									name={this.props.name}
 									ownernpub={this.props.ownernpub}
 									ownerpubkey={this.props.ownerpubkey}
@@ -591,14 +670,16 @@ class CommunityPage extends PureComponent {
 									selected={this.props.match.params.note}
 								/>
 								<ModQueue
-									feed={this.feed}
+									feed={this.state.feed}
+									mobile={this.props.mobile}
 									items={this.state.modqueue}
 									name={this.props.name}
 									ownernpub={this.props.ownernpub}
-									ownerpubkey={this.props.ownerpubkey}
 									moderator={this.state.loaded && (this.state.moderators.indexOf(this.props.pubkey) !== -1 || this.props.ownerpubkey === this.props.pubkey)}
 									metadata={this.state.metadata}
 									handleApprovePost={this.handleApprovePost}
+									handleFollow={this.props.nostrFollow}
+									navigate={this.props.navigate}
 								/>
 							</Route>
 							<Route path='/n/:name/:founder/:note'>
@@ -607,7 +688,8 @@ class CommunityPage extends PureComponent {
 									contacts={this.props.contacts}
 									name={this.props.name}
 									ownernpub={this.props.ownernpub}
-									feed={this.feed}
+									feed={this.state.feed}
+									//items={this.state.feed ? this.state.feed.items : {}}
 									loaded={this.state.loaded}
 									moderator={this.state.loaded && (this.state.moderators.indexOf(this.props.pubkey) !== -1 || this.props.ownerpubkey === this.props.pubkey)}
 									handleApprovePost={this.handleApprovePost}
@@ -623,10 +705,14 @@ class CommunityPage extends PureComponent {
 								/>
 								<List
 									sort='new'
+									feed={this.state.feed}
+									mobile={this.props.mobile}
 									items={this.state.approved}
 									name={this.props.name}
 									ownernpub={this.props.ownernpub}
 									metadata={this.state.metadata}
+									handleFollow={this.props.nostrFollow}
+									navigate={this.props.navigate}
 								/>
 							</Route>
 						</Switch>
@@ -639,7 +725,7 @@ class CommunityPage extends PureComponent {
 
 }
 
-const mapState = ({ app, nostr }, { match }) => {
+const mapState = ({ app, nostr, communities }, { match }) => {
 
 	let ownerpubkey;
 	let error;
@@ -654,6 +740,7 @@ const mapState = ({ app, nostr }, { match }) => {
 	}
 
 	return {
+		subscribed: communities.followingList[`34550:${ownerpubkey}:${match.params.name}`],
 		clientWidth: app.clientWidth,
 		clientHeight: app.clientHeight,
 		mobile: app.mobile,
@@ -687,4 +774,4 @@ const styles = {
 
 };
 
-export default connect(mapState, { navigate, nostrFollow })(CommunityPage);
+export default connect(mapState, { navigate, nostrFollow, subscribeToCommunity })(CommunityPage);

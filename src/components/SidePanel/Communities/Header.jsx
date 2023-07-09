@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { Icon } from 'semantic-ui-react';
 
 import { COLORS, MENU_WIDTH } from '../../../constants';
+import svgearth from '../../../assets/earth.svg';
 
 
 class Header extends PureComponent {
@@ -19,21 +20,25 @@ class Header extends PureComponent {
         onMouseOut={() => this.setState({ hover: '' })}
         style={{
           opacity: this.state.hover === 'new' ? 1 : 0.85,
-          color: COLORS.satelliteGold,
+          color: '#fff',
           marginLeft: this.props.mobile ? 12 : 24,
           fontSize: 11,
-          fontFamily: 'JetBrains-Mono-Regular',
-          height: 30,
+          fontFamily: 'JetBrains-Mono-Bold',
+          height: 27,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontWeight: 'bold',
           cursor: 'pointer',
-          userSelect: 'none'
+          userSelect: 'none',
+          marginRight: 4,
+          border: '1px solid #fff',
+          paddingLeft: 10,
+          paddingRight: 10,
+          borderRadius: 24
         }}
       >
         <Icon name='plus' style={{ height: 20, marginLeft: -3, marginRight: 5 }} />
-        NEW COMMUNITY
+        {this.props.mobile ? 'NEW' : 'NEW COMMUNITY'}
       </div>
     );
   };
@@ -55,7 +60,8 @@ class Header extends PureComponent {
           justifyContent: 'center',
           fontWeight: 'bold',
           cursor: 'pointer',
-          userSelect: 'none'
+          userSelect: 'none',
+          paddingBottom: 1
         }}
       >
         <Icon name='chevron left' style={{ height: 20, marginRight: 4 }} />
@@ -69,7 +75,15 @@ class Header extends PureComponent {
     if (this.props.createNew) {
 
       return (
-        <div style={{ color: COLORS.secondaryBright, fontFamily: 'JetBrains-Mono-Bold' }}>
+        <div style={{ display: 'flex', alignItems: 'center', color: 'rgba(255,255,255,0.85)', fontFamily: 'JetBrains-Mono-Regular', paddingBottom: 1 }}>
+          <img
+            src={svgearth}
+            style={{
+              marginRight: 8,
+              height: 18,
+              width: 18
+            }}
+          />
           NEW COMMUNITY
         </div>
       );
@@ -84,9 +98,65 @@ class Header extends PureComponent {
       );
     }
 
+    const items = [
+      {
+        key: 'my_communities',
+        label: 'My Communities'
+      },
+      {
+        key: 'pending_approval',
+        label: 'PENDING APPROVAL'
+      }
+    ];
+
+    const approved = (this.props.modqueue || []).filter(item => {
+      return this.props.approvals && !this.props.approvals[item.coord];
+    });
+
     return ( // TODO list selector
-      <div style={{ fontSize: 13 }}>
-        My Communities
+      <div
+        style={{
+          fontSize: 13,
+          display: 'flex',
+          alignItems: 'center',
+          fontSize: 12,
+          fontFamily: 'JetBrains-Mono-Regular',
+          textTransform: 'uppercase'
+        }}
+      >
+        {items.map(item => {
+
+          const active = this.props.menu === item.key;
+
+          return (
+            <div
+              key={item.key}
+              onClick={() => this.props.handleMenuSelect(item.key)}
+              style={{
+                marginRight: 12,
+                cursor: 'pointer',
+                userSelect: 'none',
+                padding: 4,
+                borderBottom: `2px solid ${active ? '#fff' : 'transparent'}`
+              }}
+            >
+              {item.label}
+            </div>
+          );
+        })}
+        {approved.length > 0 ? (
+          <div
+            style={{
+              paddingBottom: 2,
+              color: COLORS.satelliteGold,
+              fontWeight: 'bold',
+              marginLeft: -10,
+              letterSpacing: 2
+            }}
+          >
+            ({approved.length})
+          </div>
+        ) : null}
       </div>
     );
   };

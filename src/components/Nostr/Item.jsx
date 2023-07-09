@@ -19,6 +19,7 @@ import svglightning from '../../assets/lightning.svg';
 import svgdelete from '../../assets/delete.svg';
 
 import { COLORS } from '../../constants';
+import { parseMediaURL } from '../../helpers';
 
 
 /* Renders an item and its replies */
@@ -461,7 +462,106 @@ class Item extends PureComponent {
 		);
 	};
 
+	renderReplacedLinkElement = (link, options = {}) => {
+
+		const { previewReplacedLinks, mobile } = this.props;
+
+		let linkElement = null;
+
+		const { media } = parseMediaURL(link);
+
+		const mediaStyle = {
+			width: previewReplacedLinks ? 220 : '100%',
+			marginBottom: previewReplacedLinks ? 4 : 12,
+			marginTop: mobile ? 10 : previewReplacedLinks ? 4 : 12,
+			border: `1px solid ${COLORS.secondary}`,
+			borderRadius: 4
+		};
+
+		let mediaElement = null;
+
+		if (media === 'image') {
+
+			mediaElement = (
+				<img
+					src={link}
+					style={mediaStyle}
+				/>
+			);
+
+		} else if (media === 'video'){
+
+			mediaElement = (
+				<video
+					src={link}
+					controls
+					style={mediaStyle}
+				/>
+			);
+
+		} else if (media === 'audio') {
+
+			mediaElement = (
+				<audio
+					src={link}
+					controls
+					style={mediaStyle}
+				/>
+			);
+
+		} else {
+
+			return options.renderNonMediaAsNull ? null : (
+				<a href={link} target='_blank'>
+					<div
+						style={{
+							fontSize: 13,
+							whiteSpace: 'nowrap',
+							overflow: 'hidden',
+							textOverflow: 'ellipsis'
+						}}
+					>
+						{link}
+					</div>
+				</a>
+			);
+		}
+
+		return mediaElement;
+
+		// return previewReplacedLinks ? (
+		// 	<div style={{
+		// 		display: 'flex'
+		// 	}}>
+		// 		<div style={{
+		// 			width: 100,
+		// 			marginRight: 16
+		// 		}}>
+		// 			<Link to={this.props.communityLink}>
+		// 				{mediaElement}
+		// 			</Link>
+		// 		</div>
+		// 		<div>
+		// 			<a href={link} target='_blank'>
+		// 				<div
+		// 					style={{
+		// 						fontSize: 13,
+		// 						//whiteSpace: 'nowrap',
+		// 						//overflow: 'hidden',
+		// 						//textOverflow: 'ellipsis'
+		// 					}}
+		// 				>
+		// 					{link}
+		// 				</div>
+		// 			</a>
+		// 		</div>
+		// 	</div>
+		// ) : mediaElement;
+	};
+
 	renderReplacedTitleElements = () => {
+
+		const { mobile } = this.props;
 
 		if (!this.props.replaceTitle) { return null; }
 
@@ -469,37 +569,37 @@ class Item extends PureComponent {
 
 		if (!title && !link) { return null; }
 
+		const titleElement = (
+			<div
+				onMouseOver={() => this.setState({ hover: 'community_link' })}
+				onMouseOut={() => this.setState({ hover: '' })}
+				style={{
+					fontWeight: 'bold',
+					textDecoration: this.state.hover === 'community_link' ? 'underline' : 'none',
+					fontSize: this.props.replaceTitleMode === 'list' ? 15 : 16,
+					color: '#fff',
+					//marginBottom: 2,
+					lineHeight: '24px',
+					overflowWrap: 'anywhere'
+				}}
+			>
+				{title}
+			</div>
+		);
+
 		return (
 			<div style={{
-				marginBottom: 6
+				marginBottom: this.props.replaceTitleMode === 'list' ? 6 : 12
 			}}>
-				{title ? (
-					<div
-						style={{
-							fontWeight: 'bold',
-							fontSize: 18,
-							color: '#fff',
-							marginBottom: 6,
-							lineHeight: '24px',
-							overflowWrap: 'anywhere'
-						}}
-					>
-						{title}
-					</div>
-				) : null}
-				{link ? (
-					<a href={link} target='_blank'>
-						<div
-							style={{
-								fontSize: 13,
-								whiteSpace: 'nowrap',
-								overflow: 'hidden',
-								textOverflow: 'ellipsis'
-							}}
-						>
-							{link}
-						</div>
-					</a>
+				{title ? (this.props.communityLink ? (
+					<Link to={this.props.communityLink}>
+						{titleElement}
+					</Link>
+				) : titleElement) : null}
+				{link && !this.props.previewReplacedLinks ? (
+					<Link to={this.props.communityLink}>
+						{this.renderReplacedLinkElement(link)}
+					</Link>
 				) : null}
 			</div>
 		);
@@ -783,6 +883,7 @@ class Item extends PureComponent {
 
 		}).join('');
 
+		/*
 		return (
 			<div>
 				{replaced.split('__replace__').map((markdown, index) => {
@@ -930,6 +1031,184 @@ class Item extends PureComponent {
 				})}
 			</div>
 		);
+		*/
+
+		const elements = replaced.split('__replace__').map((markdown, index) => {
+		
+			const renderQuote = (id) => {
+
+				if (id === this.props.feedPostId) { return null; }
+
+				const item = this.props.items[id];
+				const nnote = nip19.noteEncode(id);
+
+				return item && !item.phantom ? (
+					<div
+						key={index}
+						onClick={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							this.props.navigate(`/thread/${nnote}`);
+						}}
+						onMouseOver={(e) => {
+							this.setState({ hover: `quote_${id}` });
+						}}
+						onMouseOut={(e) => {
+							this.setState({ hover: '' });
+						}}
+						style={{
+							padding: 12,
+							border: `1px dotted ${COLORS.secondary}`,
+							borderRadius: 12,
+							marginTop: 12,
+							marginBottom: 12,
+							cursor: 'pointer',
+							background: this.state.hover === `quote_${id}` ? 'rgba(255,255,255,0.015)' : null
+						}}
+					>
+						<div style={{
+							pointerEvents: 'none'
+						}}>
+							<Item
+								quote
+								_mod={this.props._mod}
+								searchActive={this.props.searchActive}
+								depth={this.props.depth + 1}
+								index={0}
+								mobile={this.props.mobile}
+								active={this.props.active}
+								profile={this.props.profile}
+								event={item.event}
+								eroot={item.eroot}
+								replies={item.replies}
+								deleted={item.deleted}
+								phantom={item.phantom}
+								highlight={this.props.highlight}
+								repost={item._repost}
+								upvotes={item.upvotes}
+								handlePost={this.props.handlePost}
+								handleMobileReply={this.props.handleMobileReply}
+								navigate={this.props.navigate}
+								handleFollow={this.props.handleFollow}
+								handleQueryProfiles={this.props.handleQueryProfiles}
+								handleZapRequest={this.props.handleZapRequest}
+								contacts={this.props.contacts}
+								metadata={this.props.metadata}
+								author={item.author}
+								feedName={this.props.feedName}
+								//showFullsizeMedia={this.props.profile && (this.props.profile === item.event.pubkey || item._repost || (item.upvotes && item.upvotes[this.props.profile]))}
+								items={this.props.items}
+								feedPostId={this.props.feedPostId}
+							/>
+						</div>
+					</div>
+				) : (
+					<Link
+						to={`/thread/${nnote}`}
+						key={index}
+					>
+						<div
+							onMouseOver={() => this.setState({ hover: `quote_${id}` })}
+							onMouseOut={() => this.setState({ hover: '' })}
+							style={{
+								padding: 12,
+								border: `1px dotted ${COLORS.secondary}`,
+								borderRadius: 12,
+								marginTop: 12,
+								marginBottom: 12,
+								whiteSpace: 'nowrap',
+								overflow: 'hidden',
+								textOverflow: 'ellipsis',
+								color: COLORS.secondaryBright,
+								cursor: 'pointer',
+								background: this.state.hover === `quote_${id}` ? 'rgba(255,255,255,0.015)' : null
+							}}
+						>
+							<Icon
+								name='quote left'
+								style={{
+									fontSize: 13,
+									marginRight: 10
+								}}
+							/>
+							{nnote}
+						</div>
+					</Link>
+				);
+			};
+
+			let quoted;
+
+			if (markdown.indexOf('quote:') === 0) {
+
+				return (
+					<div key={index}>
+						{renderQuote(markdown.substring(6, 70))}
+						<MD
+							//key={index}
+							showFullsizeMedia={this.props.showFullsizeMedia}
+							showImagePreviews
+							attachMediaPreviewListeners={this.attachMediaPreviewListeners}
+							scriptContextId={this.contextId()}
+							markdown={markdown.slice(70)}
+							style={styles.text}
+							comment
+							mentions={mentions}
+							tags={this.props.event.tags}
+						/>
+					</div>
+				);
+			}
+
+			return (
+				<div key={index}>
+					<MD
+						showFullsizeMedia={this.props.showFullsizeMedia}
+						showImagePreviews
+						attachMediaPreviewListeners={this.attachMediaPreviewListeners}
+						scriptContextId={this.contextId()}
+						markdown={markdown}
+						style={styles.text}
+						comment
+						mentions={mentions}
+						tags={this.props.event.tags}
+					/>
+				</div>
+			);
+		});
+
+		let renderedLinkPreview = null;
+
+		if (this.state.link && this.props.previewReplacedLinks) {
+
+			renderedLinkPreview = this.renderReplacedLinkElement(this.state.link, {
+				renderNonMediaAsNull: true
+			});
+		}
+
+		return renderedLinkPreview ? (
+			<div style={{
+				display: 'flex',
+				//lineBreak: 'anywhere'
+			}}>
+				{this.props.communityLink ? (<Link to={this.props.communityLink}>
+					<div style={{
+						marginRight: 12,
+					}}>
+						{renderedLinkPreview}
+					</div>
+				</Link>) : null}
+				<div>
+					{elements}
+				</div>
+			</div>
+		) : (
+			<div style={{
+				//lineBreak: 'anywhere'
+			}}>
+				{elements}
+			</div>
+		);
 
 		/*
 		return (
@@ -982,10 +1261,10 @@ class Item extends PureComponent {
 
 	renderActions = () => {
 
-		const { repost, event, upvotes, active, thread, quote } = this.props;
+		const { repost, event, upvotes, active, thread, quote, hideActions } = this.props;
 		const { hover, pendingZapRequest } = this.state;
 
-		if (thread || quote || this.state.compose || this.props.event.kind === 6) { return null; }
+		if (hideActions || thread || quote || this.state.compose || this.props.event.kind === 6) { return null; }
 
 		const activeRepost = repost && repost.event.pubkey === active;
 		const ownEvent = event.pubkey === active;
@@ -1152,7 +1431,7 @@ class Item extends PureComponent {
 			>
 				{this.renderMediaPreview()}
 				{this.renderReplacedTitleElements()}
-				<div style={styles.meta}>
+				{this.props.hideAttribution ? null : (<div style={styles.meta}>
 					<Author
 						infoHover
 						mobile={this.props.mobile}
@@ -1172,11 +1451,12 @@ class Item extends PureComponent {
 					<RelativeTime time={event.created_at} />
 					{this.renderEventInfoTrigger()}
 					{this.renderEventInfo()}
-				</div>
+				</div>)}
 				<div style={styles.bodyContainer({
 					mobile: this.props.mobile,
 					thread: this.props.thread,
-					quote: this.props.quote
+					quote: this.props.quote,
+					replaceTitle: this.props.replaceTitle
 				})}>
 					<div style={{ transform: 'translate(0px, -4px)' }}>
 						{this.renderBody()}
@@ -1461,11 +1741,11 @@ const styles = {
 		};
 	},
 
-	bodyContainer: ({ mobile, thread, quote }) => {
+	bodyContainer: ({ mobile, thread, quote, replaceTitle }) => {
 		return {
 			color: '#fff',
 			marginBottom: quote ? -4 : (thread ? 0 : 16),
-			marginTop: 8
+			marginTop: replaceTitle ? 6 : 8
 		};
 	}
 };

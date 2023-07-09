@@ -499,6 +499,20 @@ class Feed {
 
 					this.communityListener(event);
 				}
+
+			} else if (event.kind === 30001) {
+
+				console.log('got kind 30001', event);
+
+				for (let tag of event.tags) {
+
+					if (tag[0] === 'd') {
+
+						if (tag[1] === 'communities' && this.communityFollowingListListener) {
+							this.communityFollowingListListener(event);
+						}
+					}
+				}
 			}
 
 			let eroot, ereply
@@ -927,6 +941,11 @@ class Feed {
 	listenForCommunity (handler) {
 
 		this.communityListener = handler;
+	}
+
+	listenForCommunityFollowingList (handler) {
+
+		this.communityFollowingListListener = handler;
 	}
 
 	// Listen for relay EOSE notice

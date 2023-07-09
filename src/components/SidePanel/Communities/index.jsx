@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { Icon } from 'semantic-ui-react';
+import { nip19 } from 'nostr-tools';
 
 //import EditProfileForm from '../Nostr/EditProfileForm';
 //import { CanonicalValue } from '../CommonUI';
@@ -8,10 +9,11 @@ import { Icon } from 'semantic-ui-react';
 import Header from './Header';
 import AdminEditor from './AdminEditor';
 import ListItem from './ListItem';
+import ModQueue from '../../CommunityPage/ModQueue';
 
 import { transition } from '../../../helpers';
 import { COLORS } from '../../../constants';
-import { handleNostrPublish, navigate } from '../../../actions';
+import { handleNostrPublish, navigate, handleApprovePost } from '../../../actions';
 //import crownsvg from '../../../assets/crown.svg';
 
 
@@ -19,26 +21,26 @@ class Communities extends PureComponent {
 
 	state = {
 		createNew: false, // Create new mode
-		editing: null // Community being edited
+		editing: null, // Community being edited,
+		menu: 'my_communities'
 	};
 
-	// renderProfileSection = () => {
+	handleApprovePost = (item) => {
 
-	// 	return (
-	// 		<div>
-				
-	// 		</div>
-	// 		// <div style={styles.sectionContainer(this.props.mobile)}>
-	// 		// 	<EditProfileForm
-	// 		// 		clientWidth={this.props.clientWidth}
-	// 		// 		clientHeight={this.props.clientHeight}
-	// 		// 		handlePublish={handleNostrPublish}
-	// 		// 		metadata={this.props.metadata}
-	// 		// 		mobile={this.props.mobile}
-	// 		// 	/>
-	// 		// </div>
-	// 	);
-	// };
+		let ownerpubkey;
+
+		try {
+			const decoded = nip19.decode(item.postedTo.owner);
+			ownerpubkey = decoded.data;
+		} catch (err) {}
+
+		if (!ownerpubkey) { return; }
+
+		handleApprovePost(item, {
+			name: item.postedTo.name,
+			ownerpubkey
+		});
+	};
 
 	// Toggle create new mode
 	handleToggleEdit = (update) => {
@@ -62,24 +64,6 @@ class Communities extends PureComponent {
 		} catch (err) {
 			console.log(err);
 		}
-	};
-
-	renderHeader = () => {
-
-		return (
-			<div style={{
-				height: 60,
-				display: 'flex',
-				alignItems: 'center'
-			}}>
-				<div>
-					My Communities
-				</div>
-				<div>
-					Create New
-				</div>
-			</div>
-		);
 	};
 
 	renderAdminEditor = () => {
@@ -107,7 +91,7 @@ class Communities extends PureComponent {
 
 	renderList = () => {
 
-		const { createNew, editing } = this.state;
+		const { createNew, editing, menu } = this.state;
 		const { mobile } = this.props;
 
 		if (createNew || editing) { return null; }
@@ -118,7 +102,7 @@ class Communities extends PureComponent {
 				paddingLeft: mobile ? 12 : 24,
 				paddingRight: mobile ? 12 : 24
 			}}>
-				{this.props.list.filter(item => {
+				{menu === 'my_communities' ? this.props.list.filter(item => {
 					return item.founder || item.moderator;
 				}).map(item => {
 					return (
@@ -128,7 +112,20 @@ class Communities extends PureComponent {
 							handleConfigClicked={() => this.setState({ editing: item })}
 						/>
 					);
-				})}
+				}) : null}
+				{menu === 'pending_approval' ? (
+					<ModQueue
+						divided
+						moderator
+						feed={this.props.prof}
+						approvals={this.props.approvals}
+						mobile={this.props.mobile}
+						items={this.props.modqueue}
+						metadata={this.props.prof.metadata}
+						handleApprovePost={this.handleApprovePost}
+						navigate={this.props.navigate}
+					/>
+				) : null}
 			</div>
 		);
 	};
@@ -136,13 +133,17 @@ class Communities extends PureComponent {
 	render = () => {
 
 		return (
-			<div style={styles.settingsContainer(/*this.props.mobile, true, this.props.scrollHeight*/)}>
+			<div style={styles.settingsContainer()}>
 				<Header
 					mobile={this.props.mobile}
 					clientWidth={this.props.clientWidth}
 					handleToggleEdit={this.handleToggleEdit}
+					handleMenuSelect={menu => this.setState({ menu })}
 					createNew={this.state.createNew}
 					editing={this.state.editing}
+					menu={this.state.menu}
+					modqueue={this.props.modqueue}
+					approvals={this.props.approvals}
 				/>
 				{this.renderAdminEditor()}
 				{this.renderList()}
@@ -158,7 +159,17 @@ const mapState = ({ app, nostr, communities }) => {
 		scrollHeight: app.minHeight,
 		mobile: app.mobile,
 		pubkey: nostr.pubkey,
-		list: communities.list
+		approvals: communities.approvals,
+		prof: nostr.prof,
+		modqueue: Object.keys(communities.modqueue).map(id => {
+			return communities.modqueue[id];
+		}).sort((a, b) => {
+			return b.event.created_at - a.event.created_at;
+		}),
+		list: Object.keys(communities.list).map(id => {
+			return communities.list[id];
+		})
+		// list: communities.list
 		//pubkey: nip19.npubEncode(nostr.pubkey),
 		//privateKey: nostr.privateKey ? nip19.nsecEncode(nostr.privateKey) : undefined,
 		//metadata: nostr.pubkey && nostr.metadata ? (nostr.metadata[nostr.pubkey] || {}) : {}/*(nostr.metadata || {})[nostr.pubkey] || {}*/
@@ -231,18 +242,11 @@ const styles = {
 		};
 	},
 
-	settingsContainer: (/*mobile, display, height*/) => {
+	settingsContainer: () => {
 		return {
 			maxWidth: 612,
-			// paddingLeft: mobile ? 12 : 24,
-			// paddingRight: mobile ? 12 : 24,
-			//height: mobile ? null : height,
-			// paddingTop: mobile ? 72 : 24,
 			paddingBottom: 96,
-			color: '#fff',
-			//marginTop: 1,
-			//opacity: display ? 1 : 0,
-			//...transition(0.2, 'ease', [ 'opacity' ])
+			color: '#fff'
 		};
 	}
 };

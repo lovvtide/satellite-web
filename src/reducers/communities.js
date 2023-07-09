@@ -1,6 +1,10 @@
+import { nip19 } from 'nostr-tools';
+
 import {
 	RECEIVE_COMMUNITY_EVENT,
-	RECEIVE_COMMUNITY_METADATA
+	RECEIVE_COMMUNITY_METADATA,
+	RECEIVE_COMMUNITY_POST,
+	RECEIVE_COMMUNITY_FOLLOWING_LIST
 } from '../actions';
 
 // Get d-identifer community name
@@ -55,39 +59,156 @@ const contextualize = (event, { pubkey }) => {
 const receiveCommunityEvent = (state, { event, pubkey }) => {
 
 	const d = getIdentifier(event);
-	const list = [];
+	const existing = state.list[`${event.pubkey}:${d}`];
+	const add = {};
 
-	let added;
+	if (
+		!existing
+		|| (
+			existing.event.created_at < event.created_at
+			&& existing.event.pubkey === event.pubkey
+			&& d === getIdentifier(existing)
+		)
+	) {
 
-	for (let item of state.list) {
-
-		if (item.event.pubkey === event.pubkey && getIdentifier(item.event) === d) {
-
-			list.push(event.created_at > item.event.created_at ? contextualize(event, { pubkey }) : item);
-			added = true;
-
-		} else {
-
-			list.push(item);
-		}
-	}
-
-	if (!added) {
-
-		list.push(contextualize(event, { pubkey }));
+		add[`${event.pubkey}:${d}`] = contextualize(event, { pubkey });
 	}
 
 	return {
 		...state,
-		list: list.sort((a, b) => {
-			return b.event.created_at - a.event.created_at;
-		})
+		list: {
+			...state.list,
+			...add
+		}
 	};
 };
 
+const receiveCommunityPost = (state, { events }) => {
+
+	const coord = ({ tags }) => {
+
+		let e, a;
+
+		for (let tag of tags) {
+			if (tag[0] === 'e') {
+				e = tag[1];
+			} else if (tag[0] === 'a') {
+				a = tag[1]
+			}
+		}
+
+		if (e && a) {
+			return `${e}:${a}`;
+		}
+	};
+
+	const modqueue = {};
+	const approvals = {};
+
+	for (let event of events) {
+
+		if (event.kind === 4550) {
+
+			const c = coord(event);
+
+			if (!approvals[c]) {
+				approvals[c] = [];
+			}
+
+			let add = true;
+
+			for (let _approval of approvals[c]) {
+				if (_approval.id === event.id) {
+					add = false;
+					break;
+				}
+			}
+
+			if (add) {
+				approvals[c].push(event);
+			}
+
+		} else {
+
+			for (let tag of event.tags) {
+
+				if (tag[0] === 'a') {
+
+					const _a = tag[1].split(':');
+
+					modqueue[`${event.id}:${tag[1]}`] = {
+						event,
+						coord: `${event.id}:${tag[1]}`,
+						postedTo: {
+							owner: nip19.npubEncode(_a[1]),
+							name: tag[1].slice(tag[1].lastIndexOf(':') + 1)
+						}
+					};
+				}
+			}
+		}
+	}
+
+	let update = {};
+
+	if (Object.keys(modqueue).length > 0) {
+		update = {
+			...update,
+			modqueue: {
+				...state.modqueue,
+				...modqueue
+			}
+		}
+	}
+
+	if (Object.keys(approvals).length > 0) {
+		update = {
+			...update,
+			approvals: {
+				...state.approvals,
+				...approvals
+			}
+		}
+	}
+
+	return Object.keys(update).length > 0 ? {
+		...state,
+		...update
+	} : state;
+};
+
+const receiveCommunityFollowingList = (state, { event }) => {
+
+	if (event.created_at > state.followingListTimestamp) {
+
+		const update = {
+			followingListTimestamp: event.created_at,
+			followingList: {}
+		};
+
+		for (let tag of event.tags) {
+
+			if (tag[0] === 'a') {
+				update.followingList[tag[1]] = true;
+			}
+		}
+
+		return {
+			...state,
+			...update
+		};
+	}
+
+	return state;
+};
+
 const INITIAL_STATE = {
-	list: [],
-	metadata: {}
+	list: {},
+	approvals: {},
+	modqueue: {},
+	metadata: {},
+	followingList: {},
+	followingListTimestamp: 0
 };
 
 export default (state = INITIAL_STATE, action) => {
@@ -95,6 +216,12 @@ export default (state = INITIAL_STATE, action) => {
 	const { type, data } = action;
 
 	switch (type) {
+
+		case RECEIVE_COMMUNITY_FOLLOWING_LIST:
+			return receiveCommunityFollowingList(state, data);
+
+		case RECEIVE_COMMUNITY_POST:
+			return receiveCommunityPost(state, data);
 
 		case RECEIVE_COMMUNITY_EVENT:
 			return receiveCommunityEvent(state, data);

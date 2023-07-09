@@ -35,9 +35,13 @@ class ApproveButton extends PureComponent {
 					whiteSpace: 'nowrap',
 					textTransform: 'uppercase',
 					cursor: 'pointer',
-					fontSize: 11,
+					fontSize: 10,
 					fontFamily: 'JetBrains-Mono-Bold',
-					color: this.state.hover ? '#fff' : COLORS.secondaryBright
+					color: this.state.hover ? '#fff' : COLORS.secondaryBright,
+					border: '1px solid',
+					paddingLeft: 5,
+					paddingRight: 5,
+					borderRadius: 3
 				}}
 			>
 				<Icon name='circle check' />

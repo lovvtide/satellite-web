@@ -83,6 +83,119 @@ export const revokeDeviceAuth = (alias, options) => {
 	}
 };
 
+export const subscribeToCommunity = (params) => {
+
+	return async (dispatch, getState) => {
+
+		let event, atags;
+
+		const { a, subscribe } = params;
+		const { followingList } = getState().communities;
+
+		if (!a) { return; }
+
+		if (subscribe) { // Subscribe to community
+
+			if (followingList[a]) { return; }
+
+			atags = ([ a, ...Object.keys(followingList) ]).map(ident => {
+				return [ 'a', ident ];
+			});
+
+		} else { // Unsubscribe from community
+
+			if (!followingList[a]) { return; }
+
+			atags = Object.keys(followingList).filter(ident => {
+				return ident !== a;
+			}).map(ident => {
+				return [ 'a', ident ];
+			});
+		}
+
+		try {
+
+			event = await window.client.createEvent({
+				content: '',
+				kind: 30001,
+				tags: [
+					[ 'd', 'communities' ],
+					...atags
+				]
+			}, {
+				privateKey: getLocalPrivateKey()
+			});
+
+		} catch (err) {
+			console.log('err', err);
+		}
+
+		if (!event) { return; }
+
+		dispatch({
+			type: RECEIVE_COMMUNITY_FOLLOWING_LIST,
+			data: { event }
+		});
+
+		try {
+
+			await new Promise((resolve, reject) => {
+				window.client.publishEvent(event, (status, relay) => {
+					console.log(status, relay.url);
+				});
+			});
+
+		} catch (err) {
+			console.log(err);
+		}
+	};
+};
+
+export const handleApprovePost = async (item, params = {}, handlers = {}) => {
+
+	let event;
+
+	try {
+
+		event = await window.client.createEvent({
+			content: JSON.stringify(item.event),
+			kind: 4550,
+			tags: [
+				[ 'a', `34550:${params.ownerpubkey}:${params.name}` ],
+				[ 'e', item.event.id ],
+				[ 'p', item.event.pubkey ],
+				[ 'k', String(item.event.kind) ]
+			]
+		}, {
+			privateKey: getLocalPrivateKey()
+		});
+
+	} catch (err) {
+		console.log('err', err);
+	}
+
+	if (!event) { return; }
+
+	if (handlers.onSignedEvent) {
+
+		handlers.onSignedEvent(event);
+	}
+
+	//this.state.feed.update(event, null, { newpub: true });
+
+	try {
+
+		await new Promise((resolve, reject) => {
+			window.client.publishEvent(event, (status, relay) => {
+				console.log(status, relay.url);
+			});
+		});
+
+	} catch (err) {
+		console.log(err);
+	}
+}
+
 export const SHOW_ZAP_REQUEST = 'SHOW_ZAP_REQUEST';
 export const handleZapRequest = (recipient = {}, event = {}, handlers = {}) => {
 
@@ -327,7 +440,9 @@ export const SET_PENDING_CONTACTS = 'SET_PENDING_CONTACTS';
 export const LOAD_ACTIVE_NOSTR = 'LOAD_ACTIVE_NOSTR';
 export const RECEIVE_DM_METADATA = 'RECEIVE_DM_METADATA';
 export const RECEIVE_COMMUNITY_EVENT = 'RECEIVE_COMMUNITY_EVENT';
+export const RECEIVE_COMMUNITY_POST = 'RECEIVE_COMMUNITY_POST';
 export const RECEIVE_COMMUNITY_METADATA = 'RECEIVE_COMMUNITY_METADATA';
+export const RECEIVE_COMMUNITY_FOLLOWING_LIST = 'RECEIVE_COMMUNITY_FOLLOWING_LIST';
 export const loadActiveNostr = (callback) => { // load active address / alias
 
 	return async (dispatch, getState) => {
@@ -371,13 +486,76 @@ export const loadActiveNostr = (callback) => { // load active address / alias
 			data: { pubkey, privateKey }
 		});
 
+		const parsedEventId = {};
+
 		dispatch(nostrProfileInit(window.client.listenForProfile(pubkey, {
+
+			onLoadedCommunityFollowingList: (event) => {
+
+				dispatch({
+					type: RECEIVE_COMMUNITY_FOLLOWING_LIST,
+					data: { event }
+				});
+			},
+
+			onLoadedModqueue: (feed, relay) => {
+
+				setTimeout(() => {
+
+					const { modqueue } = getState().communities;
+					const filters = [];
+					const p = {};
+
+					for (let key of Object.keys(modqueue)) {
+
+						const item = modqueue[key];
+
+						p[item.event.pubkey] = true;
+
+						if (parsedEventId[item.event.id] || !item.event.content) { continue; }
+
+						Object.assign(parsedEventId, window.client.parseContentRefs(item.event.content)['e']);
+					}
+
+					const authors = Object.keys(p);
+
+					if (authors.length > 0) {
+
+						filters.push({
+							authors,
+							kinds: [ 0 ]
+						});
+					}
+					const ids = Object.keys(parsedEventId);
+
+					if (ids.length > 0) {
+
+						filters.push({
+							ids
+						});
+					}
+
+					if (filters.length > 0) {
+
+						feed.subscribe(`modqueue_metadata`, relay, filters);
+					}
+
+				}, 1500);
+			},
 
 			onCommunity: (event) => {
 
 				dispatch({
 					type: RECEIVE_COMMUNITY_EVENT,
 					data: { event, pubkey }
+				});
+			},
+
+			onCommunityPost: (events) => {
+
+				dispatch({
+					type: RECEIVE_COMMUNITY_POST,
+					data: { events }
 				});
 			},
 
@@ -584,7 +762,8 @@ export const nostrMainInit = () => {
 				const { communities } = getState();
 
 				main.subscribe(`community_index_metadata`, relay, [{
-					authors: communities.list.map(item => {
+					authors: Object.keys(communities.list).map(d => {
+						const item = communities.list[d];
 						return item.event.pubkey;
 					}),
 					kinds: [ 0 ]

@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import { Icon } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { nip19 } from 'nostr-tools';
@@ -15,8 +16,6 @@ class CommunityList extends PureComponent {
 
 		if (this.props.main && !this.props.main.subscriptions['community_index']) {
 
-			//console.log('mounted', this.props.main);
-
 			window.client.subscribe('community_index', this.props.main, [{
 				kinds: [ 34550 ]
 			}]);
@@ -25,37 +24,23 @@ class CommunityList extends PureComponent {
 
 	};
 
-	// componentDidUpdate = (prevProps) => {
-
-	// 	console.log('did update', this.props, prevProps);
-
-	// 	if (!prevProps.main && this.props.main) {
-
-	// 		console.log('this.props.main');
-
-	// 		window.client.subscribe('community_index', this.props.main, [{
-	// 			kinds: [ 34450 ]
-	// 		}]);
-	// 	}
-	// };
-
-	// componentWillUnmount = () => {
-
-	// 	if (window._communityindex) {
-
-	// 		window._communityindex.unregisterObserver('community_index');
-	// 	}
-	// };
-
 	renderList = () => {
 
 		return this.props.list.filter(item => {
 			return item.image;
+		}).sort((a, b) => {
+
+			const followingA = this.props.followingList[`34550:${a.event.pubkey}:${a.name}`];
+			const followingB = this.props.followingList[`34550:${b.event.pubkey}:${b.name}`];
+
+			if (followingA && !followingB) { return -1; }
+			if (followingB && !followingA) { return 1; }
+			if (followingA && followingB) { return 0; }
+
 		}).map(item => {
 
-			//console.log('item', item);
-
 			const foundernpub = nip19.npubEncode(item.event.pubkey);
+			const following = this.props.followingList[`34550:${item.event.pubkey}:${item.name}`];
 
 			return (
 				<Link
@@ -87,6 +72,9 @@ class CommunityList extends PureComponent {
 							overflow: 'hidden',
 							textOverflow: 'ellipsis'
 						}}>
+							{following ? (
+								<Icon name='circle check' style={{ marginRight: 6, height: 18, color: '#fff' }} />
+							) : null}
 							<div style={{
 								fontSize: 14,
 								fontWeight: 'bold',
@@ -109,7 +97,6 @@ class CommunityList extends PureComponent {
 								<Link to={`/@${foundernpub}`}>
 									<Name
 										npub={foundernpub}
-										//pubkey={item.event.pubkey}
 										profile={this.props.metadata[item.event.pubkey]}
 										style={{
 											color: COLORS.satelliteGold
@@ -135,11 +122,13 @@ class CommunityList extends PureComponent {
 }
 
 const mapState = ({ nostr, communities }) => {
-
 	return {
 		main: nostr.main,
-		list: communities.list,
-		metadata: communities.metadata
+		followingList: communities.followingList,
+		metadata: communities.metadata,
+		list: Object.keys(communities.list).map(id => {
+			return communities.list[id];
+		})
 	};
 };
 

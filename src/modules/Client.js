@@ -303,6 +303,11 @@ class Client {
 			feed.listenForCommunity(handlers.onCommunity)
 		}
 
+		if (handlers.onLoadedCommunityFollowingList) {
+
+			feed.listenForCommunityFollowingList(handlers.onLoadedCommunityFollowingList);
+		}
+
 		// Listen for user's contacts
 		feed.listenForContacts(pubkey, ({ contacts, content }) => {
 
@@ -336,6 +341,8 @@ class Client {
 
 		});
 
+		let communityIds = [];
+
 		const detectNotification = (event) => {
 
 			if (event.pubkey === pubkey) {
@@ -349,8 +356,26 @@ class Client {
 			let notify;
 
 			for (let tag of event.tags) {
+
 				if (tag[0] === 'p' && tag[1] === pubkey) {
 					return true;
+				}
+			}
+
+			return false;
+		};
+
+		const detectCommunityPost = (event, cids) => {
+
+			//console.log('event cids', event, cids);
+
+			if (event.kind === 1 || event.kind === 4550) {
+
+				for (let tag of event.tags) {
+
+					if (tag[0] === 'a' && cids.indexOf(tag[1]) !== -1) {
+						return true;
+					}
 				}
 			}
 
@@ -362,7 +387,7 @@ class Client {
 
 			if (options.subscription === profileFeedName) {
 
-				const communityIds = feed.list().filter(item => {
+				communityIds = feed.list().filter(item => {
 					return item.event.kind === 34550;
 				}).map(item => {
 					for (let tag of item.event.tags) {
@@ -377,41 +402,73 @@ class Client {
 				const now = Math.floor(Date.now() / 1000);
 
 				// Pull notifications for user
-				this.subscribe(notificationsFeedName, feed, [{
+				// this.subscribe(notificationsFeedName, feed, [{
+				// 	kinds: [ 1, 6, 7 ],
+				// 	'#p': [ pubkey ],
+				// 	since: now - (86400 * 5)
+				// }, {
+				// 	kinds: [ 1, 4550 ],
+				// 	'#a': communityIds,
+				// 	since: now - (86400 * 5)
+				// }]);
+
+				feed.subscribe(notificationsFeedName, relay, [{
 					kinds: [ 1, 6, 7 ],
 					'#p': [ pubkey ],
-					since: now - (86400 * 7)
+					since: now - (86400 * 5)
 				}, {
-					kinds: [ 1 ],
-					'#a': communityIds
+					kinds: [ 1, 4550 ],
+					'#a': communityIds,
+					since: now - (86400 * 5)
 				}]);
+
+				// this.subscribe(modqueFeedName, feed, [{
+				// 	kinds: [ 1, 4550 ],
+				// 	'#a': communityIds
+				// }]);
 
 			} else if (options.subscription === notificationsFeedName) {
 
 				/* After initial batch of notifications
 				is loaded, listen for additional */
 
-				if (handlers.onNotify) {
+				setTimeout(() => {
 
-					setTimeout(() => {
+					if (!feed.eventListener) {
 
-						if (!feed.eventListener) {
+						feed.listenForEvent(event => {
 
-							feed.listenForEvent(event => {
-								if (!feed.items[event.id] && detectNotification(event)) {
-									handlers.onNotify([ event ]);
-								}
-							});
+							if (feed.items[event.id]) { return; }
 
-							handlers.onNotify(feed.list().filter(item => {
-								return detectNotification(item.event);
-							}).map(item => {
-								return item.event;
-							}));
-						}
+							if (detectNotification(event)) {
+								handlers.onNotify([ event ]);
+							}
 
-					}, 1500);
-				}
+							if (detectCommunityPost(event, communityIds)) {
+								handlers.onCommunityPost([ event ]);
+							}
+
+						});
+
+						const listed = feed.list().map(item => {
+							return item.event;
+						});
+
+						handlers.onNotify(listed.filter(event => {
+							return detectNotification(event);
+						}));
+
+						handlers.onCommunityPost(listed.filter(event => {
+							return detectCommunityPost(event, communityIds);
+						}));
+					}
+
+					if (handlers.onLoadedModqueue) {
+
+						handlers.onLoadedModqueue(feed, relay);
+					}
+
+				}, 1500);
 
 			} else if (options.subscription === messageFeedName) {
 
@@ -432,11 +489,15 @@ class Client {
 					}
 				}
 
-				this.subscribe(`dm_metadata_${pubkey}`, feed, [{
+				// this.subscribe(`dm_metadata_${pubkey}`, feed, [{
+				// 	kinds: [ 0 ],
+				// 	authors: Object.keys(p)
+				// }]);
+
+				feed.subscribe(`dm_metadata_${pubkey}`, relay, [{
 					kinds: [ 0 ],
 					authors: Object.keys(p)
 				}]);
-
 			}
 
 		});
@@ -444,7 +505,7 @@ class Client {
 		// Pull metadata, contacts, communities, for user
 		this.subscribe(profileFeedName, feed, [{
 			authors: [ pubkey ],
-			kinds: [ 0, 3, 34550 ]
+			kinds: [ 0, 3, 34550, 30001 ]
 		}, {
 			'#p': [ pubkey ],
 			kinds: [ 34550 ]
