@@ -91,66 +91,84 @@ class CommunityPage extends PureComponent {
 
 				this.version = event.created_at;
 
-				const update = {
-					founder: event.pubkey === this.props.ownerpubkey,
-					moderator: event.pubkey === this.props.ownerpubkey,
-					moderators: [],
-					event,
+				this.setState({
+					loaded: false,
 					image: '',
 					name: '',
 					description: '',
 					rules: '',
-					loaded: true
-				};
+					moderators: [],
+					modqueue: null,
+					approved: null,
+					metadata: {},
+					founder: false,
+					moderator: false,
+					showMobileSidebar: false
+				}, () => {
 
-				for (let tag of event.tags) {
+					const update = {
+						founder: event.pubkey === this.props.ownerpubkey,
+						moderator: event.pubkey === this.props.ownerpubkey,
+						moderators: [],
+						event,
+						image: '',
+						name: '',
+						description: '',
+						rules: '',
+						loaded: true
+					};
 
-					if (tag[0] === 'p') {
+					for (let tag of event.tags) {
 
-						if (tag[1] === this.props.ownerpubkey) {
-							update.moderator = true;
+						if (tag[0] === 'p') {
+
+							if (tag[1] === this.props.ownerpubkey) {
+								update.moderator = true;
+							}
+
+							update.moderators.push(tag[1]);
+
+						} else if (tag[0] === 'd') {
+							update.name = tag[1];
+						} else if (tag[0] === 'image') {
+							update.image = tag[1];
+						} else if (tag[0] === 'description') {
+							update.description = tag[1];
+						} else if (tag[0] === 'rules') {
+							update.rules = tag[1];
+						}
+					}
+
+					this.setState(update, () => {
+
+						const moderatorPubkeys = update.moderators;
+
+						if (moderatorPubkeys.indexOf(this.props.ownerpubkey) === -1) {
+							moderatorPubkeys.push(this.props.ownerpubkey);
 						}
 
-						update.moderators.push(tag[1]);
+						feed.listenForMetadata('*', (pubkey, profile) => {
 
-					} else if (tag[0] === 'd') {
-						update.name = tag[1];
-					} else if (tag[0] === 'image') {
-						update.image = tag[1];
-					} else if (tag[0] === 'description') {
-						update.description = tag[1];
-					} else if (tag[0] === 'rules') {
-						update.rules = tag[1];
-					}
-				}
+							this.setState({
+								metadata: {
+									...this.state.metadata,
+									[pubkey]: { profile }
+								}
+							});
 
-				this.setState(update, () => {
-
-					const moderatorPubkeys = update.moderators;
-
-					if (moderatorPubkeys.indexOf(this.props.ownerpubkey) === -1) {
-						moderatorPubkeys.push(this.props.ownerpubkey);
-					}
-
-					feed.listenForMetadata('*', (pubkey, profile) => {
-
-						this.setState({
-							metadata: {
-								...this.state.metadata,
-								[pubkey]: { profile }
-							}
 						});
+
+						window.client.subscribe(secondaryFeedName, feed, [{
+							kinds: [ 4550 ], // TODO support kind 1063
+							authors: moderatorPubkeys,
+							'#a': [ `34550:${this.props.ownerpubkey}:${this.props.name}` ]
+						}, {
+							kinds: [ 0 ],
+							authors: moderatorPubkeys
+						}]);
 
 					});
 
-					window.client.subscribe(secondaryFeedName, feed, [{
-						kinds: [ 4550 ], // TODO support kind 1063
-						authors: moderatorPubkeys,
-						'#a': [ `34550:${this.props.ownerpubkey}:${this.props.name}` ]
-					}, {
-						kinds: [ 0 ],
-						authors: moderatorPubkeys
-					}]);
 
 				});
 			}
