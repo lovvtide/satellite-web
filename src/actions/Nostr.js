@@ -83,6 +83,57 @@ export const revokeDeviceAuth = (alias, options) => {
 	}
 };
 
+export const COMMUNITY_INDEX_EOSE = 'COMMUNITY_INDEX_EOSE';
+export const loadCommunitiesIndex = () => {
+
+	return (dispatch, getState) => {
+
+		const { main } = getState().nostr;
+
+		const SUBSCRPTION_NAME = 'community_index';
+
+		if (!main || main.subscriptions[SUBSCRPTION_NAME]) {
+			return;
+		}
+
+		/*
+		main.listenForEose((relay, options) => {
+
+			if (options.subscription === SUBSCRPTION_NAME) {
+
+				console.log('!A')
+
+				const forks = {};
+				const { list } = getState().communities;
+
+				for (let a of Object.keys(list)) {
+
+					const name = a.split(':')[1];
+
+					if (!forks[name]) {
+						forks[name] = 0;
+					}
+
+					forks[name]++;
+				}
+
+				//setTimeout(() => {
+				dispatch({ type: COMMUNITY_INDEX_EOSE, data: { forks } });
+				//}, 6000);
+
+				console.log('!B')
+
+				
+			}
+		});
+		*/
+
+		window.client.subscribe(SUBSCRPTION_NAME, main, [{
+			kinds: [ 34550 ]
+		}]);
+	};
+};
+
 export const subscribeToCommunity = (params) => {
 
 	return async (dispatch, getState) => {

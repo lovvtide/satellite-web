@@ -502,8 +502,6 @@ class Feed {
 
 			} else if (event.kind === 30001) {
 
-				console.log('got kind 30001', event);
-
 				for (let tag of event.tags) {
 
 					if (tag[0] === 'd') {

@@ -4,7 +4,8 @@ import {
 	RECEIVE_COMMUNITY_EVENT,
 	RECEIVE_COMMUNITY_METADATA,
 	RECEIVE_COMMUNITY_POST,
-	RECEIVE_COMMUNITY_FOLLOWING_LIST
+	RECEIVE_COMMUNITY_FOLLOWING_LIST,
+	COMMUNITY_INDEX_EOSE
 } from '../actions';
 
 // Get d-identifer community name
@@ -67,7 +68,7 @@ const receiveCommunityEvent = (state, { event, pubkey }) => {
 		|| (
 			existing.event.created_at < event.created_at
 			&& existing.event.pubkey === event.pubkey
-			&& d === getIdentifier(existing)
+			&& d === getIdentifier(existing.event)
 		)
 	) {
 
@@ -203,12 +204,14 @@ const receiveCommunityFollowingList = (state, { event }) => {
 };
 
 const INITIAL_STATE = {
+	forks: {},
 	list: {},
 	approvals: {},
 	modqueue: {},
 	metadata: {},
 	followingList: {},
-	followingListTimestamp: 0
+	followingListTimestamp: 0,
+	eoseCount: 0
 };
 
 export default (state = INITIAL_STATE, action) => {
@@ -233,6 +236,13 @@ export default (state = INITIAL_STATE, action) => {
 					...state.metadata,
 					[data.pubkey]: data.profile
 				}
+			};
+
+		case COMMUNITY_INDEX_EOSE:
+			return {
+				...state,
+				forks: data.forks,
+				eoseCount: state.eoseCount + 1
 			};
 
 		default:

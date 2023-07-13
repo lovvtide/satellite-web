@@ -503,7 +503,7 @@ const styles = {
 		return {
 			textAlign: 'left',
 			width: mobile ? clientWidth : '100%',
-			color: 'rgba(255,255,255,0.85)',
+			color: 'rgba(255,255,255,0.80)',
 			background: modal ? 'rgb(20, 21, 22)' : (mobile ? 'transparent' : (focus || hover ? `rgb(29, 30, 31)` : `rgb(27, 28, 29)`)),
 			borderRadius: 4,
 			padding: modal ? '16px 20px' : (mobile ? `0px 24px 0px ${replyTo ? 51 : 24}px` : '12px 13px'),

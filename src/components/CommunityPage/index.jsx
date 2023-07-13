@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { Icon } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import { Link, Route, Switch } from 'react-router-dom';
-import { SimplePool, nip19 } from 'nostr-tools';
+import { nip19 } from 'nostr-tools';
 
 import Feed from '../../modules/Feed';
 

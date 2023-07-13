@@ -7,6 +7,7 @@ import { initialize, showAliasMenuMobile, windowResize, handleNostrPublish, open
 import { NAV_HEIGHT } from './constants';
 import { transition } from './helpers';
 
+import CommunityForks from './components/Nostr/CommunityForks';
 import CommunityList from './components/Nostr/CommunityList';
 import ComingSoon from './components/Nostr/ComingSoon';
 import MediaHosting from './components/MediaHosting';
@@ -79,7 +80,9 @@ class App extends PureComponent {
             paddingRight: 12,
             paddingLeft: 12
           }}>
-            <CommunityList/>
+            <CommunityList
+              requireImage
+            />
           </div>
         )}
       </div>
@@ -128,6 +131,7 @@ class App extends PureComponent {
           <Switch>
             <Route path='/n/:name/:founder/:note' component={CommunityPage} />
             <Route path='/n/:name/:founder' component={CommunityPage} />
+            <Route path='/n/:name' component={CommunityForks} />
           </Switch>
           <Route exact path='/auth' component={SignIn} />
           <Route path='/auth/:mode' component={SignIn} />

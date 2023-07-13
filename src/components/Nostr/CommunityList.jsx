@@ -6,6 +6,7 @@ import { nip19 } from 'nostr-tools';
 
 import { COLORS } from '../../constants';
 import crownsvg from '../../assets/crown.svg';
+import { loadCommunitiesIndex } from '../../actions';
 
 import Name from '../CommunityPage/Name';
 
@@ -14,20 +15,23 @@ class CommunityList extends PureComponent {
 
 	componentDidMount = () => {
 
-		if (this.props.main && !this.props.main.subscriptions['community_index']) {
+		this.props.loadCommunitiesIndex();
 
-			window.client.subscribe('community_index', this.props.main, [{
-				kinds: [ 34550 ]
-			}]);
+		// if (this.props.main && !this.props.main.subscriptions['community_index']) {
 
-		}
+		// 	window.client.subscribe('community_index', this.props.main, [{
+		// 		kinds: [ 34550 ]
+		// 	}]);
+
+		// }
 
 	};
 
 	renderList = () => {
 
 		return this.props.list.filter(item => {
-			return item.image;
+			return (item.image || !this.props.requireImage)
+			&& (!this.props.filter || this.props.filter(item));
 		}).sort((a, b) => {
 
 			const followingA = this.props.followingList[`34550:${a.event.pubkey}:${a.name}`];
@@ -56,7 +60,7 @@ class CommunityList extends PureComponent {
 							src={item.image}
 							style={{
 								borderRadius: 5,
-								backgroundImage: `url(${item.image})`,
+								backgroundImage: item.image ? `url(${item.image})` : null,
 								height: 180,
 								width: '100%',
 								backgroundSize: 'cover',
@@ -125,11 +129,11 @@ const mapState = ({ nostr, communities }) => {
 	return {
 		main: nostr.main,
 		followingList: communities.followingList,
-		metadata: communities.metadata,
+		metadata: /*nostr.main.metadata*/communities.metadata,
 		list: Object.keys(communities.list).map(id => {
 			return communities.list[id];
 		})
 	};
 };
 
-export default connect(mapState)(CommunityList);
+export default connect(mapState, { loadCommunitiesIndex })(CommunityList);
