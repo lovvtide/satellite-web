@@ -9,7 +9,7 @@ const INITIAL_STATE = {
 	topMode: null,
 	mobileMenuOpen: false,
 	sectionLabels: {
-		//notifications: 'Notifications',
+		notifications: 'Notifications',
 		preferences: 'Profile Settings',
 		subscriptions: 'Following List',
 		relays: 'Relays',
@@ -19,10 +19,10 @@ const INITIAL_STATE = {
 	},
 	subMode: {},
 	sections: [
-		// {
-		// 	value: 'notifications',
-		// 	icon: 'bell'
-		// },
+		{
+			value: 'notifications',
+			icon: 'bell'
+		},
 		{
 			value: 'preferences',
 			icon: 'cog'

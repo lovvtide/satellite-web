@@ -1426,7 +1426,8 @@ class Item extends PureComponent {
 					marginBottom: thread ? 8 : (this.props.topLevel ? 24 : 0),
 					padding: thread ? `${this.props.mobile ? 8 : 12}px 16px ${this.props.divided ? 14 : 4}px` : 0,
 					background: this.state.hoverItem ? 'rgba(31, 32, 33, 0.8)' : null,
-					borderBottom: this.props.divided ? `1px solid ${COLORS.secondary}` : 'none'
+					borderBottom: this.props.divided ? `1px solid ${COLORS.secondary}` : 'none',
+					paddingBottom: this.props.divided ? 12 : 'none'
 				}}
 			>
 				{this.renderMediaPreview()}
@@ -1468,6 +1469,77 @@ class Item extends PureComponent {
 				</div>
 			</div>
 		);
+
+		const renderUpvote = (_pubkey) => {
+
+			const upvoteEvent = upvotes[_pubkey];
+
+			if (!upvoteEvent) { return null; }
+
+			const activeUpvote = upvoteEvent.pubkey === active;
+			const upvoteAuthor = ((this.props.metadata || {})[_pubkey] || {}).profile || {};
+
+			// if (highlight && event.pubkey !== highlight && upvoteEvent.pubkey !== highlight) {
+			// 	return item;
+			// }
+
+			// Render generic upvote events a star, others as emoji
+			const upvoteReaction = upvoteEvent.content === '+' ? (
+				<img
+					style={{ marginBottom: 2 }}
+					src={svgupactive}
+					height={13}
+					width={13}
+				/>
+			) : (
+				<span>
+					{upvoteEvent.content}
+				</span>
+			);
+
+			const upvoteReactionElement = (
+				<div
+					style={{ marginRight: 5, cursor: activeUpvote ? 'cursor' : 'default' }}
+					onClick={activeUpvote ? this.handleStar : undefined}
+				>
+					{upvoteReaction}
+				</div>
+			);
+
+			return (
+				<div
+					key={_pubkey}
+					style={{ ...styles.meta, marginBottom: 4 }}
+				>
+					{activeUpvote && !mobile ? (
+						<Popup
+							style={{ fontSize: 12, zIndex: 99999, filter: 'invert(85%)', boxShadow: 'none', color: '#000' }}
+							position='top center'
+							trigger={upvoteReactionElement}
+							content='Click to remove reaction'
+						/>
+					) : upvoteReactionElement}
+					<Author
+						infoHover
+						hideImage
+						mobile={this.props.mobile}
+						active={this.props.active}
+						infoTriggerId={`${upvoteEvent.id}_${this.props.depth}`}
+						pubkey={upvoteEvent.pubkey}
+						name={upvoteAuthor.name}
+						displayName={upvoteAuthor.display_name}
+						about={upvoteAuthor.about}
+						nip05={upvoteAuthor.nip05}
+						picture={upvoteAuthor.picture}
+						highlight={highlight === upvoteEvent.pubkey}
+						navigate={this.props.navigate}
+						following={this.props.contacts[upvoteEvent.pubkey]}
+						handleFollow={this.props.handleFollow}
+					/>
+					<RelativeTime time={upvoteEvent.created_at} />
+				</div>
+			);
+		};
 
 		if (!thread) {
 
@@ -1517,79 +1589,85 @@ class Item extends PureComponent {
 							/>
 							<RelativeTime time={repost.event.created_at} />
 						</div>
+						{Object.keys(upvotes || {}).map((_pubkey, index) => {
+							return renderUpvote(_pubkey, index);
+						})}
 						{item}
 					</div>
 				);
 
 			} else if (upvotes && Object.keys(upvotes).length > 0/* && upvotes[profile]*/) {
 
-				const renderUpvote = (_pubkey) => {
+				// const renderUpvote = (_pubkey) => {
 
-					const upvoteEvent = upvotes[_pubkey];
-					const activeUpvote = upvoteEvent.pubkey === active;
-					const upvoteAuthor = ((this.props.metadata || {})[_pubkey] || {}).profile || {};
+				// 	const upvoteEvent = upvotes[_pubkey];
 
-					// if (highlight && event.pubkey !== highlight && upvoteEvent.pubkey !== highlight) {
-					// 	return item;
-					// }
+				// 	if (!upvoteEvent) { return null; }
 
-					// Render generic upvote events a star, others as emoji
-					const upvoteReaction = upvoteEvent.content === '+' ? (
-						<img
-							style={{ marginBottom: 2 }}
-							src={svgupactive}
-							height={13}
-							width={13}
-						/>
-					) : (
-						<span>
-							{upvoteEvent.content}
-						</span>
-					);
+				// 	const activeUpvote = upvoteEvent.pubkey === active;
+				// 	const upvoteAuthor = ((this.props.metadata || {})[_pubkey] || {}).profile || {};
 
-					const upvoteReactionElement = (
-						<div
-							style={{ marginRight: 5, cursor: activeUpvote ? 'cursor' : 'default' }}
-							onClick={activeUpvote ? this.handleStar : undefined}
-						>
-							{upvoteReaction}
-						</div>
-					);
+				// 	// if (highlight && event.pubkey !== highlight && upvoteEvent.pubkey !== highlight) {
+				// 	// 	return item;
+				// 	// }
 
-					return (
-						<div
-							key={_pubkey}
-							style={{ ...styles.meta, marginBottom: 4 }}
-						>
-							{activeUpvote && !mobile ? (
-								<Popup
-									style={{ fontSize: 12, zIndex: 99999, filter: 'invert(85%)', boxShadow: 'none', color: '#000' }}
-									position='top center'
-									trigger={upvoteReactionElement}
-									content='Click to remove reaction'
-								/>
-							) : upvoteReactionElement}
-							<Author
-								infoHover
-								hideImage
-								mobile={this.props.mobile}
-								active={this.props.active}
-								infoTriggerId={`${upvoteEvent.id}_${this.props.depth}`}
-								pubkey={upvoteEvent.pubkey}
-								name={upvoteAuthor.name}
-								displayName={upvoteAuthor.display_name}
-								about={upvoteAuthor.about}
-								nip05={upvoteAuthor.nip05}
-								picture={upvoteAuthor.picture}
-								highlight={highlight === upvoteEvent.pubkey}
-								navigate={this.props.navigate}
-								following={this.props.contacts[upvoteEvent.pubkey]}
-								handleFollow={this.props.handleFollow}
-							/>
-							<RelativeTime time={upvoteEvent.created_at} />
-						</div>
-					);
-				};
+				// 	// Render generic upvote events a star, others as emoji
+				// 	const upvoteReaction = upvoteEvent.content === '+' ? (
+				// 		<img
+				// 			style={{ marginBottom: 2 }}
+				// 			src={svgupactive}
+				// 			height={13}
+				// 			width={13}
+				// 		/>
+				// 	) : (
+				// 		<span>
+				// 			{upvoteEvent.content}
+				// 		</span>
+				// 	);
+
+				// 	const upvoteReactionElement = (
+				// 		<div
+				// 			style={{ marginRight: 5, cursor: activeUpvote ? 'cursor' : 'default' }}
+				// 			onClick={activeUpvote ? this.handleStar : undefined}
+				// 		>
+				// 			{upvoteReaction}
+				// 		</div>
+				// 	);
+
+				// 	return (
+				// 		<div
+				// 			key={_pubkey}
+				// 			style={{ ...styles.meta, marginBottom: 4 }}
+				// 		>
+				// 			{activeUpvote && !mobile ? (
+				// 				<Popup
+				// 					style={{ fontSize: 12, zIndex: 99999, filter: 'invert(85%)', boxShadow: 'none', color: '#000' }}
+				// 					position='top center'
+				// 					trigger={upvoteReactionElement}
+				// 					content='Click to remove reaction'
+				// 				/>
+				// 			) : upvoteReactionElement}
+				// 			<Author
+				// 				infoHover
+				// 				hideImage
+				// 				mobile={this.props.mobile}
+				// 				active={this.props.active}
+				// 				infoTriggerId={`${upvoteEvent.id}_${this.props.depth}`}
+				// 				pubkey={upvoteEvent.pubkey}
+				// 				name={upvoteAuthor.name}
+				// 				displayName={upvoteAuthor.display_name}
+				// 				about={upvoteAuthor.about}
+				// 				nip05={upvoteAuthor.nip05}
+				// 				picture={upvoteAuthor.picture}
+				// 				highlight={highlight === upvoteEvent.pubkey}
+				// 				navigate={this.props.navigate}
+				// 				following={this.props.contacts[upvoteEvent.pubkey]}
+				// 				handleFollow={this.props.handleFollow}
+				// 			/>
+				// 			<RelativeTime time={upvoteEvent.created_at} />
+				// 		</div>
+				// 	);
+				// };
 				
 				// return profile ? renderUpvote(profile) : Object.keys(upvotes).map(_pubkey => {
 				// 	return renderUpvote(_pubkey);

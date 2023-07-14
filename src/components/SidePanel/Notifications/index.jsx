@@ -10,8 +10,6 @@ import { handleNostrPublish, queryProfiles, nostrFollow, handleZapRequest, navig
 
 class Notifications extends PureComponent {
 
-	//state = { loaded: false };
-
 	componentDidMount = () => {
 		if (this.props.count > 0) {
 			setTimeout(() => {
@@ -32,8 +30,6 @@ class Notifications extends PureComponent {
 
 	handleLoadContext = () => {
 
-		//console.log('LOAD');
-
 		const { notifications, feed, pubkey } = this.props;
 		const filters = [];
 		const uniqueE = {};
@@ -53,15 +49,15 @@ class Notifications extends PureComponent {
 
 			const { ereply, eroot, event } = feed.items[id];
 
-			if (eroot || (!feed.items[eroot] || feed.items[eroot].phantom)) {
+			if (eroot && (!feed.items[eroot] || feed.items[eroot].phantom)) {
 				uniqueE[eroot] = true;
 			}
 
-			if (ereply || (!feed.items[ereply] || feed.items[ereply].phantom)) {
+			if (ereply && (!feed.items[ereply] || feed.items[ereply].phantom)) {
 				uniqueE[ereply] = true;
 			}
 
-			if (event.pubkey) {
+			if (event.pubkey && !feed.metadata[event.pubkey]) {
 				uniqueP[event.pubkey] = true;
 			}
 
@@ -85,16 +81,6 @@ class Notifications extends PureComponent {
 		}
 
 		if (filters.length > 0) {
-
-			// this.props.feed.listenForEose((relay, options) => {
-
-			// 	//main.subscribe(`notifications_context`, relay, filters);
-
-			// 	if (options.subscription === `notifications_context`) {
-
-			// 		this.setState({ loaded: true });
-			// 	}
-			// });
 
 			// Pull events to provide context to notifications
 			window.client.subscribe(`notifications_context`, this.props.feed, filters);
@@ -133,24 +119,22 @@ class Notifications extends PureComponent {
 
 		return (
 			<div style={{
-				padding: this.props.mobile ? 12 : 24,
+				paddingLeft: this.props.mobile ? 12 : 24,
+				paddingRight: this.props.mobile ? 12 : 24,
+				paddingTop: 24,
+				paddingBottom: 24,
 				maxWidth: 720
 			}}>
-				{/*this.state.loaded*/true ? (<Feed
-					//style={{ marginTop: -16 }}
-					//divided
-					//lazyRender
+				<Feed
+					divided
 					feed={this.props.feed}
 					name={`notifications`}
 					buildOptions={{ mode: 'profile', pubkey: this.props.pubkey, surfaceMentions: true }}
 					mobile={this.props.mobile}
 					active={this.props.pubkey}
 					searchActive={this.props.searchActive}
-					//profile={this.props.pubkey}
 					highlight={this.props.pubkey}
-					//loadMorePending={this.state.loadMorePending}
 					handlePost={this.handlePost}
-					//handleLoadMore={this.handleLoadMore}
 					handleMobileReply={this.handleMobileReply}
 					handleQueryProfiles={this.handleQueryProfiles}
 					handleFollow={this.props.nostrFollow}
@@ -158,8 +142,7 @@ class Notifications extends PureComponent {
 					navigate={this.props.navigate}
 					metadata={this.props.metadata || {}}
 					contacts={{}}
-					//contacts={(this.props.contacts[this.props.pubkey] || {})}
-				/>) : null}
+				/>
 			</div>
 		);
 	};

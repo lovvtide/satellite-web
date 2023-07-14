@@ -413,8 +413,12 @@ class Client {
 				// }]);
 
 				feed.subscribe(notificationsFeedName, relay, [{
-					kinds: [ 1, 6, 7 ],
+					kinds: [ 1, 7 ],
 					'#p': [ pubkey ],
+					since: now - (86400 * 5)
+				}, {
+					kinds: [ 1, 7 ],
+					authors: [ pubkey ],
 					since: now - (86400 * 5)
 				}, {
 					kinds: [ 1, 4550 ],
@@ -426,6 +430,74 @@ class Client {
 				// 	kinds: [ 1, 4550 ],
 				// 	'#a': communityIds
 				// }]);
+
+			} else if (options.subscription === 'notifications_context') {
+
+				const filters = [];
+				const uniqueE = {};
+				const uniqueP = {};
+
+				const assignPubkey = (p) => {
+
+					if (p && !feed.metadata[p]) {
+						uniqueP[p] = true;
+					}
+				};
+
+				const assignEventId = (e) => {
+
+					if (e && (!feed.items[e] || feed.items[e].phantom)) {
+						uniqueE[e] = true;
+					}
+				};
+
+				for (let item of feed.list()) {
+
+					const { ereply } = item;
+
+					assignEventId(ereply);
+
+					assignPubkey(item.event.pubkey);
+
+					if (item.event.tags) {
+
+						for (let tag of item.event.tags) {
+
+							if (tag[0] === 'p') {
+								assignPubkey(tag[1]);
+							} else if (tag[0] === 'e' || tag[0] === 'q') {
+								assignEventId(tag[1]);
+							}
+						}
+					}
+
+					if (item.event.content) {
+
+						for (let _e of Object.keys(this.parseContentRefs(item.event.content)['e'])) {
+							assignEventId(_e);
+						}
+					}
+				}
+
+				if (Object.keys(uniqueE).length > 0) {
+
+					filters.push({
+						ids: Object.keys(uniqueE)
+					});
+				}
+
+				if (Object.keys(uniqueP).length > 0) {
+
+					filters.push({
+						authors: Object.keys(uniqueP),
+						kinds: [ 0 ]
+					});
+				}
+
+				if (filters.length > 0) {
+
+					feed.subscribe(`notifications_context_extra`, relay, filters);
+				}
 
 			} else if (options.subscription === notificationsFeedName) {
 

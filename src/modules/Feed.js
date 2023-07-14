@@ -705,13 +705,14 @@ class Feed {
 			// those will be found nested in the replies of other items
 			return Feed.sort(this.list().filter(item => {
 
-				if (([ 1, 5, 7 ]).indexOf(item.event.kind) === -1) { return false; }
+				if (([ 1, 5, 7 ]).indexOf(item.event.kind) === -1) {
+					return false;
+				}
 
 				if (item._repost && item._repost.event.pubkey === options.pubkey) {
 					return true;
 				}
 
-				/**********************/
 				const containsMention = (event) => {
 
 					if (!options.surfaceMentions) { return false; }
@@ -767,18 +768,13 @@ class Feed {
 								return true;
 							}
 
-							if (findNests(reply)) { return true; };
+							if (findNests(reply)) {
+								return true;
+							};
 						}
 					};
 
-					if (!findNests(item)) {
-
-						if (containsMention(item.event)) return true;
-
-						return false;
-					}
-
-					this.items[item.event.id]._nest = true;
+					if (!findNests(item)) { return false; }
 				}
 
 				if (
@@ -796,9 +792,11 @@ class Feed {
 				// 	return true;
 				// }
 
+				//return this.items[item.event.id]._nest;
+
 				return !item.ereply || !this.items[item.ereply] || (
 					this.items[item.ereply] && this.items[item.ereply].event.kind === 9
-				)/* || containsMention(item.event)*/;
+				);
 
 			}), item => {
 
@@ -810,6 +808,11 @@ class Feed {
 				if (item._repost && options.pubkey === item._repost.event.pubkey) {
 
 					return item._repost.event.created_at;
+				}
+
+				if (this._containsMention[item.event.id]) {
+
+					return item.event.created_at;
 				}
 
 				// Threads are sorted by the created_at timestamp

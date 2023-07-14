@@ -285,7 +285,7 @@ class AliasMenuMobile extends PureComponent {
 					</div>
 					<div style={{ fontSize: 14, paddingTop: 12, paddingBottom: 12 }}>
 						{this.renderProfileAction()}
-						{/*{this.renderNotificationsAction()}*/}
+						{this.renderNotificationsAction()}
 						{this.renderPreferencesAction()}
 						{this.renderSubscriptionsAction()}
 						{this.renderMessagesAction()}

@@ -224,7 +224,7 @@ class AliasMenu extends PureComponent {
 							{this.renderAliasLink()}
 						</div>
 						<div style={{ fontSize: 14, paddingTop: signedIn ? 12 : 0, paddingBottom: 12 }}>
-							{/*{this.renderNotificationsAction()}*/}
+							{this.renderNotificationsAction()}
 							{this.renderPreferencesAction()}
 							{this.renderSubscriptionsAction()}
 							{this.renderMessagesAction()}
