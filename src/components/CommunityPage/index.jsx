@@ -17,7 +17,7 @@ import ModQueue from './ModQueue';
 import NavActions from './NavActions';
 import MD from '../common/MD';
 
-import { COLORS } from '../../constants';
+import { COLORS, CONTENT_MAX_WIDTH } from '../../constants';
 import { transition } from '../../helpers';
 import crownsvg from '../../assets/crown.svg';
 import svgearth from '../../assets/earth.svg';
@@ -299,9 +299,10 @@ class CommunityPage extends PureComponent {
 					backgroundImage: `url(${this.state.image})`,
 					height: this.props.mobile ? 196 : this.props.clientHeight - 196,
 					width: '100%',
+					maxHeight: 514,
 					backgroundSize: 'cover',
 					backgroundPosition: 'center',
-					border: `1px dotted ${COLORS.secondary}`,
+					//border: `1px dotted ${COLORS.secondary}`,
 					zIndex: 1,
 					width: '100%',
 					marginTop: 1
@@ -645,7 +646,9 @@ class CommunityPage extends PureComponent {
 			<div
 				style={{
 					pointerEvents: this.state.loaded ? 'auto' : 'none',
-					opacity: this.state.loaded ? 1 : 0
+					opacity: this.state.loaded ? 1 : 0,
+					maxWidth: CONTENT_MAX_WIDTH,
+					margin: 'auto'
 				}}
 			>
 				{this.renderStateMessage()}
