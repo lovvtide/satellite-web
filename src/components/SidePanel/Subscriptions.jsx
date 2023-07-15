@@ -34,14 +34,15 @@ class Subscriptions extends PureComponent {
 							<div
 								key={pubkey}
 								style={{
-									height: 40,
+									height: 48,
 									display: 'flex',
 									alignItems: 'center',
-									paddingLeft: mobile ? 16 : 24,
-									paddingRight: mobile ? 16 : 24
+									paddingLeft: mobile ? 12 : 12,
+									paddingRight: mobile ? 12 : 12
 								}}
 							>
 								<Author
+									bioText
 									infoHover
 									active={this.props.active}
 									mobile={this.props.mobile}
@@ -55,6 +56,11 @@ class Subscriptions extends PureComponent {
 									navigate={this.props.navigate}
 									handleFollow={this.props.nostrFollow}
 									following
+									imageStyle={{
+										height: 36,
+										width: 36,
+										borderRadius: 18
+									}}
 								/>
 								{metadata.nip05 ? (
 									<NIP05

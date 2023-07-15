@@ -417,7 +417,7 @@ class Client {
 					'#p': [ pubkey ],
 					since: now - (86400 * 5)
 				}, {
-					kinds: [ 1, 7 ],
+					kinds: [ 1, 6, 7 ],
 					authors: [ pubkey ],
 					since: now - (86400 * 5)
 				}, {

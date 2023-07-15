@@ -352,7 +352,21 @@ class Author extends PureComponent {
 					style={styles.picture(this.props)}
 				/>)}
 				<div id={this.props.infoTriggerId && this.props.hideImage ? `trigger_${this.props.infoTriggerId}` : undefined} style={styles.name(this.props, this.state, npub)}>
-					{name}
+					<div>{name}</div>
+					{this.props.bioText && this.props.about ? (
+						<div style={{
+							fontSize: 13,
+							color: COLORS.secondaryBright,
+							fontFamily: 'Lexend-Deca-Regular',
+							whiteSpace: 'nowrap',
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							width: '80%',
+							textDecoration: 'none'
+						}}>
+							{this.props.about}
+						</div>
+					) : null}
 				</div>
 			</div>
 		);
