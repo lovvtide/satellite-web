@@ -269,7 +269,7 @@ const mapState = ({ nostr, app, menu }) => {
 		mobile: app.mobile,
 		profile: profile || {},
 		clientWidth: app.clientWidth,
-		contentWidth: Math.min(app.clientWidth, CONTENT_MAX_WIDTH),
+		contentWidth: Math.min(app.clientWidth, /*CONTENT_MAX_WIDTH*/menu.topMode === 'media' ? CONTENT_MAX_WIDTH : 815),
 		minHeight: app.minHeight,
 		pubkey: nostr.pubkey,
 		...menu
