@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react';
 import { Icon } from 'semantic-ui-react';
 
+import { COLORS } from '../../constants';
+
 
 class MenuMobile extends PureComponent {
 
@@ -9,10 +11,10 @@ class MenuMobile extends PureComponent {
 		this.props.toggleOpen(!this.props.open)
 	};
 
-	// renderNotificationsCount = (mode) => {
-	// 	const { notificationsCount } = this.props;
-	// 	return mode === 'notifications' && notificationsCount > 0 ? <span style={{ fontFamily: 'JetBrains-Mono-Bold', color: COLORS.satelliteGold, marginLeft: 6 }}>({notificationsCount})</span> : null;
-	// };
+	renderNotificationsCount = (mode) => {
+		const { notificationsCount } = this.props;
+		return mode === 'notifications' && notificationsCount > 0 ? <span style={{ fontFamily: 'JetBrains-Mono-Bold', color: COLORS.satelliteGold, marginLeft: 6 }}>({notificationsCount})</span> : null;
+	};
 
 	renderToggle = (float) => {
 
@@ -25,7 +27,7 @@ class MenuMobile extends PureComponent {
 			>
 				<Icon style={styles.menuIconStyle} name='chevron down' />
 				<span>{sectionLabels[topMode] || topMode}</span>
-				{/*{this.renderNotificationsCount(topMode)}*/}
+				{this.renderNotificationsCount(topMode)}
 			</div>
 		);
 	};
@@ -52,7 +54,7 @@ class MenuMobile extends PureComponent {
 								<div style={styles.menuSectionTitle(true, active)}>
 									{typeof section.icon === 'undefined' ? null : (<Icon name={section.icon} style={styles.menuIconStyle} />)}
 									<span>{sectionLabels[section.value] || section.value}</span>
-									{/*{this.renderNotificationsCount(section.value)}*/}
+									{this.renderNotificationsCount(section.value)}
 								</div>
 							</div>
 						);

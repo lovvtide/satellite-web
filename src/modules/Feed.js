@@ -800,6 +800,11 @@ class Feed {
 
 			}), item => {
 
+				if (options.notifications) {
+
+					return item.event.created_at;
+				}
+
 				if (item.newpub) {
 
 					return Infinity;

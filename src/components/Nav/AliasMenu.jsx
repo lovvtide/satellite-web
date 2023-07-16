@@ -59,7 +59,7 @@ class AliasMenu extends PureComponent {
 	renderNotificationsAction = () => {
 
 		const { signedIn, notificationsCount } = this.props;
-		const text = 'Notifications';
+		const text = 'Conversations';
 
 		return signedIn ? (
 			<div
@@ -70,14 +70,34 @@ class AliasMenu extends PureComponent {
 				<Icon
 					style={{
 						...styles.actionIcon(this.state.hover === text),
-						color: notificationsCount > 0 ? COLORS.satelliteGold : '#fff'
+						color: '#fff'
 					}}
-					name='bell'
+					name='comments'
 				/>
 				<div
 					style={styles.link(text === this.state.hover)}
 				>
 					<span>{text}</span>
+					{notificationsCount > 0 ? (
+						<span
+							style={{
+								color: 'rgb(219, 170, 49)',
+								float: 'right',
+								fontSize: 12,
+								fontFamily: 'JetBrains-Mono-Bold'
+							}}
+						>
+							{notificationsCount}
+							{/*<Icon
+								name='bell'
+								style={{
+									fontSize: 12,
+									marginRight: 0,
+									marginLeft: 3
+								}}
+							/>*/}
+						</span>
+					) : null}
 				</div>
 			</div>
 		) : null;
@@ -107,7 +127,7 @@ class AliasMenu extends PureComponent {
 	renderSubscriptionsAction = () => {
 
 		const { signedIn } = this.props;
-		const text = 'Following List';
+		const text = 'Following';
 
 		return signedIn ? (
 			<div
@@ -149,7 +169,7 @@ class AliasMenu extends PureComponent {
 	renderRelaysAction = () => {
 
 		const { signedIn } = this.props;
-		const text = 'Relays';
+		const text = 'My Relays';
 
 		return signedIn ? (
 			<div
@@ -170,7 +190,7 @@ class AliasMenu extends PureComponent {
 	renderMediaAction = () => {
 
 		const { signedIn } = this.props;
-		const text = 'Media';
+		const text = 'Media CDN';
 
 		return signedIn ? (
 			<div
@@ -178,7 +198,7 @@ class AliasMenu extends PureComponent {
 				onMouseOver={() => this.setState({ hover: text })}
 				onMouseOut={() => this.setState({ hover: '' })}
 			>
-				<Icon style={styles.actionIcon(this.state.hover === text)} name='camera' />
+				<Icon style={styles.actionIcon(this.state.hover === text)} name='video play' />
 				<div
 					style={styles.link(text === this.state.hover)}
 				>
@@ -225,12 +245,12 @@ class AliasMenu extends PureComponent {
 						</div>
 						<div style={{ fontSize: 14, paddingTop: signedIn ? 12 : 0, paddingBottom: 12 }}>
 							{this.renderNotificationsAction()}
-							{this.renderPreferencesAction()}
-							{this.renderSubscriptionsAction()}
-							{this.renderMessagesAction()}
-							{this.renderRelaysAction()}
-							{this.renderMediaAction()}
 							{this.renderCommunitiesAction()}
+							{this.renderMessagesAction()}
+							{this.renderSubscriptionsAction()}
+							{this.renderMediaAction()}
+							{this.renderRelaysAction()}
+							{this.renderPreferencesAction()}
 						</div>
 					</div>
 				</div>
@@ -239,10 +259,10 @@ class AliasMenu extends PureComponent {
 	};
 }
 
-const mapState = ({ nostr, notifications }) => {
+const mapState = ({ nostr }) => {
 	return {
 		signedIn: nostr.pubkey,
-		notificationsCount: Object.keys(notifications).length
+		notificationsCount: nostr.unreadNotifications
 	};
 };
 
@@ -275,7 +295,8 @@ const styles = {
 			color: hover || alias ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.85)',
 			marginBottom: 0,
 			height: alias ? 44 : 33,
-			fontSize: 13
+			fontSize: 13,
+			userSelect: 'none'
 		};
 	},
 	actionIcon: (hover) => {

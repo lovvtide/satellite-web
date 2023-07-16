@@ -14,21 +14,58 @@ import {
 	SHOW_ZAP_REQUEST,
 	LOAD_ACTIVE_NOSTR,
 	REVOKE_DEVICE_AUTH,
-	SET_PROFILE_PUBKEY
+	SET_PROFILE_PUBKEY,
+	SET_NOTIFICATIONS_LAST_SEEN,
+	RECEIVE_NOTIFICATIONS
 } from '../actions';
 
 
-export default (state = {}, action) => {
+const detectUnreadNotifications = (state, events) => {
+
+	let unread = 0;
+
+	for (let event of events) {
+
+		if (
+			event.pubkey === state.pubkey
+			|| event.created_at < state.notificationsLastSeen
+		) { continue; }
+
+		unread++;
+	}
+
+	return state.unreadNotifications + unread;
+};
+
+const INITIAL_STATE = {
+	unreadNotifications: 0
+};
+
+export default (state = INITIAL_STATE, action) => {
 
 	const { type, data } = action;
 
 	switch (type) {
 
+		case RECEIVE_NOTIFICATIONS:
+			return {
+				...state,
+				unreadNotifications: detectUnreadNotifications(state, data.events)
+			};
+
+		case SET_NOTIFICATIONS_LAST_SEEN:
+			return {
+				...state,
+				unreadNotifications: 0,
+				notificationsLastSeen: data.timestamp
+			};
+
 		case LOAD_ACTIVE_NOSTR:
 			return {
 				...state,
 				pubkey: data.pubkey,
-				privateKey: data.privateKey
+				privateKey: data.privateKey,
+				notificationsLastSeen: data.notificationsLastSeen
 			};
 
 		case REVOKE_DEVICE_AUTH:

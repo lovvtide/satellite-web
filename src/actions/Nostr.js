@@ -487,6 +487,22 @@ export const receiveNotifications = (data) => {
 	return { type: RECEIVE_NOTIFICATIONS, data };
 };
 
+export const SET_NOTIFICATIONS_LAST_SEEN = 'SET_NOTIFICATIONS_LAST_SEEN';
+export const setNotificationsLastSeen = (timestamp) => {
+
+	return (dispatch, getState) => {
+
+		const { pubkey } = getState().nostr;
+
+		if (window.localStorage) {
+
+			window.localStorage.setItem(`${pubkey}_notifications_last_seen`, String(timestamp));
+		}
+		
+		dispatch({ type: SET_NOTIFICATIONS_LAST_SEEN, data: { timestamp } });
+	}
+};
+
 export const SET_PENDING_CONTACTS = 'SET_PENDING_CONTACTS';
 export const LOAD_ACTIVE_NOSTR = 'LOAD_ACTIVE_NOSTR';
 export const RECEIVE_DM_METADATA = 'RECEIVE_DM_METADATA';
@@ -532,9 +548,21 @@ export const loadActiveNostr = (callback) => { // load active address / alias
 			}
 		}
 
+		let notificationsLastSeen = 0;
+
+		if (window.localStorage) {
+
+			const _notifications_last_seen = window.localStorage.getItem(`${pubkey}_notifications_last_seen`);
+
+			if (_notifications_last_seen) {
+
+				notificationsLastSeen = parseInt(_notifications_last_seen);
+			}
+		}
+
 		dispatch({
 			type: LOAD_ACTIVE_NOSTR,
-			data: { pubkey, privateKey }
+			data: { pubkey, privateKey, notificationsLastSeen }
 		});
 
 		const parsedEventId = {};

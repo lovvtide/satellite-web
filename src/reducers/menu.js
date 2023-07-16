@@ -1,7 +1,8 @@
 import {
 	SET_MOBILE_MENU_OPEN,
 	SHOW_ALIAS_MENU_MOBILE,
-	VIEW_SIDE_PANEL
+	VIEW_SIDE_PANEL,
+	SET_NOTIFICATIONS_LAST_SEEN
 } from '../actions';
 
 
@@ -9,43 +10,43 @@ const INITIAL_STATE = {
 	topMode: null,
 	mobileMenuOpen: false,
 	sectionLabels: {
-		notifications: 'Notifications',
 		preferences: 'Profile Settings',
-		subscriptions: 'Following List',
-		relays: 'Relays',
+		subscriptions: 'Following',
+		relays: 'My Relays',
 		dm: 'Messages',
-		media: 'Media',
-		communities: 'Communities'
+		media: 'Media CDN',
+		communities: 'Communities',
+		notifications: 'Conversations',
 	},
 	subMode: {},
 	sections: [
 		{
 			value: 'notifications',
-			icon: 'bell'
+			icon: 'comments'
 		},
 		{
-			value: 'preferences',
-			icon: 'cog'
-		},
-		{
-			value: 'subscriptions',
-			icon: 'circle check',
+			value: 'communities',
+			icon: 'globe'
 		},
 		{
 			value: 'dm',
 			icon: 'comment alternate'
 		},
 		{
+			value: 'subscriptions',
+			icon: 'circle check',
+		},
+		{
+			value: 'media',
+			icon: 'video play'
+		},
+		{
 			value: 'relays',
 			icon: 'bullseye'
 		},
 		{
-			value: 'media',
-			icon: 'camera'
-		},
-		{
-			value: 'communities',
-			icon: 'globe'
+			value: 'preferences',
+			icon: 'cog'
 		}
 	]
 };

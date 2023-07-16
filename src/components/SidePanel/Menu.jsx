@@ -42,7 +42,7 @@ class Menu extends PureComponent {
 								<div style={styles.menuSectionTitle(hoverTop, active)}>
 									{typeof section.icon === 'undefined' ? null : (<Icon name={section.icon} style={styles.menuIconStyle} />)}
 									<span>{sectionLabels[section.value] || section.value}</span>
-									{section.value === 'notifications' && notificationsCount > 0 ? (<span style={{ fontFamily: 'JetBrains-Mono-Bold', color: COLORS.satelliteGold, marginLeft: 6, fontSize: 12 }}>({notificationsCount})</span>) : null}
+									{section.value === 'notifications' && notificationsCount > 0 ? (<span style={{ fontFamily: 'JetBrains-Mono-Bold', color: COLORS.satelliteGold, marginLeft: 6, fontSize: 12 }}>{notificationsCount}</span>) : null}
 								</div>
 								{section.sub && section.sub.length > 0 ? (
 									<div style={{ overflow: 'hidden', opacity: active ? 1 : 0, height: active ? (23 * section.sub.length) + 6 : 1, ...transition(0.2, 'ease', [ 'height', 'opacity' ]) }}>

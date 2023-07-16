@@ -791,6 +791,7 @@ class Item extends PureComponent {
 							showFullsizeMedia={this.props.profile && (this.props.profile === item.event.pubkey || item._repost || (item.upvotes && item.upvotes[this.props.profile]))}
 							items={this.props.items}
 							feedPostId={this.props.feedPostId}
+							notificationsLastSeen={this.props.notificationsLastSeen}
 						/>
 					);
 				})}
@@ -1376,7 +1377,7 @@ class Item extends PureComponent {
 
 	render = () => {
 
-		const { upvotes, thread, selected, event, highlight, phantom, recent, deleted, repost, active, mobile, topLevel, profile } = this.props;
+		const { upvotes, thread, selected, event, highlight, phantom, recent, deleted, repost, active, mobile, topLevel, profile, notificationsLastSeen } = this.props;
 
 		if (/*recent*/false || (event && event.kind === 7)) { return null; }
 
@@ -1426,7 +1427,7 @@ class Item extends PureComponent {
 					marginBottom: thread ? 8 : (this.props.topLevel ? 24 : 0),
 					padding: thread ? `${this.props.mobile ? 8 : 12}px 16px ${this.props.divided ? 14 : 4}px` : 0,
 					background: this.state.hoverItem ? 'rgba(31, 32, 33, 0.8)' : null,
-					borderBottom: this.props.divided ? `1px solid ${COLORS.secondary}` : 'none',
+					borderBottom: this.props.divided ? (this.props.mobile ? `1px solid ${COLORS.secondary}` : '2px solid rgba(47, 54, 61, 0.25)'): 'none',
 					paddingBottom: this.props.divided ? 12 : 'none'
 				}}
 			>
@@ -1449,7 +1450,16 @@ class Item extends PureComponent {
 						following={this.props.contacts[event.pubkey]}
 						handleFollow={this.props.handleFollow}
 					/>
-					<RelativeTime time={event.created_at} />
+					<RelativeTime
+						time={event.created_at}
+						style={event.created_at >= notificationsLastSeen && event.pubkey !== highlight ? {
+							color: 'rgb(62, 137, 184)',
+							background: 'rgba(255, 255, 255, 0.05)',
+							padding: '5px 8px',
+							borderRadius: 3,
+							marginBottom: 2
+						} : { height: 13 }}
+					/>
 					{this.renderEventInfoTrigger()}
 					{this.renderEventInfo()}
 				</div>)}
@@ -1536,7 +1546,16 @@ class Item extends PureComponent {
 						following={this.props.contacts[upvoteEvent.pubkey]}
 						handleFollow={this.props.handleFollow}
 					/>
-					<RelativeTime time={upvoteEvent.created_at} />
+					<RelativeTime
+						time={upvoteEvent.created_at}
+						style={upvoteEvent.created_at >= notificationsLastSeen && upvoteEvent.pubkey !== highlight ? {
+							color: 'rgb(62, 137, 184)',
+							background: 'rgba(255, 255, 255, 0.05)',
+							padding: '5px 8px',
+							borderRadius: 3,
+							marginBottom: 2
+						} : { height: 13 }}
+					/>
 				</div>
 			);
 		};
@@ -1768,7 +1787,7 @@ const styles = {
 	repliesContainer: {
 		marginTop: 16,
 		paddingLeft: 12,
-		borderLeft: `1px dotted ${COLORS.secondary}`,
+		borderLeft: `1px dotted ${COLORS.secondary}`
 	},
 
 	infoTrigger: ({ phantom }, { infoTrigger, hoverEllipsis }) => {

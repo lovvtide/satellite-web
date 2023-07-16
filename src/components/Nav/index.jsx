@@ -293,9 +293,13 @@ class Nav extends Component {
 					marginLeft: mobile ? 8 : 10,
 					marginRight: mobile ? -4 : -10,
 					opacity: notificationsCount > 0 ? 1 : 0,
+					fontSize: 12,
+					color: COLORS.satelliteGold,
+					fontFamily: 'JetBrains-Mono-Bold'
 					//...transition(0.2, 'ease', [ 'opacity' ])
 				}}
 			>
+
 				<Icon
 					onMouseOver={() => this.setState({ hover: 'notifications' })}
 					onMouseOut={() => this.setState({ hover: '' })}
@@ -304,11 +308,15 @@ class Nav extends Component {
 					style={{
 						opacity: this.state.hover === 'notifications' ? 1 : 0.9,
 						cursor: 'pointer',
-						fontSize: mobile ? 14 : 15,
+						fontSize: mobile ? 12 : 12,
 						color: COLORS.satelliteGold,
-						marginRight: 0
+						marginRight: 4,
+						marginLeft: 0
 					}}
 				/>
+				<span>
+					{notificationsCount}
+				</span>
 			</div>
 		);
 
@@ -399,7 +407,7 @@ class Nav extends Component {
 						}}
 					/>
 				</div>
-				{/*{this.renderNotifications()}*/}
+				{this.renderNotifications()}
 			</div>
 		);
 	};
@@ -431,7 +439,7 @@ const mapState = ({ app, nostr, notifications }) => {
 		showNavActions: app.showNavActions,
 		mobileEditor: nostr.mobileEditor || {},
 		profile: (nostr.metadata || {})[nostr.pubkey],
-		notificationsCount: Object.keys(notifications).length
+		notificationsCount: nostr.unreadNotifications
 	};
 };
 

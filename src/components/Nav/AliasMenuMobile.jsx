@@ -82,21 +82,44 @@ class AliasMenuMobile extends PureComponent {
 
 	renderNotificationsAction = () => {
 		const { signedIn, notificationsCount } = this.props;
-		const text = 'Notifications';
+		const text = 'Conversations';
 		return signedIn ? (
 			<div>
 				<Icon
-					name='bell'
+					name='comments'
 					style={{
 						...styles.actionIcon,
-						color: notificationsCount > 0 ? COLORS.satelliteGold : '#fff'
+						color: '#fff'
 					}}
 				/>
 				<div
 					style={styles.link(false)}
 					onClick={() => this.props.viewSidePanel('notifications')}
 				>
-					<span>{text}</span>
+					<span style={{ width: '100%' }}>{text}</span>
+					{notificationsCount > 0 ? (
+						<span
+							style={{
+								color: 'rgb(219, 170, 49)',
+								float: 'right',
+								fontSize: 12,
+								fontFamily: 'JetBrains-Mono-Bold',
+								marginRight: 8,
+								opacity: this.state.opened ? 1 : 0,
+								...transition(0.2, 'ease', [ 'opacity' ])
+							}}
+						>
+							{notificationsCount}
+							{/*<Icon
+								name='bell'
+								style={{
+									fontSize: 12,
+									marginRight: 0,
+									marginLeft: 3
+								}}
+							/>*/}
+						</span>
+					) : null}
 				</div>
 			</div>
 		) : null;
@@ -120,7 +143,7 @@ class AliasMenuMobile extends PureComponent {
 
 	renderSubscriptionsAction = () => {
 		const { signedIn } = this.props;
-		const text = 'Following list';
+		const text = 'Following';
 		return signedIn ? (
 			<div>
 				<Icon style={styles.actionIcon} name='check circle' />
@@ -152,7 +175,7 @@ class AliasMenuMobile extends PureComponent {
 
 	renderRelaysAction = () => {
 		const { signedIn } = this.props;
-		const text = 'Relays';
+		const text = 'My Relays';
 		return signedIn ? (
 			<div>
 				<Icon style={styles.actionIcon} name='bullseye' />
@@ -168,10 +191,10 @@ class AliasMenuMobile extends PureComponent {
 
 	renderMediaAction = () => {
 		const { signedIn } = this.props;
-		const text = 'Media';
+		const text = 'Media CDN';
 		return signedIn ? (
 			<div>
-				<Icon style={styles.actionIcon} name='camera' />
+				<Icon style={styles.actionIcon} name='video play' />
 				<div
 					style={styles.link(false)}
 					onClick={() => this.props.viewSidePanel('media')}
@@ -286,12 +309,12 @@ class AliasMenuMobile extends PureComponent {
 					<div style={{ fontSize: 14, paddingTop: 12, paddingBottom: 12 }}>
 						{this.renderProfileAction()}
 						{this.renderNotificationsAction()}
-						{this.renderPreferencesAction()}
-						{this.renderSubscriptionsAction()}
-						{this.renderMessagesAction()}
-						{this.renderRelaysAction()}
-						{this.renderMediaAction()}
 						{this.renderCommunitiesAction()}
+						{this.renderMessagesAction()}
+						{this.renderSubscriptionsAction()}
+						{this.renderMediaAction()}
+						{this.renderRelaysAction()}
+						{this.renderPreferencesAction()}
 						{this.renderAuthAction()}
 					</div>
 				</div>
@@ -300,7 +323,7 @@ class AliasMenuMobile extends PureComponent {
 	};
 }
 
-const mapState = ({ nostr, app, notifications }) => {
+const mapState = ({ nostr, app }) => {
 
 	return {
 		signedIn: nostr.pubkey,
@@ -310,7 +333,7 @@ const mapState = ({ nostr, app, notifications }) => {
 		clientWidth: app.clientWidth,
 		panelWidth: app.clientWidth - 64,
 		open: app.showAliasMenuMobile,
-		notificationsCount: Object.keys(notifications).length
+		notificationsCount: nostr.unreadNotifications
 	};
 };
 
@@ -351,7 +374,8 @@ const styles = {
 			height: alias ? 44 : 36,
 			whiteSpace: 'nowrap',
 			textTransform: 'uppercase',
-			fontFamily: 'JetBrains-Mono-Bold'
+			fontFamily: 'JetBrains-Mono-Bold',
+			userSelect: 'none'
 		};
 	},
 	actionIcon: {

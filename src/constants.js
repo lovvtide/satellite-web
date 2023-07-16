@@ -11,16 +11,16 @@ export const CDN_BASE_URL = 'https://cdn.satellite.earth';
 
 // Relays for non-signed in users
 export const DEFAULT_RELAYS = [
-	'ws://localhost:3030'
-	// 'wss://relay.damus.io',
-	// 'wss://nos.lol',
-	// 'wss://relay.current.fyi',
-	// 'wss://relay.orangepill.dev',
-	// 'wss://relay.nostrplebs.com',
-	// 'wss://eden.nostr.land',
-	// 'wss://relay.plebstr.com',
-	// 'wss://relay.nostr.band',
-	// 'wss://nostr.wine'
+	// 'ws://localhost:3030'
+	'wss://relay.damus.io',
+	'wss://nos.lol',
+	'wss://relay.current.fyi',
+	'wss://relay.orangepill.dev',
+	'wss://relay.nostrplebs.com',
+	'wss://eden.nostr.land',
+	'wss://relay.plebstr.com',
+	'wss://relay.nostr.band',
+	'wss://nostr.wine'
 ];
 
 export const COLORS = {

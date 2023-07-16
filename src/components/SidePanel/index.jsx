@@ -266,6 +266,7 @@ const mapState = ({ nostr, app, menu }) => {
 	}
 
 	return {
+		notificationsCount: nostr.unreadNotifications,
 		mobile: app.mobile,
 		profile: profile || {},
 		clientWidth: app.clientWidth,

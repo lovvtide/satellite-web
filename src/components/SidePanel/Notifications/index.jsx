@@ -5,7 +5,7 @@ import { Icon } from 'semantic-ui-react';
 import Feed from '../../Nostr/Feed';
 
 import { COLORS } from '../../../constants';
-import { handleNostrPublish, queryProfiles, nostrFollow, handleZapRequest, navigate, openReplyModal } from '../../../actions';
+import { handleNostrPublish, queryProfiles, nostrFollow, handleZapRequest, navigate, openReplyModal, setNotificationsLastSeen } from '../../../actions';
 
 
 class Notifications extends PureComponent {
@@ -26,6 +26,11 @@ class Notifications extends PureComponent {
 				this.handleLoadContext();
 			}, 100);
 		}
+	};
+
+	componentWillUnmount = () => {
+
+		this.props.setNotificationsLastSeen(Math.floor(Date.now() / 1000));
 	};
 
 	handleLoadContext = () => {
@@ -129,7 +134,7 @@ class Notifications extends PureComponent {
 					divided
 					feed={this.props.feed}
 					name={`notifications`}
-					buildOptions={{ mode: 'profile', pubkey: this.props.pubkey, surfaceMentions: true }}
+					buildOptions={{ mode: 'profile', pubkey: this.props.pubkey, surfaceMentions: true, notifications: true }}
 					mobile={this.props.mobile}
 					active={this.props.pubkey}
 					searchActive={this.props.searchActive}
@@ -142,6 +147,7 @@ class Notifications extends PureComponent {
 					navigate={this.props.navigate}
 					metadata={this.props.metadata || {}}
 					contacts={{}}
+					notificationsLastSeen={this.props.notificationsLastSeen}
 				/>
 			</div>
 		);
@@ -157,7 +163,8 @@ const mapState = ({ app, nostr, notifications, query }) => {
 		contacts: nostr.contacts,
 		notifications: notifications,
 		count: Object.keys(notifications).length,
-		searchActive: query.active
+		searchActive: query.active,
+		notificationsLastSeen: nostr.notificationsLastSeen
 	};
 };
 
@@ -165,4 +172,4 @@ const styles = {
 
 };
 
-export default connect(mapState, { navigate, nostrFollow, handleZapRequest, queryProfiles, openReplyModal })(Notifications);
+export default connect(mapState, { navigate, nostrFollow, handleZapRequest, queryProfiles, openReplyModal, setNotificationsLastSeen })(Notifications);

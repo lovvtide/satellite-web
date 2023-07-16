@@ -158,6 +158,7 @@ class Feed extends PureComponent {
 					items={this.props.feed.items}
 					feedPostId={(this.props.buildOptions || {}).id}
 					previewReplacedLinks={this.props.previewReplacedLinks}
+					notificationsLastSeen={this.props.notificationsLastSeen}
 				/>
 			);
 		});
