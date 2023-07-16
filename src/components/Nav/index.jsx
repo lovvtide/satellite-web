@@ -9,10 +9,12 @@ import PrettySVG from '../common/PrettySVG';
 import Image from '../Nostr/Image';
 
 import logo from '../../assets/branding.png';
+/*
 import svgfrontpage from '../../assets/frontpage.svg';
 import svgstaroutline from '../../assets/star_outline.svg';
 import svgearth from '../../assets/earth.svg';
 import svgalias from '../../assets/alias.svg';
+*/
 
 import { setLocalPublicKey, loadActiveNostr, hoverAliasMenu, navigate, showAliasMenuMobile, viewSidePanel, setDirectoryLayoutExpanded, setNewPostModalOpen } from '../../actions';
 import { transition } from '../../helpers';

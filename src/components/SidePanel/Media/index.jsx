@@ -1,10 +1,8 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import axios from 'axios';
 import { Icon } from 'semantic-ui-react';
 
 import { GetMedia, PromptDeleteFile, DeleteFile, ViewDetails } from '../../../actions';
-import { transition } from '../../../helpers';
 import { GALLERY_MIN_COL_WIDTH, COLORS, MENU_WIDTH, CONTENT_MAX_WIDTH } from '../../../constants';
 
 import Modal from './Modal';

@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import { Icon, Popup } from 'semantic-ui-react';
+import { Icon } from 'semantic-ui-react';
 
 import { PutFile, SearchFiles, SetFilesSort, SetAddCreditModalOpen } from '../../../actions';
-import { COLORS, MENU_WIDTH } from '../../../constants';
+import { COLORS } from '../../../constants';
 
 import { X, Dropdown } from '../../CommonUI'; 
 
@@ -15,8 +15,6 @@ class Header extends PureComponent {
   handlePutFiles = (e) => {
 
     if (e.target.files.length === 0) { return; }
-
-    const file = e.target.files[0];
 
     for (let file of e.target.files) {
 

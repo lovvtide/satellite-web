@@ -8,7 +8,6 @@ import Feed from '../../modules/Feed';
 
 import Author from '../Nostr/Author';
 import Modal from '../Nostr/Modal';
-import { Chevron } from '../CommonUI';
 import NewPost from './NewPost';
 import List from './List';
 import Note from './Note';
@@ -18,10 +17,8 @@ import NavActions from './NavActions';
 import MD from '../common/MD';
 
 import { COLORS, CONTENT_MAX_WIDTH } from '../../constants';
-import { transition } from '../../helpers';
 import crownsvg from '../../assets/crown.svg';
-import svgearth from '../../assets/earth.svg';
-import { navigate, nostrFollow, getLocalPrivateKey, handleApprovePost, subscribeToCommunity } from '../../actions';
+import { navigate, nostrFollow, handleApprovePost, subscribeToCommunity } from '../../actions';
 
 
 class CommunityPage extends PureComponent {

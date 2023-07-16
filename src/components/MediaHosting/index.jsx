@@ -1,7 +1,5 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import { Icon } from 'semantic-ui-react';
-import { Link } from 'react-router-dom';
 
 import { COLORS } from '../../constants';
 import { transition } from '../../helpers';

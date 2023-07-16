@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import { Icon } from 'semantic-ui-react';
-import { nip19 } from 'nostr-tools';
 
 import { COLORS } from '../../constants';
 

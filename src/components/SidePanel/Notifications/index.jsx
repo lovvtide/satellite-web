@@ -1,10 +1,8 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import { Icon } from 'semantic-ui-react';
 
 import Feed from '../../Nostr/Feed';
 
-import { COLORS } from '../../../constants';
 import { handleNostrPublish, queryProfiles, nostrFollow, handleZapRequest, navigate, openReplyModal, setNotificationsLastSeen } from '../../../actions';
 
 

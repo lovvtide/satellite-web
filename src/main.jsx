@@ -2,7 +2,6 @@ import React from 'react'
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
-import * as ReactDOMClient from 'react-dom/client';
 
 //import logo from './assets/logo.png';
 import store, { history } from './store';

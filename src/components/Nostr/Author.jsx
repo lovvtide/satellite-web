@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Icon, Popup } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import { nip05, nip19 } from 'nostr-tools';
+import { nip19 } from 'nostr-tools';
 
 import { InfoBox } from '../CommonUI';
 import MD from '../common/MD';

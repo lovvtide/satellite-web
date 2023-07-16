@@ -1,13 +1,10 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 
-import { X } from '../CommonUI';
 import Modal from './Modal';
 import NewPostEditor from './NewPostEditor';
 
 import { setNewPostModalOpen, handleNostrPublish, queryProfiles } from '../../actions';
-import svgtransmit from '../../assets/transmit.svg';
-import { COLORS } from '../../constants';
 
 
 class NewPostModal extends PureComponent {

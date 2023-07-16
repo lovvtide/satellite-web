@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import { Icon } from 'semantic-ui-react';
-import { Link } from 'react-router-dom';
 import { nip19 } from 'nostr-tools';
 import { connect } from 'react-redux';
 

@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Popup } from 'semantic-ui-react';
+// import { Popup } from 'semantic-ui-react';
 import autosize from 'autosize';
 
 import ProfileQuery from './ProfileQuery';

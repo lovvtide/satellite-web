@@ -3,8 +3,6 @@ import { Link } from 'react-router-dom';
 import { nip19 } from 'nostr-tools';
 import { Icon } from 'semantic-ui-react';
 
-import { Chevron } from '../CommonUI';
-import MD from '../common/MD';
 import ApproveButton from './ApproveButton';
 import Name from './Name';
 import Item from '../Nostr/Item';

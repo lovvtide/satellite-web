@@ -326,7 +326,7 @@ const styles = {
 		}
 	},
 
-	topAction: (hover, mobile) => {
+	topAction: (hover, _) => {
 		return {
 			float: 'right',
 			color: hover ? '#fff' : 'rgba(255,255,255,0.85)',

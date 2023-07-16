@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import { Icon } from 'semantic-ui-react';
 import { nip19 } from 'nostr-tools';
 
 //import EditProfileForm from '../Nostr/EditProfileForm';
@@ -11,7 +10,6 @@ import AdminEditor from './AdminEditor';
 import ListItem from './ListItem';
 import ModQueue from '../../CommunityPage/ModQueue';
 
-import { transition } from '../../../helpers';
 import { COLORS } from '../../../constants';
 import { handleNostrPublish, navigate, handleApprovePost } from '../../../actions';
 //import crownsvg from '../../../assets/crown.svg';

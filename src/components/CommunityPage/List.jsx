@@ -1,9 +1,6 @@
 import React, { PureComponent } from 'react';
-import { Link } from 'react-router-dom';
 
 import Post from './Post';
-
-import { COLORS } from '../../constants';
 
 
 class List extends PureComponent {

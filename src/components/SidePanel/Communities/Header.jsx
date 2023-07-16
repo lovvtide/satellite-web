@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Icon } from 'semantic-ui-react';
 
-import { COLORS, MENU_WIDTH } from '../../../constants';
+import { COLORS } from '../../../constants';
 import svgearth from '../../../assets/earth.svg';
 
 
