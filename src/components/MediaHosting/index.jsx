@@ -23,6 +23,20 @@ class MediaHosting extends PureComponent {
 
 		let c = 0;
 
+		if (this.props.pubkey && this.props.location.hash === '#upload') {
+
+			this.setState({ redirect: true });
+
+			this._redirect = setInterval(() => {
+				if (window.nostr) {
+					clearInterval(this._redirect);
+					this.handleCtaClicked();
+				}
+			}, 100);
+
+			return;
+		}
+
 		this._type = setInterval(() => {
 
 			const char = headline[c];
@@ -110,6 +124,7 @@ class MediaHosting extends PureComponent {
 
 		return (
 			<div style={{
+				opacity: this.state.redirect ? 0 : 1,
 				color: '#fff',
 				display: 'flex',
 				alignItems: 'center',
