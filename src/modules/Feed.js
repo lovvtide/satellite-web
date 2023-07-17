@@ -545,7 +545,17 @@ class Feed {
 
 			if (!ereply) {
 
-				ereply = etags[1] || eroot;
+				for (let tag of event.tags) {
+
+					if (tag[0] === 'e') {
+						ereply = tag[1];
+					}
+				}
+
+				if (!ereply) {
+
+					ereply = eroot;
+				}
 			}
 
 			const recent = (
