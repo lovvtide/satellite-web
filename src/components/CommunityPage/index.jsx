@@ -32,6 +32,7 @@ class CommunityPage extends PureComponent {
 		modqueue: null,
 		approved: null,
 		metadata: {},
+		voteBalance: {},
 		showMobileSidebar: false
 	};
 
@@ -83,6 +84,7 @@ class CommunityPage extends PureComponent {
 
 		const primaryFeedName = `${this.props.ownerpubkey}:${this.props.name}_primary`;
 		const secondaryFeedName = `${this.props.ownerpubkey}:${this.props.name}_secondary`;
+		const tertiaryFeedName = `${this.props.ownerpubkey}:${this.props.name}_tertiary`;
 		const postMetadataFeedName = `${this.props.ownerpubkey}:${this.props.name}_post_metadata`;
 
 		feed.listenForCommunity(event => {
@@ -93,6 +95,7 @@ class CommunityPage extends PureComponent {
 
 				this.setState({
 					loaded: false,
+					votingMode: '',
 					image: '',
 					name: '',
 					description: '',
@@ -136,6 +139,8 @@ class CommunityPage extends PureComponent {
 							update.description = tag[1];
 						} else if (tag[0] === 'rules') {
 							update.rules = tag[1];
+						} else if (tag[0] === 'voting_mode') { // TODO allow admin to set voting mode
+							update.votingMode = tag[1];
 						}
 					}
 
@@ -168,8 +173,6 @@ class CommunityPage extends PureComponent {
 						}]);
 
 					});
-
-
 				});
 			}
 		});
@@ -178,13 +181,28 @@ class CommunityPage extends PureComponent {
 
 			const modqueue = [];
 			const approved = [];
-			//const pubkeys = {};
+			const voteBalance = {};
 
 			for (let item of items) {
 
 				if (item.approval) {
+
 					approved.push(item);
+
+					voteBalance[item.event.id] = 0;
+
+					if (item.upvotes) {
+
+						voteBalance[item.event.id] += Object.keys(item.upvotes).length;
+					}
+
+					if (item.downvotes) {
+
+						voteBalance[item.event.id] -= Object.keys(item.downvotes).length;
+					}
+
 				} else {
+
 					modqueue.push(item);
 				}
 
@@ -198,8 +216,7 @@ class CommunityPage extends PureComponent {
 				// }
 			}
 
-			this.setState({ modqueue, approved });
-
+			this.setState({ modqueue, approved, voteBalance });
 
 		}, { mode: 'list' });
 
@@ -207,7 +224,10 @@ class CommunityPage extends PureComponent {
 
 			if (options.subscription === secondaryFeedName) {
 
-				const filters = [];
+				const filters = [{
+					kinds: [ 7 ],
+					'#a': [ `34550:${this.props.ownerpubkey}:${this.props.name}` ]
+				}];
 
 				for (let item of feed.list()) {
 
@@ -236,10 +256,7 @@ class CommunityPage extends PureComponent {
 					})
 				}
 
-				if (filters.length > 0) {
-
-					feed.subscribe(`community_quoted`, relay, filters);
-				}
+				feed.subscribe(tertiaryFeedName, relay, filters);
 			}
 
 		});
@@ -265,6 +282,51 @@ class CommunityPage extends PureComponent {
 			a: `34550:${ownerpubkey}:${name}`,
 			subscribe: !subscribed
 		});
+	};
+
+	handleVote = async (item, vote) => {
+
+		let content;
+
+		const data = {
+			content: vote,
+			kind: 7,
+			tags: [
+				[ 'p', item.event.pubkey ],
+				[ 'e', item.event.id ],
+				[ 'a', `34550:${this.props.ownerpubkey}:${this.props.name}` ]
+			]
+		};
+
+		let event;
+
+		try {
+
+			event = await window.client.createEvent(data, {
+				privateKey: getLocalPrivateKey()
+			});
+
+		} catch (err) {
+			console.log(err);
+		}
+
+		if (!event) { return; }
+
+		this.state.feed.update(event, null, { newpub: true });
+
+		try {
+
+			await new Promise((resolve, reject) => {
+				window.client.publishEvent(event, (status, relay) => {
+					if (status === 'ok' || status === 'seen') {
+						resolve();
+					}
+				});
+			});
+
+		} catch (err) {
+			console.log(err);
+		}
 	};
 
 	handleMobileReply = (replyTo) => {
@@ -464,8 +526,9 @@ class CommunityPage extends PureComponent {
 		const { description } = this.state;
 
 		return (
-			<div style={{ ...styles.sidebarSection(this.state),  paddingTop: 6 }}>
+			<div style={{ ...styles.sidebarSection(this.state),  paddingTop: 4 }}>
 				<div style={styles.sidebarTitle}>
+					<Icon style={{ width: 18 }} name='info circle' />
 					Community Description
 				</div>
 				{description ? (
@@ -493,7 +556,8 @@ class CommunityPage extends PureComponent {
 		return (
 			<div style={styles.sidebarSection(this.state)}>
 				<div style={styles.sidebarTitle}>
-					Rules For Posting
+					<Icon style={{ width: 18 }} name='list' />
+					Posting Guidelines
 				</div>
 				{rules ? (
 					<MD
@@ -506,7 +570,7 @@ class CommunityPage extends PureComponent {
 					/>
 				) : (
 					<span style={{ fontStyle: 'italic', fontSize: 13, color: COLORS.secondaryBright }}>
-						The founder has not provided rules for posting in this community
+						The founder has not provided posting guidelines for this community
 					</span>
 				)}
 			</div>
@@ -518,6 +582,7 @@ class CommunityPage extends PureComponent {
 		return (
 			<div style={styles.sidebarSection(this.state)}>
 				<div style={{ ...styles.sidebarTitle, marginBottom: 8 }}>
+					<Icon style={{ width: 18 }} name='balance scale' />
 					Moderators
 				</div>
 				{(this.state.moderators || []).map(pubkey => {
@@ -733,7 +798,10 @@ class CommunityPage extends PureComponent {
 									ownernpub={this.props.ownernpub}
 									metadata={this.state.metadata}
 									handleFollow={this.props.nostrFollow}
+									handleVote={this.handleVote}
 									navigate={this.props.navigate}
+									clientWidth={this.props.clientWidth}
+									voteBalance={this.state.voteBalance}
 								/>
 							</Route>
 						</Switch>
@@ -786,7 +854,8 @@ const styles = {
 	},
 
 	sidebarTitle: {
-		color: COLORS.satelliteGold,
+		marginLeft: -3,
+		color: '#fff',
 		fontFamily: 'JetBrains-Mono-Bold',
 		fontSize: 12,
 		marginBottom: 4,

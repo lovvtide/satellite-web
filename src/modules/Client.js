@@ -78,7 +78,7 @@ class Client {
 
 		relay.on('connect', () => {
 
-			console.log(`connected to ${relay.url}`);
+			//console.log(`connected to ${relay.url}`);
 
 			clearTimeout(relay._reconnectTimeout);
 			relay._encounteredError = false;
@@ -110,7 +110,7 @@ class Client {
 
 		relay.on('error', () => {
 
-			console.log(`failed to connect to ${relay.url}`);
+			//console.log(`failed to connect to ${relay.url}`);
 
 			relay._encounteredError = true;
 
@@ -149,7 +149,7 @@ class Client {
 
 			}, relay._reconnectMillsecs);
 
-			console.log(relay.url + ' reconnecting after ' + relay._reconnectMillsecs + ' ms. . .');
+			//console.log(relay.url + ' reconnecting after ' + relay._reconnectMillsecs + ' ms. . .');
 
 		});
 
@@ -163,7 +163,7 @@ class Client {
 			if (!relay._encounteredError) {
 
 				try {
-					console.log(relay.url + ' reconnecting. . .');
+					//console.log(relay.url + ' reconnecting. . .');
 					await relay.connect();
 				} catch (err) {}
 			}

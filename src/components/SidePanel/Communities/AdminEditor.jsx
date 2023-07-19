@@ -181,7 +181,7 @@ class AdminEditor extends PureComponent {
           />
         </div>
         <div style={styles.section}>
-          <div style={styles.label}>Rules</div>
+          <div style={styles.label}>Posting Guidelines</div>
           <div style={styles.description}>
             What are the rules for posting in this community, if any?
           </div>

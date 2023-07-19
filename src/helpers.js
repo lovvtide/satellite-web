@@ -7,8 +7,8 @@ export const parseMediaURL = (url) => {
 
 	parsed.ext = url.slice(url.lastIndexOf('.') + 1);
 
-	if (parsed.ext.indexOf('&') !== -1) {
-		parsed.ext = parsed.ext.split('&')[0];
+	if (parsed.ext.indexOf('?') !== -1) {
+		parsed.ext = parsed.ext.split('?')[0];
 	}
 
 	const _image = [ 'jpeg', 'jpg', 'png', 'webp', 'gif' ];

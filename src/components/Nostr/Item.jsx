@@ -91,7 +91,7 @@ class Item extends PureComponent {
 
 				title = tag[1];
 
-				if (this.props.event.content === title) {
+				if (this.props.event.content === title || content === title) {
 					content = '';
 				} else if (this.props.event.content.indexOf(`${tag[1]}\n\n`) === 0) {
 					content = this.props.event.content.slice(title.length + 2);
@@ -105,7 +105,7 @@ class Item extends PureComponent {
 
 				link = tag[1];
 
-				if (this.props.event.content === link) {
+				if (this.props.event.content === link || content === link) {
 					content = '';
 				} else if (content.indexOf(`${tag[1]}\n\n`) === 0) {
 					content = content.slice(link.length + 2);
@@ -473,7 +473,7 @@ class Item extends PureComponent {
 		const mediaStyle = {
 			width: previewReplacedLinks ? 220 : '100%',
 			marginBottom: previewReplacedLinks ? 4 : 12,
-			marginTop: mobile ? 10 : previewReplacedLinks ? 4 : 12,
+			marginTop: mobile ? 4 : previewReplacedLinks ? 4 : 12,
 			border: `1px solid ${COLORS.secondary}`,
 			borderRadius: 4
 		};
@@ -596,11 +596,15 @@ class Item extends PureComponent {
 						{titleElement}
 					</Link>
 				) : titleElement) : null}
-				{link && !this.props.previewReplacedLinks ? (
-					<Link to={this.props.communityLink}>
-						{this.renderReplacedLinkElement(link)}
-					</Link>
-				) : null}
+				<div style={{
+					//marginTop: 4
+				}}>
+					{link && !this.props.previewReplacedLinks ? (this.props.communityLink ? (
+						<Link to={this.props.communityLink}>
+							{this.renderReplacedLinkElement(link)}
+						</Link>
+					) : this.renderReplacedLinkElement(link)) : null}
+				</div>
 			</div>
 		);
 	};
@@ -814,6 +818,26 @@ class Item extends PureComponent {
 		}
 
 		if (this.props.replaceTitle && !this.state.content) {
+
+			if (this.props.replaceTitleMode === 'list' && this.props.previewReplacedLinks) {
+				return (
+					<a href={this.state.link} target='_blank'>
+						<div
+							style={{
+								fontSize: 13,
+								whiteSpace: 'nowrap',
+								overflow: 'hidden',
+								textOverflow: 'ellipsis',
+								marginTop: 4,
+								marginBottom: 4
+							}}
+						>
+							{this.state.link}
+						</div>
+					</a>
+				);
+			}
+
 			return null;
 		}
 
@@ -883,157 +907,6 @@ class Item extends PureComponent {
 			return s;
 
 		}).join('');
-
-		/*
-		return (
-			<div>
-				{replaced.split('__replace__').map((markdown, index) => {
-				
-					const renderQuote = (id) => {
-
-						if (id === this.props.feedPostId) { return null; }
-
-						const item = this.props.items[id];
-						const nnote = nip19.noteEncode(id);
-
-						return item && !item.phantom ? (
-							<div
-								key={index}
-								onClick={(e) => {
-									e.preventDefault();
-									e.stopPropagation();
-									this.props.navigate(`/thread/${nnote}`);
-								}}
-								onMouseOver={(e) => {
-									this.setState({ hover: `quote_${id}` });
-								}}
-								onMouseOut={(e) => {
-									this.setState({ hover: '' });
-								}}
-								style={{
-									padding: 12,
-									border: `1px dotted ${COLORS.secondary}`,
-									borderRadius: 12,
-									marginTop: 12,
-									marginBottom: 12,
-									cursor: 'pointer',
-									background: this.state.hover === `quote_${id}` ? 'rgba(255,255,255,0.015)' : null
-								}}
-							>
-								<div style={{
-									pointerEvents: 'none'
-								}}>
-									<Item
-										quote
-										_mod={this.props._mod}
-										searchActive={this.props.searchActive}
-										depth={this.props.depth + 1}
-										index={0}
-										mobile={this.props.mobile}
-										active={this.props.active}
-										profile={this.props.profile}
-										event={item.event}
-										eroot={item.eroot}
-										replies={item.replies}
-										deleted={item.deleted}
-										phantom={item.phantom}
-										highlight={this.props.highlight}
-										repost={item._repost}
-										upvotes={item.upvotes}
-										handlePost={this.props.handlePost}
-										handleMobileReply={this.props.handleMobileReply}
-										navigate={this.props.navigate}
-										handleFollow={this.props.handleFollow}
-										handleQueryProfiles={this.props.handleQueryProfiles}
-										handleZapRequest={this.props.handleZapRequest}
-										contacts={this.props.contacts}
-										metadata={this.props.metadata}
-										author={item.author}
-										feedName={this.props.feedName}
-										//showFullsizeMedia={this.props.profile && (this.props.profile === item.event.pubkey || item._repost || (item.upvotes && item.upvotes[this.props.profile]))}
-										items={this.props.items}
-										feedPostId={this.props.feedPostId}
-									/>
-								</div>
-							</div>
-						) : (
-							<Link
-								to={`/thread/${nnote}`}
-								key={index}
-							>
-								<div
-									onMouseOver={() => this.setState({ hover: `quote_${id}` })}
-									onMouseOut={() => this.setState({ hover: '' })}
-									style={{
-										padding: 12,
-										border: `1px dotted ${COLORS.secondary}`,
-										borderRadius: 12,
-										marginTop: 12,
-										marginBottom: 12,
-										whiteSpace: 'nowrap',
-										overflow: 'hidden',
-										textOverflow: 'ellipsis',
-										color: COLORS.secondaryBright,
-										cursor: 'pointer',
-										background: this.state.hover === `quote_${id}` ? 'rgba(255,255,255,0.015)' : null
-									}}
-								>
-									<Icon
-										name='quote left'
-										style={{
-											fontSize: 13,
-											marginRight: 10
-										}}
-									/>
-									{nnote}
-								</div>
-							</Link>
-						);
-					};
-
-					let quoted;
-
-					if (markdown.indexOf('quote:') === 0) {
-
-						return (
-							<div key={index}>
-								{renderQuote(markdown.substring(6, 70))}
-								<MD
-									//key={index}
-									showFullsizeMedia={this.props.showFullsizeMedia}
-									showImagePreviews
-									attachMediaPreviewListeners={this.attachMediaPreviewListeners}
-									scriptContextId={this.contextId()}
-									markdown={markdown.slice(70)}
-									style={styles.text}
-									comment
-									mentions={mentions}
-									tags={this.props.event.tags}
-								/>
-							</div>
-						);
-					}
-
-					return (
-						<div key={index}>
-							<MD
-								showFullsizeMedia={this.props.showFullsizeMedia}
-								showImagePreviews
-								attachMediaPreviewListeners={this.attachMediaPreviewListeners}
-								scriptContextId={this.contextId()}
-								markdown={markdown}
-								style={styles.text}
-								comment
-								mentions={mentions}
-								tags={this.props.event.tags}
-							/>
-						</div>
-					);
-				})}
-			</div>
-		);
-		*/
-
 		const elements = replaced.split('__replace__').map((markdown, index) => {
 		
 			const renderQuote = (id) => {
@@ -1183,7 +1056,7 @@ class Item extends PureComponent {
 		if (this.state.link && this.props.previewReplacedLinks) {
 
 			renderedLinkPreview = this.renderReplacedLinkElement(this.state.link, {
-				renderNonMediaAsNull: true
+				renderNonMediaAsNull: this.props.replaceTitleMode === 'list'
 			});
 		}
 
@@ -1195,6 +1068,8 @@ class Item extends PureComponent {
 				{this.props.communityLink ? (<Link to={this.props.communityLink}>
 					<div style={{
 						marginRight: 12,
+						//marginBottom: 6,
+						//marginTop: 8
 					}}>
 						{renderedLinkPreview}
 					</div>
@@ -1207,6 +1082,20 @@ class Item extends PureComponent {
 			<div style={{
 				//lineBreak: 'anywhere'
 			}}>
+				{this.props.replaceTitleMode === 'list' && this.props.previewReplacedLinks ? (<a href={this.state.link} target='_blank'>
+					<div
+						style={{
+							fontSize: 13,
+							whiteSpace: 'nowrap',
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+							marginTop: 4,
+							marginBottom: 4
+						}}
+					>
+						{this.state.link}
+					</div>
+				</a>) : null}
 				{elements}
 			</div>
 		);
@@ -1414,6 +1303,8 @@ class Item extends PureComponent {
 
 		const { name, display_name, about, nip05, picture } = author;
 
+		const unseen = event.created_at >= notificationsLastSeen && event.pubkey !== highlight;
+
 		const item = (
 			<div
 				ref={this.item}
@@ -1428,7 +1319,17 @@ class Item extends PureComponent {
 					padding: thread ? `${this.props.mobile ? 8 : 12}px 16px ${this.props.divided ? 14 : 4}px` : 0,
 					background: this.state.hoverItem ? 'rgba(31, 32, 33, 0.8)' : null,
 					borderBottom: this.props.divided ? (this.props.mobile ? `1px solid ${COLORS.secondary}` : '2px solid rgba(47, 54, 61, 0.25)'): 'none',
-					paddingBottom: this.props.divided ? 12 : 'none'
+					paddingBottom: this.props.divided ? 12 : 'none',
+					...(unseen ? {
+						background: 'rgba(62,137,184,0.085)',
+						marginLeft: -13,
+						paddingLeft: 12,
+						paddingTop: 12,
+						paddingRight: 12,
+						borderLeft: `1px solid #fff`,
+						borderBottomRightRadius: 4,
+						borderTopRightRadius: 4
+					} : {})
 				}}
 			>
 				{this.renderMediaPreview()}
@@ -1452,9 +1353,8 @@ class Item extends PureComponent {
 					/>
 					<RelativeTime
 						time={event.created_at}
-						style={event.created_at >= notificationsLastSeen && event.pubkey !== highlight ? {
-							color: 'rgb(62, 137, 184)',
-							background: 'rgba(255, 255, 255, 0.05)',
+						style={unseen ? {
+							color: COLORS.blue,
 							padding: '5px 8px',
 							borderRadius: 3,
 							marginBottom: 2
@@ -1516,10 +1416,27 @@ class Item extends PureComponent {
 				</div>
 			);
 
+			const unseen = upvoteEvent.created_at >= notificationsLastSeen && upvoteEvent.pubkey !== highlight;
+
 			return (
 				<div
 					key={_pubkey}
-					style={{ ...styles.meta, marginBottom: 4 }}
+					style={{
+						...styles.meta,
+						marginBottom: 4,
+						...(unseen ? {
+							background: 'rgba(62,137,184,0.085)',
+							marginLeft: -13,
+							paddingLeft: 12,
+							paddingTop: 12,
+							paddingRight: 12,
+							borderLeft: `1px solid #fff`,
+							paddingBottom: 12,
+							height: null,
+							borderBottomRightRadius: 4,
+							borderTopRightRadius: 4
+						} : {})
+					}}
 				>
 					{activeUpvote && !mobile ? (
 						<Popup
@@ -1548,9 +1465,8 @@ class Item extends PureComponent {
 					/>
 					<RelativeTime
 						time={upvoteEvent.created_at}
-						style={upvoteEvent.created_at >= notificationsLastSeen && upvoteEvent.pubkey !== highlight ? {
-							color: 'rgb(62, 137, 184)',
-							background: 'rgba(255, 255, 255, 0.05)',
+						style={unseen ? {
+							color: COLORS.blue,
 							padding: '5px 8px',
 							borderRadius: 3,
 							marginBottom: 2
@@ -1616,81 +1532,6 @@ class Item extends PureComponent {
 				);
 
 			} else if (upvotes && Object.keys(upvotes).length > 0/* && upvotes[profile]*/) {
-
-				// const renderUpvote = (_pubkey) => {
-
-				// 	const upvoteEvent = upvotes[_pubkey];
-
-				// 	if (!upvoteEvent) { return null; }
-
-				// 	const activeUpvote = upvoteEvent.pubkey === active;
-				// 	const upvoteAuthor = ((this.props.metadata || {})[_pubkey] || {}).profile || {};
-
-				// 	// if (highlight && event.pubkey !== highlight && upvoteEvent.pubkey !== highlight) {
-				// 	// 	return item;
-				// 	// }
-
-				// 	// Render generic upvote events a star, others as emoji
-				// 	const upvoteReaction = upvoteEvent.content === '+' ? (
-				// 		<img
-				// 			style={{ marginBottom: 2 }}
-				// 			src={svgupactive}
-				// 			height={13}
-				// 			width={13}
-				// 		/>
-				// 	) : (
-				// 		<span>
-				// 			{upvoteEvent.content}
-				// 		</span>
-				// 	);
-
-				// 	const upvoteReactionElement = (
-				// 		<div
-				// 			style={{ marginRight: 5, cursor: activeUpvote ? 'cursor' : 'default' }}
-				// 			onClick={activeUpvote ? this.handleStar : undefined}
-				// 		>
-				// 			{upvoteReaction}
-				// 		</div>
-				// 	);
-
-				// 	return (
-				// 		<div
-				// 			key={_pubkey}
-				// 			style={{ ...styles.meta, marginBottom: 4 }}
-				// 		>
-				// 			{activeUpvote && !mobile ? (
-				// 				<Popup
-				// 					style={{ fontSize: 12, zIndex: 99999, filter: 'invert(85%)', boxShadow: 'none', color: '#000' }}
-				// 					position='top center'
-				// 					trigger={upvoteReactionElement}
-				// 					content='Click to remove reaction'
-				// 				/>
-				// 			) : upvoteReactionElement}
-				// 			<Author
-				// 				infoHover
-				// 				hideImage
-				// 				mobile={this.props.mobile}
-				// 				active={this.props.active}
-				// 				infoTriggerId={`${upvoteEvent.id}_${this.props.depth}`}
-				// 				pubkey={upvoteEvent.pubkey}
-				// 				name={upvoteAuthor.name}
-				// 				displayName={upvoteAuthor.display_name}
-				// 				about={upvoteAuthor.about}
-				// 				nip05={upvoteAuthor.nip05}
-				// 				picture={upvoteAuthor.picture}
-				// 				highlight={highlight === upvoteEvent.pubkey}
-				// 				navigate={this.props.navigate}
-				// 				following={this.props.contacts[upvoteEvent.pubkey]}
-				// 				handleFollow={this.props.handleFollow}
-				// 			/>
-				// 			<RelativeTime time={upvoteEvent.created_at} />
-				// 		</div>
-				// 	);
-				// };
-				
-				// return profile ? renderUpvote(profile) : Object.keys(upvotes).map(_pubkey => {
-				// 	return renderUpvote(_pubkey);
-				// });
 				
 				if (profile) {
 
@@ -1760,7 +1601,6 @@ class Item extends PureComponent {
 
 				return (
 					<div
-						//key={event.id}
 						style={{
 							marginBottom: 4
 						}}

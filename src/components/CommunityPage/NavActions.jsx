@@ -99,7 +99,7 @@ class NavActions extends PureComponent {
 						onMouseOut={() => this.setState({ hover: '' })}
 						style={{
 							fontSize: 12,
-							color: '#fff',
+							color: COLORS.satelliteGold,
 							fontFamily: 'JetBrains-Mono-Bold',
 							//marginTop: 4,
 							display: 'flex',
@@ -111,7 +111,8 @@ class NavActions extends PureComponent {
 					    lineHeight: '22px',
 							opacity: mobile || this.state.hover === 'newpost' ? 1 : 0.85,
 							marginRight: this.props.mobile ? 0 : -9,
-							marginTop: '-0.5px'
+							marginTop: '-0.5px',
+							userSelect: 'none'
 						}}
 					>
 						<Icon name='plus' style={{ height: 22, marginLeft: -1 }} />

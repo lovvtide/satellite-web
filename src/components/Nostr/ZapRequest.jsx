@@ -254,11 +254,11 @@ class ZapRequest extends PureComponent {
 
  		} else if (minSendable && parseInt(amount) * 1000 < minSendable) {
 
- 			errorStatus = `The minimum amount of sats you can send is ${minSendable}`;
+ 			errorStatus = `The minimum amount of sats you can send is ${Math.floor(minSendable / 1000)}`;
 
  		} else if (maxSendable && parseInt(amount) * 1000 > maxSendable) {
 
- 			errorStatus = `The maximum amount of sats you can send is ${maxSendable}`;
+ 			errorStatus = `The maximum amount of sats you can send is ${Math.floor(maxSendable / 1000)}`;
  		}
 
  		return errorStatus ? (

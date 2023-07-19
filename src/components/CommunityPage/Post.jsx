@@ -15,280 +15,54 @@ import { relativeTime } from '../../helpers';
 
 class Post extends PureComponent {
 
-	state = {  };
+	state = {};
 
-	/*
-	attachMediaPreviewListeners = () => {
+	// renderTitle = (title, content) => {
 
-		this.media = document.getElementsByClassName(this.contextId());
+	// 	if (!title) { return null; }
 
-		for (let item of this.media) {
+	// 	const format = (s) => {
+	// 		return s.replace('\n\n', '\n');
+	// 	};
 
-			item.removeEventListener('click', this.handleMediaPreviewClick);
-			item.addEventListener('click', this.handleMediaPreviewClick);
-
-			if (!this.props.mobile) {
-
-				item.removeEventListener('mouseover', this.handleMediaMouseOver);
-				item.addEventListener('mouseover', this.handleMediaMouseOver);
-				item.removeEventListener('mouseleave', this.handleMediaMouseOut);
-				item.addEventListener('mouseleave', this.handleMediaMouseOut);
-			}
-		}
-	};
-
-	handleMediaPreviewClick = (e) => {
-
-		e.stopPropagation();
-
-		this.handleMediaPreviewDisplay(document.getElementById(`${this.contextId()}_${e.target.src}`));
-	};
-
-	handleMediaMouseOver = (e) => {
-
-		const mediaElement = document.getElementById(`${this.contextId()}_${e.target.src}`);
-
-		if (!mediaElement) { return; }
-
-		mediaElement.style.border = `1px solid #fff`;
-	};
-
-	handleMediaMouseOut = (e) => {
-
-		const mediaElement = document.getElementById(`${this.contextId()}_${e.target.src}`);
-
-		if (!mediaElement) { return; }
-
-		mediaElement.style.border = `1px solid ${COLORS.secondary}`;
-	};
-
-	handleMediaPreviewDisplay = (element) => {
-
-		if (!element) { return; }
-
-		document.body.style['overflow-y'] = 'hidden';
-
-		const params = element.getBoundingClientRect(element);
-
-		this.setState({
-			mediaPreview: {
-				x: params.x,
-				y: params.y,
-				left: params.left,
-				right: params.right,
-				top: params.top,
-				bottom: params.bottom,
-				height: params.height,
-				width: params.width,
-				src: element.src
-			}
-		});
-	};
-
-	contextId = () => {
-		return `${this.props.event.id}_community`;
-	};
-
-	renderMediaPreview = () => {
-
-		const { mediaPreview } = this.state;
-
-		if (!mediaPreview) { return null; }
-
-		const clientHeight = window.clientHeight || document.documentElement.clientHeight;
-		const clientWidth = window.clientWidth || document.documentElement.clientWidth;
-
-		let height, width;
-
-		if ((clientHeight / clientWidth) > ((mediaPreview.height / mediaPreview.width))) {
-
-			width = clientWidth - (this.props.mobile ? 0 : 96);
-			height = 'auto';
-
-		} else {
-
-			height = clientHeight - (this.props.mobile ? 0 : 96);
-			width = 'auto';
-		}
-
-		let index;
-
-		for (let i = 0; i < this.media.length; i++) {
-			if (this.media[i].src === mediaPreview.src) {
-				index = i;
-				break;
-			}
-		}
-
-		const clearPreview = (e) => {
-
-			e.stopPropagation();
-
-			document.body.style['overflow-y'] = 'unset';
-
-			this.setState({ mediaPreview: null });
-		};
-
-		const next = (e, inc) => {
-			e.stopPropagation();
-			const seek = (index + inc) % this.media.length;
-			this.handleMediaPreviewDisplay(this.media[seek > -1 ? seek : this.media.length - 1]);
-		};
-
-		const image = (
-			<img
-				onClick={clearPreview}
-				src={mediaPreview.src}
-				style={{
-					height,
-					width,
-					userSelect: 'none',
-					position: 'fixed',
-					top: '50%',
-					left: '50%',
-					transform: 'translate(-50%, -50%)',
-					borderRadius: 4,
-					padding: 1,
-					background: COLORS.primary,
-					zIndex: 999999
-				}}
-			/>
-		);
-
-		const dimmerStyle = {
-			position: 'fixed',
-			background: 'rgba(0,0,0,0.75)',
-			top: 0,
-			left: 0,
-			height: clientHeight,
-			width: clientWidth,
-			zIndex: 999999
-		};
-
-		return this.media.length > 1 && !this.props.mobile ? (
-			<div
-				onClick={clearPreview}
-				style={dimmerStyle}
-			>
-				<div
-					style={{
-						position: 'absolute',
-						transform: 'translate(-50%)',
-						left: '50%',
-						top: 15,
-						fontSize: 12,
-						fontFamily: 'JetBrains-Mono-Regular',
-					}}
-				>
-					GALLERY {index + 1} / {this.media.length}
-				</div>
-				<div
-					onClick={(e) => next(e, -1)}
-					onMouseOver={() => this.setState({ hover: 'chevronleft' })}
-					onMouseOut={() => this.setState({ hover: '' })}
-					style={{
-						position: 'absolute',
-						transform: 'translate(0, -50%)',
-						top: '50%',
-						left: 48,
-						cursor: 'pointer',
-						zIndex: 9999999,
-						padding: 16,
-						border: `1px solid #fff`,
-						opacity: this.state.hover === 'chevronleft' ? 1 : 0.85,
-						borderRadius: 48
-					}}
-				>
-					<Chevron
-						thickness={1}
-						dimension={12}
-						pointing='left'
-						style={{ color: '#fff' }}
-					/>
-				</div>
-				<div
-					onClick={(e) => next(e, 1)}
-					onMouseOver={() => this.setState({ hover: 'chevronright' })}
-					onMouseOut={() => this.setState({ hover: '' })}
-					style={{
-						position: 'absolute',
-						transform: 'translate(0, -50%)',
-						top: '50%',
-						right: 48,
-						cursor: 'pointer',
-						zIndex: 9999999,
-						padding: 16,
-						border: `1px solid #fff`,
-						opacity: this.state.hover === 'chevronright' ? 1 : 0.85,
-						borderRadius: 48
-					}}
-				>
-					<Chevron
-						thickness={1}
-						dimension={12}
-						pointing='right'
-						style={{ color: '#fff' }}
-					/>
-				</div>
-				{image}
-			</div>
-		) : (
-			<div
-				onClick={clearPreview}
-				style={dimmerStyle}
-			>
-				{image}
-			</div>
-		);
-	};
-	*/
-
-	renderTitle = (title, content) => {
-
-		if (!title) { return null; }
-
-		const format = (s) => {
-			return s.replace('\n\n', '\n');
-		};
-
-		return (
-			<div
-				style={{
-					fontSize: 14,
-					fontWeight: 'bold',
-					marginBottom: 2
-				}}
-			>
-				<Link
-					to={`${this.props.base}/${nip19.noteEncode(this.props.event.id)}`}
-				>
-					{title ? (
-						<span
-							onMouseOver={() => this.setState({ hover: 'title' })}
-							onMouseOut={() => this.setState({ hover: '' })}
-							style={{
-								textDecoration: this.state.hover === 'title' ? 'underline' : 'none',
-								color: '#fff'
-							}}
-						>
-							{title || 'Untitled Post'}
-						</span>
-					) : /*(
-						<span
-							onMouseOver={() => this.setState({ hover: 'title' })}
-							onMouseOut={() => this.setState({ hover: '' })}
-							style={{
-								textDecoration: this.state.hover === 'title' ? 'underline' : 'none',
-								color: '#fff'
-							}}
-						>
-							{content.length > 300 ? format(content.substring(0, 300)) + '...' : format(content)}
-						</span>
-					)*/null}
-				</Link>
-			</div>
-		);
-	};
+	// 	return (
+	// 		<div
+	// 			style={{
+	// 				fontSize: 14,
+	// 				fontWeight: 'bold',
+	// 				marginBottom: 2
+	// 			}}
+	// 		>
+	// 			<Link
+	// 				to={`${this.props.base}/${nip19.noteEncode(this.props.event.id)}`}
+	// 			>
+	// 				{title ? (
+	// 					<span
+	// 						onMouseOver={() => this.setState({ hover: 'title' })}
+	// 						onMouseOut={() => this.setState({ hover: '' })}
+	// 						style={{
+	// 							textDecoration: this.state.hover === 'title' ? 'underline' : 'none',
+	// 							color: '#fff'
+	// 						}}
+	// 					>
+	// 						{title || 'Untitled Post'}
+	// 					</span>
+	// 				) : /*(
+	// 					<span
+	// 						onMouseOver={() => this.setState({ hover: 'title' })}
+	// 						onMouseOut={() => this.setState({ hover: '' })}
+	// 						style={{
+	// 							textDecoration: this.state.hover === 'title' ? 'underline' : 'none',
+	// 							color: '#fff'
+	// 						}}
+	// 					>
+	// 						{content.length > 300 ? format(content.substring(0, 300)) + '...' : format(content)}
+	// 					</span>
+	// 				)*/null}
+	// 			</Link>
+	// 		</div>
+	// 	);
+	// };
 
 	renderApproveAction = () => {
 
@@ -307,6 +81,7 @@ class Post extends PureComponent {
 					paddingRight: 7,
 					borderRadius: 3,
 					background: 'rgba(255,255,255,0.05)',
+					borderRadius: 3,
 					paddingTop: 2
 				}}>
 					pending approval
@@ -319,26 +94,127 @@ class Post extends PureComponent {
 		);
 	};
 
-	renderLink = (link) => {
+	// renderLink = (link) => {
 
-		if (!link) { return null; }
+	// 	if (!link) { return null; }
+
+	// 	return (
+	// 		<div style={{
+	// 			fontSize: 13,
+	// 			color: COLORS.blue,
+	// 			maxWidth: 650,
+	// 			whiteSpace: 'nowrap',
+	// 			overflow: 'hidden',
+	// 			textOverflow: 'ellipsis',
+	// 			marginBottom: 1
+	// 		}}>
+	// 			<a
+	// 				href={link}
+	// 				target='_blank'
+	// 			>
+	// 				{link}
+	// 			</a>
+	// 		</div>
+	// 	);
+	// };
+
+	renderVotes = () => {
+
+		return null; // TODO enable
+
+		const { mobile, approval, voteBalance } = this.props;
+
+		if (!this.props.approval) { return null; }
 
 		return (
 			<div style={{
-				fontSize: 13,
-				color: COLORS.blue,
-				maxWidth: 650,
-				whiteSpace: 'nowrap',
-				overflow: 'hidden',
-				textOverflow: 'ellipsis',
-				marginBottom: 1
+				minWidth: 36,
+				marginRight: mobile ? 10 : 14,
+				display: 'flex',
+				flexDirection: 'column',
+				alignItems: 'center',
+				paddingTop: mobile ? 4 : 0,
+				marginTop: mobile ? 0 : -8
 			}}>
-				<a
-					href={link}
-					target='_blank'
+				<div
+					onMouseOver={() => this.setState({ hover: '+' })}
+					onMouseOut={() => this.setState({ hover: '' })}
+					onClick={() => this.props.handleVote('+')}
+					style={{
+						height: 28,
+						width: 28,
+						display: 'flex',
+						alignItems: 'center',
+						border: mobile ? `1px solid ${COLORS.secondary}` : 'none',
+						borderRadius: 24,
+						justifyContent: 'center',
+						cursor: 'pointer',
+						userSelect: 'none'
+					}}
+				>					
+					<Icon
+						name='chevron up'
+						style={{
+							color: this.state.hover === '+' ? '#fff' : COLORS.secondaryBright,
+							//opacity: this.state.hover === '+' ? 1 : 0.85,
+							fontSize: 14,
+							height: mobile ? 20 : 21,
+							margin: 0
+						}}
+					/>
+				</div>
+				<div
+					style={{
+						height: mobile ? 32 : 14,
+						fontSize: 13,
+						display: 'flex',
+						alignItems: 'center',
+						color: voteBalance > 0 ? '#fff' : COLORS.secondaryBright,
+						fontWeight: 'bold'
+					}}
 				>
-					{link}
-				</a>
+					{voteBalance}
+				</div>
+				<div
+					onMouseOver={() => this.setState({ hover: '-' })}
+					onMouseOut={() => this.setState({ hover: '' })}
+					onClick={() => this.props.handleVote('-')}
+					style={{
+						height: 28,
+						width: 28,
+						display: 'flex',
+						alignItems: 'center',
+						border: mobile ? `1px solid ${COLORS.secondary}` : 'none',
+						borderRadius: 24,
+						justifyContent: 'center',
+						cursor: 'pointer',
+						userSelect: 'none'
+					}}
+				>	
+					<Icon
+						name='chevron down'
+						style={{
+							color: this.state.hover === '-' ? '#fff' : COLORS.secondaryBright,
+							//opacity: this.state.hover === '-' || mobile ? 1 : 0.85,
+							fontSize: 14,
+							height: mobile ? 18 : 19,
+							margin: 0
+						}}
+					/>
+				</div>
+			</div>
+		);
+	};
+
+	renderMobileVotes = () => {
+
+		const { mobile } = this.props;
+
+		if (!mobile) { return null; }
+
+		return (
+			<div>
+				[up] [down]
 			</div>
 		);
 	};
@@ -486,38 +362,36 @@ class Post extends PureComponent {
 		return (
 			<div
 				style={{
-					marginBottom: mobile ? 16 : 18,
+					marginBottom: mobile ? 16 : 0,
 					marginLeft: mobile ? -12 : 0,
 					marginRight: mobile ? -12 : 0,
-					paddingBottom: mobile ? 14 : 18,
+					paddingBottom: mobile ? 14 : 12,
 					paddingLeft: mobile ? 12 : 0,
 					paddingRight: mobile ? 12 : 0,
 					overflowWrap: 'anywhere',
 					whiteSpace: 'break-spaces',
-					borderBottom: /*mobile*/true ? `1px dotted ${COLORS.secondary}` : 'none',
-					//borderLeft: mobile ? 'none' : '6px solid rgb(29, 30, 31)'
-					//borderLeft: mobile ? 'none' : '2px solid #fff'
+					borderBottom: mobile ? `1px dotted ${COLORS.secondary}` : 'none',
 				}}
 			>	
-				{/*{this.renderMediaPreview()}*/}
-				{/*<div style={{
-					display: 'flex',
-					justifyContent: 'space-between'
-				}}>
-					{{this.renderTitle(title, this.props.event.content)}}
-					{{this.renderApproveAction()}}
-				</div>*/}
-				{/*this.renderLink(link)*/}
-				
-{/*				<div style={{
+				{this.renderApproveAction()}
+				<div style={{
 					display: 'flex'
 				}}>
-					
-					
-				</div>*/}
-				{this.renderApproveAction()}
-				{this.renderBody(title, link)}
-				{this.renderAttribution()}
+					{this.renderVotes()}
+					<div style={{
+						//paddingRight: 76
+						width: '100%',
+						borderRadius: 12,
+						border: mobile ? 'none' : `0.5px solid ${COLORS.secondary}`,
+						//background: mobile ? null : 'rgba(255,255,255,0.025)',
+						padding: mobile ? 0 : 14,
+						//maxWidth: this.props.clientWidth ? (this.props.clientWidth * (mobile ? 1 : 0.75)) - (mobile ? 76 : 112) : null
+					}}>
+						{this.renderBody(title, link)}
+						{this.renderAttribution()}
+					</div>
+				</div>
+				{/*{this.renderMobileVotes()}*/}
 			</div>
 		);
 	};

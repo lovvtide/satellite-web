@@ -8,10 +8,6 @@ import { COLORS } from '../../constants';
 
 class List extends PureComponent {
 
-	// componentDidMount = () => {
-	// 	window.scrollTo({ top: 0 });
-	// };
-
 	render = () => {
 
 		const { items } = this.props;
@@ -34,7 +30,6 @@ class List extends PureComponent {
 							base={`/n/${this.props.name}/${this.props.ownernpub}`}
 							approval={item.approval}
 							metadata={this.props.metadata}
-							//profile={this.props.metadata[item.event.pubkey]}
 							profile={this.props.metadata[item.event.pubkey] ? (this.props.metadata[item.event.pubkey].profile) || {} : {}}
 							searchActive={this.props.searchActive}
 							handlePost={this.props.handlePost}
@@ -43,7 +38,12 @@ class List extends PureComponent {
 							handleQueryProfiles={this.props.handleQueryProfiles}
 							handleZapRequest={this.props.handleZapRequest}
 							handleFollow={this.props.handleFollow}
+							handleVote={vote => this.props.handleVote(item, vote)}
 							navigate={this.props.navigate}
+							clientWidth={this.props.clientWidth}
+							upvotes={item.upvotes}
+							downvotes={item.downvotes}
+							voteBalance={this.props.voteBalance[item.event.id] || 0}
 						/>
 					);
 				})}

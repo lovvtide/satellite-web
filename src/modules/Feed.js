@@ -646,6 +646,18 @@ class Feed {
 
 								this.items[event.id].upvotes[this.items[id].event.pubkey] = this.items[id].event;
 							}
+
+						} else {
+
+							if (!this.items[event.id].downvotes) {
+
+								this.items[event.id].downvotes = {};
+							}
+
+							if (!this.items[event.id].downvotes[this.items[id].event.pubkey] || this.items[id].event.created_at > this.items[event.id].downvotes[this.items[id].event.pubkey].created_at) {
+
+								this.items[event.id].downvotes[this.items[id].event.pubkey] = this.items[id].event;
+							}
 						}
 					}
 				}
@@ -690,8 +702,21 @@ class Feed {
 
 									this.items[id].upvotes[event.pubkey] = event;
 								}
-							}
 
+							} else {
+
+								if (!this.items[id].downvotes) {
+
+									this.items[id].downvotes = {};
+								}
+
+								// If the downvote event is the most recent from a
+								// pubkey, save a reference to the upvote event
+								if (!this.items[id].downvotes[event.pubkey] || event.created_at > this.items[id].downvotes[event.pubkey].created_at) {
+
+									this.items[id].downvotes[event.pubkey] = event;
+								}
+							}
 						}
 					}
 				}
