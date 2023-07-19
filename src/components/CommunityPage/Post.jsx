@@ -365,7 +365,7 @@ class Post extends PureComponent {
 					marginBottom: mobile ? 16 : 0,
 					marginLeft: mobile ? -12 : 0,
 					marginRight: mobile ? -12 : 0,
-					paddingBottom: mobile ? 14 : 12,
+					paddingBottom: mobile ? 14 : 18,
 					paddingLeft: mobile ? 12 : 0,
 					paddingRight: mobile ? 12 : 0,
 					overflowWrap: 'anywhere',
@@ -381,11 +381,14 @@ class Post extends PureComponent {
 					<div style={{
 						//paddingRight: 76
 						width: '100%',
-						borderRadius: 12,
-						border: mobile ? 'none' : `0.5px solid ${COLORS.secondary}`,
+						//borderRadius: 12,
+						//borderLeft: mobile ? 'none' : `5px solid rgba(255,255,255)`,
+						borderBottom: mobile ? 'none' : `1px dotted ${COLORS.secondary}`,
 						//background: mobile ? null : 'rgba(255,255,255,0.025)',
-						padding: mobile ? 0 : 14,
-						//maxWidth: this.props.clientWidth ? (this.props.clientWidth * (mobile ? 1 : 0.75)) - (mobile ? 76 : 112) : null
+						//padding: mobile ? 0 : 14,
+						paddingBottom: mobile ? 0 : 18,
+						paddingLeft: mobile ? 0 : 14,
+						maxWidth: mobile ? null : this.props.clientWidth ? (this.props.clientWidth * (mobile ? 1 : 0.75)) - (mobile ? 76 : 112) : null
 					}}>
 						{this.renderBody(title, link)}
 						{this.renderAttribution()}
