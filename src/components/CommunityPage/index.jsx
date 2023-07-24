@@ -770,7 +770,9 @@ class CommunityPage extends PureComponent {
 
 	renderAdminButton = () => {
 
-		const { mobile } = this.props;
+		const { mobile, ownerpubkey, pubkey } = this.props;
+
+		if (pubkey !== ownerpubkey) { return null; }
 
 		return (
 			<div
