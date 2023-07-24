@@ -1,6 +1,26 @@
 import { DEFAULT_LOCALE_CURRENCY } from './constants';
 
 
+export const formatSats = (sats = 0) => {
+
+	let s, n;
+
+	if (sats >= 1000000000) {
+		s = String((sats / 1000000000).toFixed(1));
+		n = 'B';
+	} else if (sats >= 1000000) {
+		s = String((sats / 1000000).toFixed(1));
+		n = 'M';
+	} else if (sats >= 1000) {
+		s = String((sats / 1000).toFixed(1));
+		n = 'K';
+	} else {
+		s = String(sats);
+	}
+
+	return `${s.slice(-2) === '.0' ? s.slice(0, -2) : s}${n || ''}`;
+};
+
 export const parseMediaURL = (url) => {
 
 	const parsed = {};

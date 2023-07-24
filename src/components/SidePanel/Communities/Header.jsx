@@ -15,7 +15,7 @@ class Header extends PureComponent {
 
     return (
       <div
-        onClick={() => this.props.handleToggleEdit({ createNew: true })}
+        onClick={() => this.props.handleToggleEdit({ createNewCommunity: true })}
         onMouseOver={() => this.setState({ hover: 'new' })}
         onMouseOut={() => this.setState({ hover: '' })}
         style={{
@@ -47,7 +47,7 @@ class Header extends PureComponent {
 
     return this.props.createNew || this.props.editing ? (
       <div
-        onClick={() => this.props.handleToggleEdit({ createNew: false, editing: null })}
+        onClick={() => this.props.handleToggleEdit({ createNewCommunity: false, editingCommunity: null })}
         onMouseOver={() => this.setState({ hover: 'new' })}
         onMouseOut={() => this.setState({ hover: '' })}
         style={{
@@ -72,18 +72,23 @@ class Header extends PureComponent {
 
   renderMode = () => {
 
+    const earth = (
+      <img
+        src={svgearth}
+        style={{
+          marginRight: this.props.createNew ? 10 : 8,
+          height: 18,
+          width: 18,
+          marginBottom: this.props.createNew ? 2 : -1
+        }}
+      />
+    );
+
     if (this.props.createNew) {
 
       return (
         <div style={{ display: 'flex', alignItems: 'center', color: 'rgba(255,255,255,0.85)', fontFamily: 'JetBrains-Mono-Regular', paddingBottom: 1 }}>
-          <img
-            src={svgearth}
-            style={{
-              marginRight: 8,
-              height: 18,
-              width: 18
-            }}
-          />
+          {earth}
           NEW COMMUNITY
         </div>
       );
@@ -92,8 +97,9 @@ class Header extends PureComponent {
     if (this.props.editing) {
 
       return (
-        <div style={{ color: '#fff', fontWeight: 'bold', fontSize: this.props.mobile ? 12 : 16, height: this.props.mobile ? null : 24 }}>
-          {this.props.editing.name}
+        <div style={{ display: 'flex', alignItems: 'center', color: '#fff', fontWeight: 'bold', fontSize: this.props.mobile ? 12 : 16, height: this.props.mobile ? null : 24 }}>
+          {earth}
+          n/{this.props.editing.name}
         </div>
       );
     }

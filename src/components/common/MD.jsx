@@ -93,8 +93,8 @@ const transform = (props) => {
 
 			ext = href.slice(href.lastIndexOf('.') + 1);
 
-			if (ext.indexOf('&') !== -1) {
-				ext = ext.split('&')[0];
+			if (ext.indexOf('?') !== -1) {
+				ext = ext.split('?')[0];
 			}
 
 			const previewImage = [ 'jpeg', 'jpg', 'png', 'webp', 'gif' ];

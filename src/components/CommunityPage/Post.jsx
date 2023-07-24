@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Link } from 'react-router-dom';
 import { nip19 } from 'nostr-tools';
-import { Icon } from 'semantic-ui-react';
+import { Icon, Popup } from 'semantic-ui-react';
 
 import { Chevron } from '../CommonUI';
 import MD from '../common/MD';
@@ -10,59 +10,15 @@ import Name from './Name';
 import Item from '../Nostr/Item';
 
 import { COLORS } from '../../constants';
-import { relativeTime } from '../../helpers';
+import { relativeTime, formatSats } from '../../helpers';
+import svglightning from '../../assets/lightning.svg';
+import svglightningactive from '../../assets/lightning_active.svg';
+import svglightningwhite from '../../assets/lightning_white.svg';
 
 
 class Post extends PureComponent {
 
 	state = {};
-
-	// renderTitle = (title, content) => {
-
-	// 	if (!title) { return null; }
-
-	// 	const format = (s) => {
-	// 		return s.replace('\n\n', '\n');
-	// 	};
-
-	// 	return (
-	// 		<div
-	// 			style={{
-	// 				fontSize: 14,
-	// 				fontWeight: 'bold',
-	// 				marginBottom: 2
-	// 			}}
-	// 		>
-	// 			<Link
-	// 				to={`${this.props.base}/${nip19.noteEncode(this.props.event.id)}`}
-	// 			>
-	// 				{title ? (
-	// 					<span
-	// 						onMouseOver={() => this.setState({ hover: 'title' })}
-	// 						onMouseOut={() => this.setState({ hover: '' })}
-	// 						style={{
-	// 							textDecoration: this.state.hover === 'title' ? 'underline' : 'none',
-	// 							color: '#fff'
-	// 						}}
-	// 					>
-	// 						{title || 'Untitled Post'}
-	// 					</span>
-	// 				) : /*(
-	// 					<span
-	// 						onMouseOver={() => this.setState({ hover: 'title' })}
-	// 						onMouseOut={() => this.setState({ hover: '' })}
-	// 						style={{
-	// 							textDecoration: this.state.hover === 'title' ? 'underline' : 'none',
-	// 							color: '#fff'
-	// 						}}
-	// 					>
-	// 						{content.length > 300 ? format(content.substring(0, 300)) + '...' : format(content)}
-	// 					</span>
-	// 				)*/null}
-	// 			</Link>
-	// 		</div>
-	// 	);
-	// };
 
 	renderApproveAction = () => {
 
@@ -94,116 +50,164 @@ class Post extends PureComponent {
 		);
 	};
 
-	// renderLink = (link) => {
-
-	// 	if (!link) { return null; }
-
-	// 	return (
-	// 		<div style={{
-	// 			fontSize: 13,
-	// 			color: COLORS.blue,
-	// 			maxWidth: 650,
-	// 			whiteSpace: 'nowrap',
-	// 			overflow: 'hidden',
-	// 			textOverflow: 'ellipsis',
-	// 			marginBottom: 1
-	// 		}}>
-	// 			<a
-	// 				href={link}
-	// 				target='_blank'
-	// 			>
-	// 				{link}
-	// 			</a>
-	// 		</div>
-	// 	);
-	// };
-
 	renderVotes = () => {
 
-		return null; // TODO enable
-
-		const { mobile, approval, voteBalance } = this.props;
+		const { mobile, approval, voteBalance, zapTotal, zappedByActive, upvotes, downvotes } = this.props;
 
 		if (!this.props.approval) { return null; }
 
-		return (
-			<div style={{
-				minWidth: 36,
-				marginRight: mobile ? 10 : 14,
-				display: 'flex',
-				flexDirection: 'column',
-				alignItems: 'center',
-				paddingTop: mobile ? 4 : 0,
-				marginTop: mobile ? 0 : -8
-			}}>
+		if (this.props.rankMode === 'zaps') { // Voting with zaps
+
+			const { lud06, lud16 } = this.props.profile;
+			const zapsDisabled = !(lud06 || lud16);
+
+			const zapButton = (
 				<div
 					onMouseOver={() => this.setState({ hover: '+' })}
 					onMouseOut={() => this.setState({ hover: '' })}
-					onClick={() => this.props.handleVote('+')}
+					onClick={zapsDisabled ? undefined : () => this.props.handleVote('zap', { lud06, lud16 })}
 					style={{
 						height: 28,
 						width: 28,
 						display: 'flex',
 						alignItems: 'center',
-						border: mobile ? `1px solid ${COLORS.secondary}` : 'none',
+						border: `1px solid ${zappedByActive || this.state.hover === '+' ? '#fff' : COLORS.secondary}`,
 						borderRadius: 24,
 						justifyContent: 'center',
 						cursor: 'pointer',
-						userSelect: 'none'
-					}}
-				>					
-					<Icon
-						name='chevron up'
-						style={{
-							color: this.state.hover === '+' ? '#fff' : COLORS.secondaryBright,
-							//opacity: this.state.hover === '+' ? 1 : 0.85,
-							fontSize: 14,
-							height: mobile ? 20 : 21,
-							margin: 0
-						}}
-					/>
-				</div>
-				<div
-					style={{
-						height: mobile ? 32 : 14,
-						fontSize: 13,
-						display: 'flex',
-						alignItems: 'center',
-						color: voteBalance > 0 ? '#fff' : COLORS.secondaryBright,
-						fontWeight: 'bold'
+						userSelect: 'none',
+						marginBottom: mobile ? 0 : 8,
+						marginTop: mobile ? 2 : 8
 					}}
 				>
-					{voteBalance}
-				</div>
-				<div
-					onMouseOver={() => this.setState({ hover: '-' })}
-					onMouseOut={() => this.setState({ hover: '' })}
-					onClick={() => this.props.handleVote('-')}
-					style={{
-						height: 28,
-						width: 28,
-						display: 'flex',
-						alignItems: 'center',
-						border: mobile ? `1px solid ${COLORS.secondary}` : 'none',
-						borderRadius: 24,
-						justifyContent: 'center',
-						cursor: 'pointer',
-						userSelect: 'none'
-					}}
-				>	
-					<Icon
-						name='chevron down'
+					<img
+						src={zappedByActive ? svglightningactive : (this.state.hover === '+' ? svglightningwhite : svglightning)}
 						style={{
-							color: this.state.hover === '-' ? '#fff' : COLORS.secondaryBright,
-							//opacity: this.state.hover === '-' || mobile ? 1 : 0.85,
-							fontSize: 14,
-							height: mobile ? 18 : 19,
-							margin: 0
+							height: 12
 						}}
 					/>
 				</div>
-			</div>
-		);
+			);
+
+			return (
+				<div style={{
+					minWidth: mobile ? 36 : 44,
+					marginRight: mobile ? 10 : 14,
+					display: 'flex',
+					flexDirection: 'column',
+					alignItems: 'center',
+					paddingTop: mobile ? 4 : 0,
+					marginTop: mobile ? 0 : -3,
+					overflow: 'hidden'
+				}}>
+					{zapsDisabled ? (
+						<Popup
+							trigger={zapButton}
+							content={`Can't upvote because the poster has not set up lightning zaps`}
+							position='left center'
+							hideOnScroll
+							style={{
+								filter: 'invert(0.85)',
+								boxShadow: 'none',
+								fontSize: 13
+							}}
+						/>
+					) : zapButton}
+					<div
+						style={{
+							height: mobile ? 32 : 14,
+							fontSize: mobile ? 12 : 13,
+							display: 'flex',
+							alignItems: 'center',
+							color: zapTotal ? COLORS.satelliteGold : COLORS.secondaryBright,
+							fontWeight: 'bold',
+							whiteSpace: 'nowrap'
+						}}
+					>
+						{formatSats(zapTotal)}
+					</div>
+				</div>
+			);
+
+		} else { // Voting with kind 7 (+/-) reactions
+
+			return (
+				<div style={{
+					minWidth: mobile ? 36 : 44,
+					marginRight: mobile ? 10 : 14,
+					display: 'flex',
+					flexDirection: 'column',
+					alignItems: 'center',
+					paddingTop: mobile ? 4 : 0,
+					marginTop: mobile ? 0 : -3
+				}}>
+					<div
+						onMouseOver={() => this.setState({ hover: '+' })}
+						onMouseOut={() => this.setState({ hover: '' })}
+						onClick={() => this.props.handleVote('+')}
+						style={{
+							height: 28,
+							width: 28,
+							display: 'flex',
+							alignItems: 'center',
+							border: mobile ? `1px solid ${COLORS.secondary}` : 'none',
+							borderRadius: 24,
+							justifyContent: 'center',
+							cursor: 'pointer',
+							userSelect: 'none'
+						}}
+					>
+						<Icon
+							name='chevron up'
+							style={{
+								color: upvotes && upvotes[this.props.pubkey] ? '#fff' : (!mobile && this.state.hover === '+' ? '#fff' : COLORS.secondaryBright),
+								fontSize: 14,
+								height: mobile ? 20 : 21,
+								margin: 0
+							}}
+						/>
+					</div>
+					<div
+						style={{
+							height: mobile ? 32 : 14,
+							fontSize: 13,
+							display: 'flex',
+							alignItems: 'center',
+							color: voteBalance > 0 ? '#fff' : COLORS.secondaryBright,
+							fontWeight: 'bold'
+						}}
+					>
+						{voteBalance}
+					</div>
+					<div
+						onMouseOver={() => this.setState({ hover: '-' })}
+						onMouseOut={() => this.setState({ hover: '' })}
+						onClick={() => this.props.handleVote('-')}
+						style={{
+							height: 28,
+							width: 28,
+							display: 'flex',
+							alignItems: 'center',
+							border: mobile ? `1px solid ${COLORS.secondary}` : 'none',
+							borderRadius: 24,
+							justifyContent: 'center',
+							cursor: 'pointer',
+							userSelect: 'none'
+						}}
+					>	
+						<Icon
+							name='chevron down'
+							style={{
+								color: downvotes && downvotes[this.props.pubkey] ? '#fff' : !mobile && this.state.hover === '-' ? '#fff' : COLORS.secondaryBright,
+								fontSize: 14,
+								height: mobile ? 18 : 19,
+								margin: 0
+							}}
+						/>
+					</div>
+				</div>
+			);
+		}
 	};
 
 	renderMobileVotes = () => {
@@ -226,9 +230,7 @@ class Post extends PureComponent {
 		return (
 			<div>
 				<Item
-					//key={item.event.id}
 					_mod={this.props.feed._mod}
-					previewReplacedLinks={!this.props.mobile}
 					communityLink={`${this.props.base}/${nip19.noteEncode(this.props.event.id)}`}
 					replaceTitleMode='list'
 					replaceTitle
@@ -236,23 +238,8 @@ class Post extends PureComponent {
 					hideAttribution
 					depth={0}
 					topLevel
-					//index={index}
 					mobile={this.props.mobile}
-					//active={active}
-					//profile={this.props.profile}
 					event={this.props.event}
-					//eroot={item.eroot}
-					//replies={item.replies}
-					//deleted={item.deleted}
-					//phantom={item.phantom}
-					//repost={item._repost}
-					//upvotes={item.upvotes}
-					//highlight={highlight}
-					//divided={divided}
-					//thread={this.props.thread}
-					//list_n={item.list_n}
-					//list_p={item.list_p}
-					//list_t={item.list_t}
 					searchActive={this.props.searchActive}
 					handlePost={this.props.handlePost}
 					handleMobileReply={this.props.handleMobileReply}
@@ -260,18 +247,11 @@ class Post extends PureComponent {
 					handleQueryProfiles={this.props.handleQueryProfiles}
 					handleZapRequest={this.props.handleZapRequest}
 					handleFollow={this.props.handleFollow}
-					//selected={item.event.id === this.props.selected}
-					//recent={name && name === item.recent}
 					navigate={this.props.navigate}
 					contacts={this.props.contacts || {}}
 					author={(this.props.feed.items[this.props.event.id] || {}).author}
-					//feedName={this.props.name}
 					metadata={this.props.feed.metadata}
-					//metadataCount={Object.keys(this.props.metadata).length}
-					//showFullsizeMedia={this.props.profile && (this.props.profile === item.event.pubkey || item._repost || (item.upvotes && item.upvotes[this.props.profile]))}
-					//replaceTitle={item.event.id === this.props.replaceTitle}
 					items={this.props.feed.items}
-					//feedPostId={(this.props.buildOptions || {}).id}
 				/>
 			</div>
 		);
@@ -333,8 +313,6 @@ class Post extends PureComponent {
 						style={{
 							color: this.state.hover === 'view_comments' ? '#fff' : COLORS.secondaryBright,
 							marginLeft: 12
-							// fontSize: 13,
-							// marginTop: -24
 						}}
 					>
 						<Icon style={{ fontSize: 11 }} name='comment outline' />
@@ -362,10 +340,10 @@ class Post extends PureComponent {
 		return (
 			<div
 				style={{
-					marginBottom: mobile ? 16 : 0,
+					marginBottom: mobile ? 12 : 0,
 					marginLeft: mobile ? -12 : 0,
 					marginRight: mobile ? -12 : 0,
-					paddingBottom: mobile ? 14 : 18,
+					paddingBottom: mobile ? 14 : 16,
 					paddingLeft: mobile ? 12 : 0,
 					paddingRight: mobile ? 12 : 0,
 					overflowWrap: 'anywhere',
@@ -379,22 +357,15 @@ class Post extends PureComponent {
 				}}>
 					{this.renderVotes()}
 					<div style={{
-						//paddingRight: 76
 						width: '100%',
-						//borderRadius: 12,
-						//borderLeft: mobile ? 'none' : `5px solid rgba(255,255,255)`,
 						borderBottom: mobile ? 'none' : `1px dotted ${COLORS.secondary}`,
-						//background: mobile ? null : 'rgba(255,255,255,0.025)',
-						//padding: mobile ? 0 : 14,
 						paddingBottom: mobile ? 0 : 18,
-						paddingLeft: mobile ? 0 : 14,
-						maxWidth: mobile ? null : this.props.clientWidth ? (this.props.clientWidth * (mobile ? 1 : 0.75)) - (mobile ? 76 : 112) : null
+						maxWidth: this.props.clientWidth ? (this.props.clientWidth * (mobile ? 1 : 0.75) - (mobile ? 76 : 112)) : null
 					}}>
 						{this.renderBody(title, link)}
 						{this.renderAttribution()}
 					</div>
 				</div>
-				{/*{this.renderMobileVotes()}*/}
 			</div>
 		);
 	};

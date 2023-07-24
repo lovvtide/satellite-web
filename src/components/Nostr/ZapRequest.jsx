@@ -24,16 +24,20 @@ class ZapRequest extends PureComponent {
 		});
 	};
 
+  handleCreateInvoice = async (amount) => {
 
-  handleCreateInvoice = async () => {
+  	if (amount) {
+  		this.setState({ amount });
+  	}
 
   	const invoice = await getZapInvoice({
   		pubkey: this.props.recipientPubkey,
-  		amount: this.state.amount,
+  		amount: amount || this.state.amount,
   		relays: this.props.relays,
   		event: this.props.zapEvent.id,
   		note: this.state.note,
-  		url: this.props.callback
+  		url: this.props.callback,
+  		upvote: this.props.zapUpvote
   	});
 
   	if (!invoice) { return; }
@@ -42,7 +46,6 @@ class ZapRequest extends PureComponent {
 
   	// Try to pay with lightning wallet if detected
   	this.handlePayWithLightningWallet({ invoice: invoice.pr });
-
   };
 
   handlePayWithLightningWallet = async (params) => {
@@ -52,7 +55,6 @@ class ZapRequest extends PureComponent {
   		await payWithLightningWallet(params);
 
   	} catch (err) {
-
   		console.log(err);
   	}
   };
@@ -93,7 +95,9 @@ class ZapRequest extends PureComponent {
 
  	renderRecipient = () => {
 
- 		const { recipientPubkey, recipientName, recipientPicture } = this.props;
+ 		const { recipientPubkey, recipientName, recipientPicture, zapUpvote } = this.props;
+
+ 		if (zapUpvote) { return null; }
 
  		let name = recipientName;
 
@@ -153,7 +157,7 @@ class ZapRequest extends PureComponent {
 						padding: this.state.invoice ? 10 : 0,
 						background: '#fff',
 						border: `1px solid ${this.state.invoice && this.state.hover === 'qr' ? COLORS.satelliteGold : '#fff'}`,
-						...(this.props.mobile ? {} : transition(0.2, 'ease', [ 'width', 'padding', 'opacity' ]))
+						...(this.props.mobile || this.props.zapUpvote ? {} : transition(0.2, 'ease', [ 'width', 'padding', 'opacity' ]))
 					}}
 				>
 					{this.state.invoice ? (<QRCode
@@ -168,7 +172,45 @@ class ZapRequest extends PureComponent {
 
  	renderForm = () => {
 
- 		if (this.state.invoice && this.props.mobile) { return null; }
+ 		const { zapUpvote } = this.props;
+
+ 		if (this.state.invoice && (this.props.mobile || zapUpvote)) { return null; }
+
+ 		if (zapUpvote) {
+
+ 			return (
+	 			<div style={{
+	 				width: this.props.mobile ? (this.props.clientWidth - 48) : 256,
+	 				fontSize: 12
+	 			}}>
+	 				{([ 100, 1000, 10000, 100000 ]).map(amount => {
+	 					return (
+	 						<div
+	 							key={amount}
+	 							onClick={() => this.handleCreateInvoice(String(amount))}
+	 							onMouseOver={() => this.setState({ hover: `upvote_${amount}` })}
+	 							onMouseOut={() => this.setState({ hover: '' })}
+	 							style={{
+	 								fontSize: 12,
+	 								marginBottom: 12,
+	 								border: `1px solid ${COLORS.secondaryBright}`,
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									height: 36,
+									borderRadius: 4,
+									cursor: 'pointer',
+									userSelect: 'none',
+									opacity: `upvote_${amount}` === this.state.hover ? 1 : 0.85
+	 							}}
+	 						>
+	 							{amount} SATS
+	 						</div>
+	 					);
+	 				})}
+	 			</div>
+ 			);
+ 		}
 
  		return (
  			<div style={{
@@ -239,7 +281,7 @@ class ZapRequest extends PureComponent {
 
  	renderConfirmAction = () => {
 
- 		if (this.state.invoice) { return null; }
+ 		if (this.state.invoice || this.props.zapUpvote) { return null; }
 
  		const { minSendable, maxSendable, mobile } = this.props;
  		const { amount } = this.state;
@@ -273,7 +315,7 @@ class ZapRequest extends PureComponent {
  			<div
  				onMouseOver={() => this.setState({ hover: 'confirm' })}
  				onMouseOut={() => this.setState({ hover: '' })}
- 				onClick={this.handleCreateInvoice}
+ 				onClick={() => this.handleCreateInvoice()}
  				style={{
  					opacity: hover || mobile ? 1 : 0.85,
  					border: `1px solid ${COLORS.secondary}`,
@@ -299,9 +341,9 @@ class ZapRequest extends PureComponent {
 
  	renderInvoiceValue = () => {
 
- 		if (!this.state.invoice) { return null; }
+ 		const { mobile, zapUpvote } = this.props;
 
- 		const { mobile } = this.props;
+ 		if (!this.state.invoice) { return null; }
 
  		return (
 			<CanonicalValue
@@ -324,7 +366,7 @@ class ZapRequest extends PureComponent {
 			<div style={{
 				display: 'flex',
 				justifyContent: 'space-between',
-				height: 280
+				height: this.props.zapUpvote ? null : 280
 			}}>
 				{this.renderQR()}
 				{this.renderForm()}
@@ -334,7 +376,9 @@ class ZapRequest extends PureComponent {
 
  	renderInvoiceAction = () => {
 
- 		const { mobile, clientWidth } = this.props;
+ 		const { mobile, clientWidth, zapUpvote } = this.props;
+
+ 		if (zapUpvote && !this.state.invoice) { return null };
 
  		return (
 			<div style={{
@@ -389,7 +433,7 @@ class ZapRequest extends PureComponent {
 							fontFamily:'JetBrains-Mono-Regular',
 							color: '#fff'
 						}}>
-							SEND SATS
+							{this.props.zapUpvote ? `ZAP TO UPVOTE${this.state.amount && this.state.invoice ? ` (${this.state.amount} SATS)` : ''}` : 'SEND SATS'}
 						</span>
 					</div>
 					<X
@@ -415,6 +459,7 @@ const mapState = ({ nostr, app }) => {
 
 	return {
 		...zapRequest,
+		zapUpvote: nostr.zapUpvote,
 		mobile: app.mobile,
 		clientHeight: app.clientHeight,
 		clientWidth: app.clientWidth,
@@ -440,7 +485,7 @@ const styles = {
 
 		return {
 			border: props.mobile ? 'none' : `1px solid ${COLORS.secondary}`,
-			width: props.mobile ? props.clientWidth : (256 * (state.invoice ? 2 : 1)) + (48 * 2) + (12 * (state.invoice ? 2 : 0)),
+			width: props.mobile ? props.clientWidth : (props.zapUpvote ? null : (256 * (state.invoice ? 2 : 1)) + (48 * 2) + (12 * (state.invoice ? 2 : 0))),
 			height: props.mobile ? props.clientHeight : null,
 			color: '#fff',
 			padding: props.mobile ? 24 : '24px 48px',
@@ -448,7 +493,7 @@ const styles = {
 			transform: props.mobile ? null : 'translate(-50%, -50%)',
 			top: props.mobile ? 0 : '50%',
 			left: props.mobile ? 0 : '50%',
-			...(props.mobile ? {} : transition(0.2, 'ease', [ 'width' ]))
+			...(props.mobile || props.zapUpvote ? {} : transition(0.2, 'ease', [ 'width' ]))
 		};
 	}
 };

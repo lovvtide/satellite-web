@@ -3,6 +3,8 @@ import { Icon } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 
 import { COLORS } from '../../constants';
+import svglightning from '../../assets/lightning_white.svg';
+import svgstar from '../../assets/star_white.svg';
 
 
 class NavActions extends PureComponent {
@@ -12,6 +14,7 @@ class NavActions extends PureComponent {
 	render = () => {
 
 		const { mobile, modqueueN } = this.props;
+		const { hover } = this.state;
 
 		return (
 			<div
@@ -23,10 +26,17 @@ class NavActions extends PureComponent {
 					display: 'flex',
 					alignItems: 'center',
 					justifyContent: 'space-between',
-					paddingLeft: 24,
-					paddingRight: 24,
+					paddingLeft: mobile ? 24 : 24,
+					paddingRight: mobile ? 16 : 24,
 					marginBottom: 24,
-					whiteSpace: 'nowrap'
+					whiteSpace: 'nowrap',
+
+					// marginTop: 20,
+					// marginLeft: 0,
+					// marginRight: 0,
+					// background: 'rgba(255,255,255,0.035)',
+					// border: `1px solid ${COLORS.secondary}`
+
 				}}
 			>
 				<div
@@ -40,17 +50,55 @@ class NavActions extends PureComponent {
 					</Link>*/}
 					<Link to={`/n/${this.props.name}/${this.props.ownernpub}`}>
 						<div
+							onMouseOver={() => this.setState({ hover: 'top' })}
+							onMouseOut={() => this.setState({ hover: '' })}
 							style={{
+								opacity: !this.props.selected || hover === 'top' ? 1 : 0.85,
 								userSelect: 'none',
 								marginBottom: -2,
 								fontSize: 12,
-								marginRight: 12,
+								marginRight: 14,
 								fontFamily: 'JetBrains-Mono-Bold',
 								color: '#fff',
-								borderBottom: !this.props.selected ? `2px solid #fff` : `2px solid transparent`
+								borderBottom: !this.props.selected ? `2px solid #fff` : `2px solid transparent`,
+								height: 24
 							}}
 						>
-							APPROVED
+							<img
+								src={this.props.rankMode === 'zaps' ? svglightning : svgstar}
+								style={{
+									height: 12,
+									marginRight: 4,
+									transform: 'translate(0px, 2px)'
+								}}
+							/>
+							{mobile ? 'TOP' : 'TOP POSTS'}
+						</div>
+					</Link>
+					<Link to={`/n/${this.props.name}/${this.props.ownernpub}/new`}>
+						<div
+							onMouseOver={() => this.setState({ hover: 'new' })}
+							onMouseOut={() => this.setState({ hover: '' })}
+							style={{
+								opacity: this.props.selected === 'new' || hover === 'new' ? 1 : 0.85,
+								userSelect: 'none',
+								marginBottom: -2,
+								fontSize: 12,
+								marginRight: 14,
+								fontFamily: 'JetBrains-Mono-Bold',
+								color: '#fff',
+								borderBottom: this.props.selected === 'new' ? `2px solid #fff` : `2px solid transparent`,
+								height: 24
+							}}
+						>
+							<Icon
+								name='clock outline'
+								style={{
+									fontSize: 12,
+									marginRight: 4,
+								}}
+							/>
+							{mobile ? 'NEW' : 'NEW POSTS'}
 						</div>
 					</Link>
 					<Link
@@ -60,7 +108,10 @@ class NavActions extends PureComponent {
 						}}
 					>
 						<div
+							onMouseOver={() => this.setState({ hover: 'modqueue' })}
+							onMouseOut={() => this.setState({ hover: '' })}
 							style={{
+								opacity: this.props.selected === 'modqueue' || hover === 'modqueue' ? 1 : 0.85,
 								userSelect: 'none',
 								marginBottom: -2,
 								fontSize: 12,
@@ -71,6 +122,14 @@ class NavActions extends PureComponent {
 								borderBottom: this.props.selected === 'modqueue' ? `2px solid #fff` : `2px solid transparent`
 							}}
 						>
+							<Icon
+								name='balance scale'
+								style={{
+									fontSize: 11,
+									marginRight: 5,
+									height: 21
+								}}
+							/>
 							MODQUEUE
 						</div>
 						{modqueueN ? (

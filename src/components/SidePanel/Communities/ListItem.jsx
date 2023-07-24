@@ -114,7 +114,7 @@ class ListItem extends PureComponent {
 								}}
 							>
 								<Icon name='cog' />
-								SETTINGS
+								ADMIN
 							</div>
 						) : null}
 					</div>

@@ -52,6 +52,8 @@ class Item extends PureComponent {
 		if (this.props.replaceTitle && this.props.event.tags) {
 			this.replaceTitle();
 		}
+
+		//this._random = Math.floor(Math.random() * 1000000);
 	};
 
 	componentDidUpdate = (prevProps) => {
@@ -205,7 +207,6 @@ class Item extends PureComponent {
 				this.setState({ pendingZapRequest: false });
 			}
 		});
-
 	};
 
 	handleStar = () => {
@@ -306,7 +307,12 @@ class Item extends PureComponent {
 
 	contextId = () => {
 
-		return `${this.props.event.id}_${this.props.feedName}`;
+		if (!this._random) {
+
+			this._random = Math.floor((Math.random() * 1000000000));
+		}
+
+		return `${this._random}_${this.props.event.id}_${this.props.feedName}`;
 	};
 
 	renderMediaPreview = () => {
@@ -471,9 +477,11 @@ class Item extends PureComponent {
 		const { media } = parseMediaURL(link);
 
 		const mediaStyle = {
-			width: previewReplacedLinks ? 220 : '100%',
-			marginBottom: previewReplacedLinks ? 4 : 12,
-			marginTop: mobile ? 4 : previewReplacedLinks ? 4 : 12,
+			width: previewReplacedLinks ? null : '100%',
+			// width: mobile ? '100%' : null,
+			//height: mobile || this.props.replaceTitleMode !== 'list' ? null : 100,
+			marginBottom: previewReplacedLinks ? 4 : 6,
+			marginTop: mobile ? (this.state.title ? 10 : 4) : previewReplacedLinks ? 4 : (this.state.title ? 12 : 6),
 			border: `1px solid ${COLORS.secondary}`,
 			borderRadius: 4
 		};
@@ -1063,18 +1071,37 @@ class Item extends PureComponent {
 		return renderedLinkPreview ? (
 			<div style={{
 				display: 'flex',
-				//lineBreak: 'anywhere'
+				//height: 112,
+				overflow: 'hidden',
+				height: 108,
+				marginTop: 8
 			}}>
-				{this.props.communityLink ? (<Link to={this.props.communityLink}>
-					<div style={{
-						marginRight: 12,
-						//marginBottom: 6,
-						//marginTop: 8
-					}}>
-						{renderedLinkPreview}
-					</div>
-				</Link>) : null}
-				<div>
+				{this.props.communityLink ? (
+					<Link to={this.props.communityLink}>
+						<div style={{
+							marginRight: 12,
+							//marginBottom: 6,
+							//marginTop: 8
+						}}>
+							{renderedLinkPreview}
+						</div>
+					</Link>
+				) : null}
+				<div style={{
+					//height: 112
+					// text-overflow: ellipsis;
+					// overflow: hidden;
+					// display: -webkit-box;
+					// -webkit-line-clamp: 5;
+					// -webkit-box-orient: vertical;
+
+					textOverflow: 'ellipsis',
+					display: '-webkit-box',
+					WebkitLineClamp: 5,
+					WebkitBoxOrient: 'vertical',
+					overflow: 'hidden'
+
+				}}>
 					{elements}
 				</div>
 			</div>
@@ -1321,7 +1348,7 @@ class Item extends PureComponent {
 					borderBottom: this.props.divided ? (this.props.mobile ? `1px solid ${COLORS.secondary}` : '2px solid rgba(47, 54, 61, 0.25)'): 'none',
 					paddingBottom: this.props.divided ? 12 : 'none',
 					...(unseen ? {
-						background: 'rgba(62,137,184,0.085)',
+						background: 'rgba(62,137,184,0.05)',
 						marginLeft: -13,
 						paddingLeft: 12,
 						paddingTop: 12,

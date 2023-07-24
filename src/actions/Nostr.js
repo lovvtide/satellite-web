@@ -96,38 +96,6 @@ export const loadCommunitiesIndex = () => {
 			return;
 		}
 
-		/*
-		main.listenForEose((relay, options) => {
-
-			if (options.subscription === SUBSCRPTION_NAME) {
-
-				console.log('!A')
-
-				const forks = {};
-				const { list } = getState().communities;
-
-				for (let a of Object.keys(list)) {
-
-					const name = a.split(':')[1];
-
-					if (!forks[name]) {
-						forks[name] = 0;
-					}
-
-					forks[name]++;
-				}
-
-				//setTimeout(() => {
-				dispatch({ type: COMMUNITY_INDEX_EOSE, data: { forks } });
-				//}, 6000);
-
-				console.log('!B')
-
-				
-			}
-		});
-		*/
-
 		window.client.subscribe(SUBSCRPTION_NAME, main, [{
 			kinds: [ 34550 ]
 		}]);
@@ -248,7 +216,7 @@ export const handleApprovePost = async (item, params = {}, handlers = {}) => {
 }
 
 export const SHOW_ZAP_REQUEST = 'SHOW_ZAP_REQUEST';
-export const handleZapRequest = (recipient = {}, event = {}, handlers = {}) => {
+export const handleZapRequest = (recipient = {}, event = {}, params = {}) => {
 
 	return async (dispatch) => {
 
@@ -293,13 +261,13 @@ export const handleZapRequest = (recipient = {}, event = {}, handlers = {}) => {
 			  // Open zap request dialog in the UI
 			  dispatch({
 			  	type: SHOW_ZAP_REQUEST,
-			  	data: { request, recipient, event }
+			  	data: { request, recipient, event, upvote: params.upvote }
 			  });
 		  }
 	  }
 
-  	if (handlers.onResolve) {
-  		handlers.onResolve();
+  	if (params.onResolve) {
+  		params.onResolve();
   	}
 	};
 };
@@ -326,6 +294,11 @@ export const getZapInvoice = async (params) => {
 	if (params.event) {
 
 		tags.push([ 'e', params.event ]);
+	}
+
+	if (params.upvote) {
+
+		tags.push([ 'a', `34550:${params.upvote}` ]);
 	}
 
 	let event;

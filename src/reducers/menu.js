@@ -2,11 +2,15 @@ import {
 	SET_MOBILE_MENU_OPEN,
 	SHOW_ALIAS_MENU_MOBILE,
 	VIEW_SIDE_PANEL,
-	SET_NOTIFICATIONS_LAST_SEEN
+	SET_NOTIFICATIONS_LAST_SEEN,
+	SET_COMMUNITY_ADMIN_PROPS
 } from '../actions';
 
 
 const INITIAL_STATE = {
+	communityMenuMode: 'my_communities',
+	createNewCommunity: false,
+	editingCommunity: null,
 	topMode: null,
 	mobileMenuOpen: false,
 	sectionLabels: {
@@ -60,10 +64,13 @@ export default (state = INITIAL_STATE, action) => {
 		case '@@router/LOCATION_CHANGE':
 			return {
 				...state,
-				topMode: null,
-				// mobileMenuOpen: false,
-				// showAliasMenuMobile: false,
-				// mobileDimmer: false
+				topMode: null
+			};
+
+		case SET_COMMUNITY_ADMIN_PROPS:
+			return {
+				...state,
+				...data
 			};
 
 		case SET_MOBILE_MENU_OPEN:
@@ -83,6 +90,9 @@ export default (state = INITIAL_STATE, action) => {
 				...state,
 				topMode: data.topMode,
 				mobileMenuOpen: false,
+				communityMenuMode: 'my_communities',
+				createNewCommunity: false,
+				editingCommunity: null,
 				subMode: typeof data.subMode === 'undefined' ? state.subMode : {
 					...state.subMode,
 					[data.topMode]: data.subMode

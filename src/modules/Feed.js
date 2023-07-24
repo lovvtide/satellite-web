@@ -102,6 +102,9 @@ class Feed {
 		// Kind 4 direct messages
 		this.dms = {};
 
+		// Zaps on events
+		this.zaps = {};
+
 		this._mod = 0;
 
 	}
@@ -477,16 +480,33 @@ class Feed {
 						}
 
 						// If event was an upvote and there already
-						// existed some event that it was reffering
+						// existed some event that it was referring
 						// to, remove from upvotes mapping of event
+
 						if (
 							this.items[tag[1]].event
 							&& this.items[tag[1]].event.kind === 7
 							&& this.items[this.items[tag[1]].ereply]
-							&& this.items[this.items[tag[1]].ereply].upvotes
 						) {
 
-							this.items[this.items[tag[1]].ereply].upvotes[this.items[tag[1]].event.pubkey] = null
+							let updateVotes;
+
+							if (this.items[this.items[tag[1]].ereply].upvotes) {
+
+								//this.items[this.items[tag[1]].ereply].upvotes[this.items[tag[1]].event.pubkey] = null;
+								delete this.items[this.items[tag[1]].ereply].upvotes[this.items[tag[1]].event.pubkey];
+								updateVotes = true;
+							}
+
+							if (this.items[this.items[tag[1]].ereply].downvotes) {
+								delete this.items[this.items[tag[1]].ereply].downvotes[this.items[tag[1]].event.pubkey];
+								updateVotes = true;
+							}
+
+							if (updateVotes) {
+
+								handleUpdate({ immediate: options.newpub });
+							}
 						}
 					}
 				}
@@ -511,6 +531,48 @@ class Feed {
 						}
 					}
 				}
+
+			} else if (event.kind === 9735) {
+
+				
+
+				let zevent, ze, za;
+
+				for (let tag of event.tags) {
+
+					if (tag[0] === 'e') {
+						ze = tag[1];
+					} else if (tag[0] === 'a') {
+						za = tag[1];
+					} else if (tag[0] === 'description') {
+						zevent = JSON.parse(tag[1]);
+					}
+				}
+
+				if (zevent && ze) {
+
+					if (!this.zaps[ze]) {
+						this.zaps[ze] = {};
+					}
+
+					if (!this.zaps[ze][zevent.pubkey]) {
+						this.zaps[ze][zevent.pubkey] = {};
+					}
+
+					this.zaps[ze][zevent.pubkey][event.id] = {
+						request: zevent,
+						receipt: event
+					}
+
+					for (let tag of zevent.tags) {
+
+						if (tag[0] === 'amount') {
+							this.zaps[ze][zevent.pubkey][event.id]['sats'] = parseInt(tag[1]) / 1000;
+						}
+					}
+				}
+
+				continue;
 			}
 
 			let eroot, ereply
@@ -717,7 +779,20 @@ class Feed {
 									this.items[id].downvotes[event.pubkey] = event;
 								}
 							}
-						}
+
+						}/* else if (kind === 9735) {
+
+							if (!this.items[id].zaps) {
+
+								this.items[id].zaps = {};
+							}
+
+							if (!this.items[id].upvotes[event.pubkey] || event.created_at > this.items[id].upvotes[event.pubkey].created_at) {
+
+								this.items[id].upvotes[event.pubkey] = event;
+							}
+
+						}*/
 					}
 				}
 			}

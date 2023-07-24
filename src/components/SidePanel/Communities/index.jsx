@@ -3,9 +3,6 @@ import { connect } from 'react-redux';
 import { Icon } from 'semantic-ui-react';
 import { nip19 } from 'nostr-tools';
 
-//import EditProfileForm from '../Nostr/EditProfileForm';
-//import { CanonicalValue } from '../CommonUI';
-
 import Header from './Header';
 import AdminEditor from './AdminEditor';
 import ListItem from './ListItem';
@@ -13,17 +10,10 @@ import ModQueue from '../../CommunityPage/ModQueue';
 
 import { transition } from '../../../helpers';
 import { COLORS } from '../../../constants';
-import { handleNostrPublish, navigate, handleApprovePost } from '../../../actions';
-//import crownsvg from '../../../assets/crown.svg';
+import { handleNostrPublish, navigate, handleApprovePost, setCommunityAdminProps } from '../../../actions';
 
 
 class Communities extends PureComponent {
-
-	state = {
-		createNew: false, // Create new mode
-		editing: null, // Community being edited,
-		menu: 'my_communities'
-	};
 
 	handleApprovePost = (item) => {
 
@@ -56,10 +46,15 @@ class Communities extends PureComponent {
 				kind: 34550
 			}, params);
 
-			this.setState({
-				createNew: false,
-				editing: null
+			this.props.setCommunityAdminProps({
+				createNewCommunity: false,
+				editingCommunity: null
 			});
+
+			if (this.props.createNew) {
+
+				this.props.navigate(`/n/${params.name}/${nip19.npubEncode(this.props.pubkey)}`);
+			}
 
 		} catch (err) {
 			console.log(err);
@@ -68,8 +63,7 @@ class Communities extends PureComponent {
 
 	renderAdminEditor = () => {
 
-		const { createNew, editing } = this.state;
-		const { mobile } = this.props;
+		const { createNew, editing, mobile } = this.props;
 
 		return createNew || editing ? (
 			<div style={{
@@ -91,8 +85,8 @@ class Communities extends PureComponent {
 
 	renderList = () => {
 
-		const { createNew, editing, menu } = this.state;
-		const { mobile } = this.props;
+		//const { menu } = this.state;
+		const { createNew, editing, menu, mobile } = this.props;
 
 		if (createNew || editing) { return null; }
 
@@ -104,12 +98,17 @@ class Communities extends PureComponent {
 			}}>
 				{menu === 'my_communities' ? this.props.list.filter(item => {
 					return item.founder || item.moderator;
+				}).sort((a, b) => {
+					if (a.founder && !b.founder) { return -1; }
+					return b.event.created_at - a.event.created_at;
 				}).map(item => {
 					return (
 						<ListItem
 							key={item.event.id}
 							item={item}
-							handleConfigClicked={() => this.setState({ editing: item })}
+							handleConfigClicked={() => this.props.setCommunityAdminProps({
+								editingCommunity: item
+							})}
 						/>
 					);
 				}) : null}
@@ -137,11 +136,11 @@ class Communities extends PureComponent {
 				<Header
 					mobile={this.props.mobile}
 					clientWidth={this.props.clientWidth}
-					handleToggleEdit={this.handleToggleEdit}
-					handleMenuSelect={menu => this.setState({ menu })}
-					createNew={this.state.createNew}
-					editing={this.state.editing}
-					menu={this.state.menu}
+					handleToggleEdit={this.props.setCommunityAdminProps}
+					handleMenuSelect={communityMenuMode => this.props.setCommunityAdminProps({ communityMenuMode })}
+					createNew={this.props.createNew}
+					editing={this.props.editing}
+					menu={this.props.menu}
 					modqueue={this.props.modqueue}
 					approvals={this.props.approvals}
 				/>
@@ -152,7 +151,7 @@ class Communities extends PureComponent {
 	};
 }
 
-const mapState = ({ app, nostr, communities }) => {
+const mapState = ({ app, nostr, menu, communities }) => {
 	return {
 		clientHeight: app.clientHeight,
 		clientWidth: app.clientWidth,
@@ -161,13 +160,16 @@ const mapState = ({ app, nostr, communities }) => {
 		pubkey: nostr.pubkey,
 		approvals: communities.approvals,
 		prof: nostr.prof,
+		menu: menu.communityMenuMode,
+		createNew: menu.createNewCommunity,
+		editing: menu.editingCommunity,
 		modqueue: Object.keys(communities.modqueue).map(id => {
 			return communities.modqueue[id];
 		}).sort((a, b) => {
 			return b.event.created_at - a.event.created_at;
 		}),
 		list: Object.keys(communities.list).map(id => {
-			return communities.list[id];
+			return communities.list[id];rgba(23, 24, 25, 0.85)
 		})
 		// list: communities.list
 		//pubkey: nip19.npubEncode(nostr.pubkey),
@@ -251,4 +253,4 @@ const styles = {
 	}
 };
 
-export default connect(mapState, { navigate })(Communities);
+export default connect(mapState, { navigate, setCommunityAdminProps })(Communities);

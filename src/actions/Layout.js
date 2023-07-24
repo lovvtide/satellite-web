@@ -6,6 +6,11 @@ export const windowResize = () => {
 	return { type: WINDOW_RESIZE };
 };
 
+export const SET_COMMUNITY_ADMIN_PROPS = 'SET_COMMUNITY_ADMIN_PROPS';
+export const setCommunityAdminProps = (data) => {
+	return { type: SET_COMMUNITY_ADMIN_PROPS, data };
+};
+
 export const SET_MOBILE_MENU_OPEN = 'SET_MOBILE_MENU_OPEN';
 export const setMobileMenuOpen = (open) => {
 	return { type: SET_MOBILE_MENU_OPEN, data: { open } };

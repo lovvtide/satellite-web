@@ -49,6 +49,10 @@ const contextualize = (event, { pubkey }) => {
 				item.description = tag[1];
 			} else if (tag[0] === 'rules') {
 				item.rules = tag[1];
+			} else if (tag[0] === 'rank_mode') {
+				item.rankMode = tag[1];
+			} else if (tag[0] === 'rank_batch') {
+				item.rankBatch = parseInt(tag[1]);
 			}
 		}
 	//}

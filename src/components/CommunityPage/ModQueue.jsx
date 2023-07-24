@@ -55,6 +55,7 @@ class ModQueue extends PureComponent {
 							handleZapRequest={this.props.handleZapRequest}
 							handleFollow={this.props.handleFollow}
 							navigate={this.props.navigate}
+							//clientWidth={this.props.clientWidth}
 						/>
 					);
 				})}

@@ -21,7 +21,7 @@ import { COLORS, CONTENT_MAX_WIDTH } from '../../constants';
 import { transition } from '../../helpers';
 import crownsvg from '../../assets/crown.svg';
 import svgearth from '../../assets/earth.svg';
-import { navigate, nostrFollow, getLocalPrivateKey, handleApprovePost, subscribeToCommunity } from '../../actions';
+import { navigate, nostrFollow, getLocalPrivateKey, handleApprovePost, subscribeToCommunity, setCommunityAdminProps, viewSidePanel, handleZapRequest } from '../../actions';
 
 
 class CommunityPage extends PureComponent {
@@ -224,10 +224,12 @@ class CommunityPage extends PureComponent {
 
 			if (options.subscription === secondaryFeedName) {
 
-				const filters = [{
-					kinds: [ 7 ],
-					'#a': [ `34550:${this.props.ownerpubkey}:${this.props.name}` ]
-				}];
+				// const filters = [{
+				// 	kinds: [ 7 ],
+				// 	'#a': [ `34550:${this.props.ownerpubkey}:${this.props.name}` ]
+				// }];
+
+				const filters = [];
 
 				for (let item of feed.list()) {
 
@@ -256,9 +258,11 @@ class CommunityPage extends PureComponent {
 					})
 				}
 
-				feed.subscribe(tertiaryFeedName, relay, filters);
-			}
+				if (filters.length > 0) {
 
+					feed.subscribe(tertiaryFeedName, relay, filters);	
+				}				
+			}
 		});
 
 		window.client.subscribe(primaryFeedName, feed, [{
@@ -266,12 +270,9 @@ class CommunityPage extends PureComponent {
 			authors: [ this.props.ownerpubkey ],
 			'#d': [ this.props.name ]
 		}, {
-			kinds: [ 1 ], // TODO support kind 1063
+			kinds: [ 1, 7, 9735 ], // TODO support kind 1063
 			'#a': [ `34550:${this.props.ownerpubkey}:${this.props.name}` ]
 		}]);
-
-		//this.setState({ feed });
-
 	};
 
 	handleFollowCommunity = () => {
@@ -284,48 +285,100 @@ class CommunityPage extends PureComponent {
 		});
 	};
 
-	handleVote = async (item, vote) => {
+	handleVote = async (item, vote, params = {}) => {
 
-		let content;
+		const { pubkey } = this.props;
 
-		const data = {
-			content: vote,
-			kind: 7,
-			tags: [
-				[ 'p', item.event.pubkey ],
-				[ 'e', item.event.id ],
-				[ 'a', `34550:${this.props.ownerpubkey}:${this.props.name}` ]
-			]
-		};
+		const { upvotes, downvotes } = item;
 
-		let event;
+		const a = `34550:${this.props.ownerpubkey}:${this.props.name}`;
 
-		try {
+		if (vote === 'zap') {
 
-			event = await window.client.createEvent(data, {
-				privateKey: getLocalPrivateKey()
+			if (this.state.pendingZap) { return; }
+
+			this.setState({ pendingZap: true });
+
+			const target = {
+				...(item.author || {}),
+				lud06: params.lud06,
+				lud16: params.lud16,
+				pubkey: item.event.pubkey
+			};
+
+			if (!target.lud06 && !target.lud16) { return; }
+
+			this.props.handleZapRequest(target, item.event, {
+				upvote: `${this.props.ownerpubkey}:${this.props.name}`,
+				onResolve: () => {
+					this.setState({ pendingZap: false });
+				}
 			});
 
-		} catch (err) {
-			console.log(err);
-		}
+		} else {
 
-		if (!event) { return; }
+			let data, remove;
 
-		this.state.feed.update(event, null, { newpub: true });
+			// Existing upvote or downvote?
+			if (upvotes && upvotes[pubkey]) {
+				remove = upvotes[pubkey].id;
+			} else if (downvotes && downvotes[pubkey]) {
+				remove = downvotes[pubkey].id;
+			}
 
-		try {
+			if (remove) { // Remove existing vote
 
-			await new Promise((resolve, reject) => {
-				window.client.publishEvent(event, (status, relay) => {
-					if (status === 'ok' || status === 'seen') {
-						resolve();
-					}
+				data = {
+					tags: [
+						[ 'e', remove ],
+						[ 'a', a ]
+					],
+					content: '',
+					kind: 5
+				};
+
+			} else { // Create new vote
+
+				data = {
+					content: vote,
+					kind: 7,
+					tags: [
+						[ 'p', item.event.pubkey ],
+						[ 'e', item.event.id ],
+						[ 'a', a ]
+					]
+				};
+			}
+
+			let event;
+
+			try {
+
+				event = await window.client.createEvent(data, {
+					privateKey: getLocalPrivateKey()
 				});
-			});
 
-		} catch (err) {
-			console.log(err);
+			} catch (err) {
+				console.log(err);
+			}
+
+			if (!event) { return; }
+
+			this.state.feed.update(event, null, { newpub: true });
+
+			try {
+
+				await new Promise((resolve, reject) => {
+					window.client.publishEvent(event, (status, relay) => {
+						if (status === 'ok' || status === 'seen') {
+							resolve();
+						}
+					});
+				});
+
+			} catch (err) {
+				console.log(err);
+			}
 		}
 	};
 
@@ -351,6 +404,14 @@ class CommunityPage extends PureComponent {
 			}
 		});		
 	};
+
+	handleAdminSettingsClicked = () => {
+
+		this.props.viewSidePanel('communities');
+		this.props.setCommunityAdminProps({
+			editingCommunity: this.props.activeCommunity
+		});
+	}
 
 	renderBanner = () => {
 
@@ -387,8 +448,6 @@ class CommunityPage extends PureComponent {
 	};
 
 	renderHeader = () => {
-
-		//const profile = this.state.metadata[this.props.ownerpubkey] || {};
 
 		const profile = this.state.metadata[this.props.ownerpubkey] ? (this.state.metadata[this.props.ownerpubkey].profile) || {} : {}
 		const { mobile, subscribed } = this.props;
@@ -504,7 +563,11 @@ class CommunityPage extends PureComponent {
 								height: 20
 							}}
 						/>
-					) : null}
+					) : (
+						<div>
+							{this.renderAdminButton()}
+						</div>
+					)}
 				</div>
 			</div>
 		);
@@ -705,6 +768,42 @@ class CommunityPage extends PureComponent {
 		) : null
 	};
 
+	renderAdminButton = () => {
+
+		const { mobile } = this.props;
+
+		return (
+			<div
+				onClick={this.handleAdminSettingsClicked}
+				onMouseOver={() => this.setState({ hover: 'admin_settings' })}
+				onMouseOut={() => this.setState({ hover: '' })}
+				style={{
+					textTransform: 'uppercase',
+					fontSize: 12,
+					fontFamily: 'JetBrains-Mono-Bold',
+					background: 'rgba(23, 24, 25, 0.85)',
+					padding: '4px 10px',
+					borderRadius: 24,
+					cursor: 'pointer',
+					userSelect: 'none',
+					color: COLORS.blue,
+					border: `0.5px solid ${COLORS.secondary}`,
+					opacity: this.state.hover === 'admin_settings' ? 1 : 0.85,
+					...(!mobile ? {
+						transform: 'translate(0px, -14px)',
+						position: 'absolute',
+						right: 24,
+						padding: '4px 0px',
+						border: 'none'
+					} : {})
+				}}
+			>
+				<Icon name='cog' />
+				{mobile ? 'admin' : 'admin settings'}
+			</div>
+		);
+	};
+
 	render = () => {
 
 		return (
@@ -716,6 +815,17 @@ class CommunityPage extends PureComponent {
 					margin: 'auto'
 				}}
 			>
+				{this.props.mobile ? (
+					<div
+						style={{
+							position: 'absolute',
+							top: 64,
+							right: 12
+						}}
+					>
+						{this.renderAdminButton()}
+					</div>
+				) : null}
 				{this.renderStateMessage()}
 				{this.renderBanner()}
 				{this.renderHeader()}
@@ -747,8 +857,36 @@ class CommunityPage extends PureComponent {
 									ownerpubkey={this.props.ownerpubkey}
 								/>
 							</Route>
+							<Route path='/n/:name/:founder/new'>
+								<NavActions
+									rankMode={this.props.activeCommunity ? this.props.activeCommunity.rankMode : 'votes'}
+									mobile={this.props.mobile}
+									name={this.props.name}
+									ownernpub={this.props.ownernpub}
+									modqueueN={this.state.modqueue === null ? 0 : this.state.modqueue.length}
+									selected={this.props.match.params.note}
+								/>
+								<List
+									rankMode={this.props.activeCommunity ? this.props.activeCommunity.rankMode : 'votes'}
+									rankBatch={this.props.activeCommunity ? this.props.activeCommunity.rankBatch : 0}
+									sort='new'
+									pubkey={this.props.pubkey}
+									feed={this.state.feed}
+									mobile={this.props.mobile}
+									items={this.state.approved}
+									name={this.props.name}
+									ownernpub={this.props.ownernpub}
+									metadata={this.state.metadata}
+									handleFollow={this.props.nostrFollow}
+									handleVote={this.handleVote}
+									navigate={this.props.navigate}
+									clientWidth={this.props.clientWidth}
+									voteBalance={this.state.voteBalance}
+								/>
+							</Route>
 							<Route path='/n/:name/:founder/modqueue'>
 								<NavActions
+									rankMode={this.props.activeCommunity ? this.props.activeCommunity.rankMode : 'votes'}
 									mobile={this.props.mobile}
 									name={this.props.name}
 									ownernpub={this.props.ownernpub}
@@ -766,6 +904,7 @@ class CommunityPage extends PureComponent {
 									handleApprovePost={this.handleApprovePost}
 									handleFollow={this.props.nostrFollow}
 									navigate={this.props.navigate}
+									//clientWidth={this.props.clientWidth}
 								/>
 							</Route>
 							<Route path='/n/:name/:founder/:note'>
@@ -783,6 +922,7 @@ class CommunityPage extends PureComponent {
 							</Route>
 							<Route path='/n/:name/:founder'>
 								<NavActions
+									rankMode={this.props.activeCommunity ? this.props.activeCommunity.rankMode : 'votes'}
 									mobile={this.props.mobile}
 									name={this.props.name}
 									ownernpub={this.props.ownernpub}
@@ -790,7 +930,10 @@ class CommunityPage extends PureComponent {
 									selected={this.props.match.params.note}
 								/>
 								<List
-									sort='new'
+									rankMode={this.props.activeCommunity ? this.props.activeCommunity.rankMode : 'votes'}
+									rankBatch={this.props.activeCommunity ? this.props.activeCommunity.rankBatch : 0}
+									sort='top'
+									pubkey={this.props.pubkey}
 									feed={this.state.feed}
 									mobile={this.props.mobile}
 									items={this.state.approved}
@@ -829,6 +972,7 @@ const mapState = ({ app, nostr, communities }, { match }) => {
 	}
 
 	return {
+		activeCommunity: communities.list[`${ownerpubkey}:${match.params.name}`],
 		subscribed: communities.followingList[`34550:${ownerpubkey}:${match.params.name}`],
 		clientWidth: app.clientWidth,
 		clientHeight: app.clientHeight,
@@ -864,4 +1008,4 @@ const styles = {
 
 };
 
-export default connect(mapState, { navigate, nostrFollow, subscribeToCommunity })(CommunityPage);
+export default connect(mapState, { navigate, nostrFollow, subscribeToCommunity, setCommunityAdminProps, viewSidePanel, handleZapRequest })(CommunityPage);

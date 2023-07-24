@@ -852,7 +852,7 @@ class Client {
 						profile.pubkey = info.pubkey;
 						profile.nip05 = s;
 
-						if (info.relays.length > 0) {
+						if (info.relays && info.relays.length > 0) {
 							profile.relays = info.relays;
 						}
 					}
@@ -964,6 +964,22 @@ class Client {
 
 		if (params.rules) {
 			tags.push([ 'rules', params.rules ]);
+		}
+
+		if (params.rankMode) {
+
+			if (([ 'votes', 'zaps' ]).indexOf(params.rankMode) !== -1) {
+				tags.push([ 'rank_mode', params.rankMode ])
+			}
+		}
+
+		if (params.rankBatch) {
+
+			tags.push([ 'rank_batch', String(params.rankBatch) ]);
+
+		} else {
+
+			tags.push([ 'rank_batch', '0' ]);
 		}
 
 		for (let pubkey of params.moderators) {

@@ -80,12 +80,14 @@ export default (state = INITIAL_STATE, action) => {
 				...state,
 				zapEvent: data.event,
 				zapRequest: data.request,
-				zapRecipient: data.recipient
+				zapRecipient: data.recipient,
+				zapUpvote: data.upvote
 			} : {
 				...state,
 				zapEvent: null,
 				zapRequest: null,
-				zapRecipient: null
+				zapRecipient: null,
+				zapUpvote: null
 			};
 
 		case RELAY_STATUS:
