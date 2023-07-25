@@ -53,7 +53,9 @@ class ProfileFeed extends PureComponent {
 
 		window.removeEventListener('scroll', this.handleScroll);
 
-		this.state.feed.unsubscribe(window.client);
+		if (this.state.feed) {
+			this.state.feed.unsubscribe(window.client);
+		}
 
 		clearTimeout(this._resetLoadMore);
 		clearTimeout(this._reload);
@@ -195,7 +197,7 @@ class ProfileFeed extends PureComponent {
 
 		//console.log('LOADED metadata', metadata);
 
-		if (this.state.profile.pubkey && metadata.nip05) {
+		if (this.state.profile && this.state.profile.pubkey && metadata.nip05) {
 
 			let info;
 
