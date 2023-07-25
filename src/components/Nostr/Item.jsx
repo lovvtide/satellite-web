@@ -1339,6 +1339,7 @@ class Item extends PureComponent {
 				onMouseOver={() => { if (this.props.mobile || !this.item) { return; } this.item.current.style.background = 'rgba(31, 32, 33, 0.8)'; }}
 				onMouseOut={() => { if (this.props.mobile || !this.item) { return; } this.item.current.style.background = 'unset'; }}
 				style={{
+					borderRadius: 4,
 					willChange: 'scroll-position',
 					borderLeft: selected ? `2px solid #fff` : '2px solid transparent',
 					cursor: thread ? 'pointer' : 'default',
