@@ -98,7 +98,7 @@ class CommunityList extends PureComponent {
 										height: 12
 									}}
 								/>
-								<div onClick={() => this.props.navigate(`/@${foundernpub}`)} /*to={`/@${foundernpub}`}*/>
+								<span onClick={() => this.props.navigate(`/@${foundernpub}`)} /*to={`/@${foundernpub}`}*/>
 									<Name
 										npub={foundernpub}
 										profile={this.props.metadata[item.event.pubkey]}
@@ -106,7 +106,7 @@ class CommunityList extends PureComponent {
 											color: COLORS.satelliteGold
 										}}
 									/>
-								</div>
+								</span>
 							</div>
 						</div>
 					</div>
