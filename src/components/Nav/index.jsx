@@ -289,6 +289,9 @@ class Nav extends Component {
 
 		return (
 			<div
+				onMouseOver={() => this.setState({ hover: 'notifications' })}
+				onMouseOut={() => this.setState({ hover: '' })}
+				onClick={() => this.props.viewSidePanel('notifications')}
 				style={{
 					marginLeft: mobile ? 8 : 10,
 					marginRight: mobile ? -4 : -10,
@@ -301,9 +304,9 @@ class Nav extends Component {
 			>
 
 				<Icon
-					onMouseOver={() => this.setState({ hover: 'notifications' })}
-					onMouseOut={() => this.setState({ hover: '' })}
-					onClick={() => this.props.viewSidePanel('notifications')}
+					// onMouseOver={() => this.setState({ hover: 'notifications' })}
+					// onMouseOut={() => this.setState({ hover: '' })}
+					// onClick={() => this.props.viewSidePanel('notifications')}
 					name='bell'
 					style={{
 						opacity: this.state.hover === 'notifications' ? 1 : 0.9,

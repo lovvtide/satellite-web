@@ -600,17 +600,17 @@ class Item extends PureComponent {
 				marginBottom: this.props.replaceTitleMode === 'list' ? 6 : 12
 			}}>
 				{title ? (this.props.communityLink ? (
-					<Link to={this.props.communityLink}>
+					<div /*to={this.props.communityLink}*/onClick={() => this.props.navigate(this.props.communityLink)}>
 						{titleElement}
-					</Link>
+					</div>
 				) : titleElement) : null}
 				<div style={{
 					//marginTop: 4
 				}}>
 					{link && !this.props.previewReplacedLinks ? (this.props.communityLink ? (
-						<Link to={this.props.communityLink}>
+						<div /*to={this.props.communityLink}*/onClick={() => this.props.navigate(this.props.communityLink)}>
 							{this.renderReplacedLinkElement(link)}
-						</Link>
+						</div>
 					) : this.renderReplacedLinkElement(link)) : null}
 				</div>
 			</div>

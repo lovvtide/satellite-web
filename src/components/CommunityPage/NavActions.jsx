@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 import { COLORS } from '../../constants';
 import svglightning from '../../assets/lightning_white.svg';
-import svgstar from '../../assets/star_white.svg';
+import svgstar from '../../assets/up_white.svg';
 
 
 class NavActions extends PureComponent {
@@ -64,12 +64,26 @@ class NavActions extends PureComponent {
 								height: 24
 							}}
 						>
+{/*							{this.props.rankMode === 'zaps' ? (
+								<img
+									src={this.props.rankMode === 'zaps' ? svglightning : svgstar}
+									style={{
+										height: 12,
+										marginRight: 4,
+										transform: 'translate(0px, 2px)'
+									}}
+								/>
+							) : (
+								<Icon
+									name='star outline'
+								/>
+							)}*/}
 							<img
 								src={this.props.rankMode === 'zaps' ? svglightning : svgstar}
 								style={{
 									height: 12,
 									marginRight: 4,
-									transform: 'translate(0px, 2px)'
+									transform: this.props.rankMode === 'zaps' ? 'translate(0px, 2px)' : 'translate(0px, 1px)'
 								}}
 							/>
 							{mobile ? 'TOP' : 'TOP POSTS'}

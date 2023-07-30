@@ -6,7 +6,7 @@ import { nip19 } from 'nostr-tools';
 
 import { COLORS } from '../../constants';
 import crownsvg from '../../assets/crown.svg';
-import { loadCommunitiesIndex } from '../../actions';
+import { loadCommunitiesIndex, navigate } from '../../actions';
 
 import Name from '../CommunityPage/Name';
 
@@ -98,7 +98,7 @@ class CommunityList extends PureComponent {
 										height: 12
 									}}
 								/>
-								<Link to={`/@${foundernpub}`}>
+								<div onClick={() => this.props.navigate(`/@${foundernpub}`)} /*to={`/@${foundernpub}`}*/>
 									<Name
 										npub={foundernpub}
 										profile={this.props.metadata[item.event.pubkey]}
@@ -106,7 +106,7 @@ class CommunityList extends PureComponent {
 											color: COLORS.satelliteGold
 										}}
 									/>
-								</Link>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -136,4 +136,4 @@ const mapState = ({ nostr, communities }) => {
 	};
 };
 
-export default connect(mapState, { loadCommunitiesIndex })(CommunityList);
+export default connect(mapState, { loadCommunitiesIndex, navigate })(CommunityList);
