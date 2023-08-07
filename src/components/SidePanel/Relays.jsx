@@ -1,10 +1,10 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import { COLORS } from '../../constants';
 
 
-class Relays extends PureComponent {
+class Relays extends Component {
 
 	render = () => {
 

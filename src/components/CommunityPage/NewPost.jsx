@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { nip19 } from 'nostr-tools';
 
@@ -8,7 +8,7 @@ import { queryProfiles, getLocalPrivateKey, navigate } from '../../actions';
 import { COLORS } from '../../constants';
 
 
-class NewPost extends PureComponent {
+class NewPost extends Component {
 
 	state = { title: '', link: '', error: '' };
 
@@ -81,9 +81,7 @@ class NewPost extends PureComponent {
 			data.tags.push([ 'subject', title ]);
 		}
 
-		data.content = data.content.trim();
-
-		window.client.populateMentionTags(data.tags, data.content);
+		data.content = window.client.populateMentionTags(data.tags, data.content.trim());
 
 		let event, ok;
 

@@ -1,11 +1,11 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 //import SignupWithEmail from './SignupWithEmail';
 import SignupWithNostr from './SignupWithNostr';
 
 
-class SignUp extends PureComponent {
+class SignUp extends Component {
 
 	componentDidMount = () => {
 

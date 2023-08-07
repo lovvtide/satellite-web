@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { Icon } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -10,7 +10,7 @@ import { navigate, hoverAliasMenu, revokeDeviceAuth, viewSidePanel } from '../..
 import { COLORS  } from '../../constants';
 
 
-class AliasMenu extends PureComponent {
+class AliasMenu extends Component {
 
 	state = { hover: '', hoverNew: '' };
 

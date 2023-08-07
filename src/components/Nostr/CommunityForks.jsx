@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { nip19 } from 'nostr-tools';
 
@@ -7,7 +7,7 @@ import { navigate } from '../../actions';
 import CommunityList from './CommunityList';
 
 
-class CommunityForks extends PureComponent {
+class CommunityForks extends Component {
 
 	state = {};
 

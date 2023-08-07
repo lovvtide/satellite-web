@@ -90,14 +90,16 @@ export const loadCommunitiesIndex = () => {
 
 		const { main } = getState().nostr;
 
-		const SUBSCRPTION_NAME = 'community_index';
+		const activeFeedName = 'community_active';
+		const indexFeedName = 'community_index';
 
-		if (!main || main.subscriptions[SUBSCRPTION_NAME]) {
+		if (!main || main.subscriptions[activeFeedName]) {
 			return;
 		}
 
-		window.client.subscribe(SUBSCRPTION_NAME, main, [{
-			kinds: [ 34550 ]
+		window.client.subscribe(activeFeedName, main, [{
+			kinds: [ 4550 ],
+			since: Math.floor(Date.now() / 1000) - (14 * 86400)
 		}]);
 	};
 };
@@ -199,8 +201,6 @@ export const handleApprovePost = async (item, params = {}, handlers = {}) => {
 
 		handlers.onSignedEvent(event);
 	}
-
-	//this.state.feed.update(event, null, { newpub: true });
 
 	try {
 
@@ -725,6 +725,8 @@ export const RELAY_CLOSE = 'RELAY_CLOSE';
 export const NOSTR_MAIN_INIT = 'NOSTR_MAIN_INIT';
 export const RELAY_CONNECTED = 'RELAY_CONNECTED';
 export const SHOW_NAV_ACTIONS = 'SHOW_NAV_ACTIONS';
+export const RECEIVE_COMMUNITY_POST_APPROVAL = 'RECEIVE_COMMUNITY_POST_APPROVAL';
+export const RECEIVE_COMMUNITY_FOLLOWING_LIST_COUNT = 'RECEIVE_COMMUNITY_FOLLOWING_LIST_COUNT';
 export const nostrMainInit = () => {
 
 	return (dispatch, getState) => {
@@ -746,10 +748,46 @@ export const nostrMainInit = () => {
 		connectToRelays(DEFAULT_RELAYS, { maintain: true });
 
 		const main = new Feed();
+
+		main.listenForCommunityPostApproval(data => {
+			dispatch({ type: RECEIVE_COMMUNITY_POST_APPROVAL, data });
+		});
 		
 		main.listenForEose((relay, options) => {
 
-			if (options.subscription.indexOf('post_') === 0) {
+			if (options.subscription === 'lightning_global') {
+
+				const featured = Object.keys(main.zapReceivedTotal).sort((a, b) => {
+					return main.zapReceivedTotal[b] - main.zapReceivedTotal[a];
+				}).slice(0, 100);
+
+				main.surface = featured;
+
+				window.client.registerFeed(`frontpage_primary_featured`, main, [{
+					authors: featured,
+					kinds: [ 1 ],
+					limit: 150
+				}, {
+					authors: featured,
+					kinds: [ 0 ]
+				}], {
+					listMode: 'featured',
+					surface: featured
+				});
+
+				main.subscribe(`frontpage_primary_featured`, relay, [{
+					authors: featured,
+					kinds: [ 1 ],
+					limit: 150
+				}, {
+					authors: featured,
+					kinds: [ 0 ]
+				}], {
+					listMode: 'featured',
+					surface: featured
+				});
+
+			} else if (options.subscription.indexOf('post_') === 0) {
 
 				const unknown = main.unknown(relay, main.authors());
 
@@ -795,9 +833,24 @@ export const nostrMainInit = () => {
 				}
 
 				return;
-			}
 
-			if (options.subscription === 'community_index') {
+			} else if (options.subscription === 'community_active') {
+
+				const { communities } = getState();
+
+				main.subscribe(`community_index`, relay, [{
+					'authors': Object.keys(communities.activeTimestamp).map(a => {
+						return a.split(':')[1]
+					}),
+					'#d': Object.keys(communities.activeTimestamp).map(a => {
+						return a.split(':')[2]
+					}),
+					kinds: [ 34550 ]
+				}]);
+
+				return;
+
+			} else if (options.subscription === 'community_index') {
 
 				main.listenForMetadata('*', (pubkey, profile) => {
 
@@ -808,17 +861,30 @@ export const nostrMainInit = () => {
 							profile
 						}
 					});
+				});
 
+				main.listenForCommunityFollowingList(event => {
+
+					dispatch({
+						type: RECEIVE_COMMUNITY_FOLLOWING_LIST_COUNT,
+						data: { event }
+					});
 				});
 
 				const { communities } = getState();
 
 				main.subscribe(`community_index_metadata`, relay, [{
-					authors: Object.keys(communities.list).map(d => {
-						const item = communities.list[d];
+					authors: Object.keys(communities.list).map(name => {
+						const item = communities.list[name];
 						return item.event.pubkey;
 					}),
 					kinds: [ 0 ]
+				}, {
+					kinds: [ 30001 ],
+					'#d': [ 'communities' ]
+					// '#a': Object.keys(communities.list).map(name => {
+					// 	return `34550:${name}`;
+					// })
 				}]);
 
 				return;
@@ -837,7 +903,11 @@ export const nostrMainInit = () => {
 
 			if (options.subscription === 'frontpage_primary_featured') {
 
-				surface = FEATURED_AUTHORS;
+				//surface = FEATURED_AUTHORS; // DEV
+				//surface = main.surface;
+				surface = Object.keys(main.zapReceivedTotal).sort((a, b) => {
+					return main.zapReceivedTotal[b] - main.zapReceivedTotal[a];
+				}).slice(0, 100);
 				listMode = 'featured';
 
 			} else if (options.subscription === 'frontpage_primary_following') {
@@ -860,8 +930,6 @@ export const nostrMainInit = () => {
 
 			}).filter(item => {
 
-				//console.log('listmode', listMode, item.labels);
-
 				if (item.labels && !item.labels[listMode]) { return false; }
 
 				if (surface.indexOf(item.event.pubkey) === -1) {
@@ -882,8 +950,6 @@ export const nostrMainInit = () => {
 
 			if (filters.length > 0) {
 
-				//console.log('context filters', filters);
-
 				main.subscribe(`context_${options.subscription}`, relay, filters, {
 					listMode
 				});
@@ -896,11 +962,6 @@ export const nostrMainInit = () => {
 				type: RECEIVE_COMMUNITY_EVENT,
 				data: { event: community }
 			});
-
-			// dispatch({
-			// 	type: DETECTED_COMMUNITY
-			// })
-
 		});
 
 		dispatch({ type: NOSTR_MAIN_INIT, data: { main } });
@@ -930,18 +991,25 @@ export const nostrProfileInit = (feed) => {
 	return { type: NOSTR_PROFILE_INIT, data: { feed } };
 };
 
+export const SET_COMMUNITIES_NAV_MODE = 'SET_COMMUNITIES_NAV_MODE';
+export const setCommunitiesNavMode = (mode) => {
+	return { type: SET_COMMUNITIES_NAV_MODE, data: { mode } };
+};
+
 export const SET_FRONTPAGE_MODE = 'SET_FRONTPAGE_MODE';
 export const setFrontpageMode = (mode, options = {}) => {
 
 	return (dispatch, getState) => {
 
+		/*
 		const { nostr } = getState();
 
 		let surface;
 
 		if (mode === 'featured') {
 
-			surface = FEATURED_AUTHORS;
+			//surface = FEATURED_AUTHORS; // DEV
+			//surface = nostr.main.surface;
 
 		} else if (mode === 'following') {
 
@@ -952,9 +1020,11 @@ export const setFrontpageMode = (mode, options = {}) => {
 			}
 
 			surface = Object.keys(nostr.contacts ? nostr.contacts[nostr.pubkey] || {} : {});
+			//nostr.main.surface = surface;
 		}
 
 		nostr.main.surface = surface;
+		*/
 
 		dispatch({ type: SET_FRONTPAGE_MODE, data: { mode, ...options } });
 	};
@@ -968,10 +1038,44 @@ export const loadFrontpageNostr = (feed, params) => {
 		return;
 	}
 
+	if (params.listMode === 'featured') {
+
+		window.client.subscribe(`lightning_global`, feed, [{
+			since: Math.floor(Date.now() / 1000) - 86400,
+			kinds: [ 9735 ]
+		}]);
+
+	} else {
+
+		window.client.subscribe(params.name, feed, [{
+			authors: params.surface,
+			kinds: [ 1 ],
+			//since: Math.floor(Date.now() / 1000) - (86400),
+			limit: 150
+		}, {
+			authors: params.surface,
+			kinds: [ 0 ]
+		}], {
+			listMode: params.listMode,
+			surface: params.surface
+		});
+	}
+};
+
+/*
+// Create subscription for top/sub feeds
+export const loadFrontpageNostr = (feed, params) => {
+
+	// Don't create a duplicate of the primary feed
+	if (window.client.subscriptions[params.name]) {
+		return;
+	}
+
 	window.client.subscribe(params.name, feed, [{
 		authors: params.surface,
 		kinds: [ 1 ],
-		limit: 175
+		//since: Math.floor(Date.now() / 1000) - (86400),
+		limit: 150
 	}, {
 		authors: params.surface,
 		kinds: [ 0 ]
@@ -980,6 +1084,7 @@ export const loadFrontpageNostr = (feed, params) => {
 		surface: params.surface
 	});
 };
+*/
 
 export const QUERY_PROFILES = 'QUERY_PROFILES';
 export const queryProfiles = (params) => {

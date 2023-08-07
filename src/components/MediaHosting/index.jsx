@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Icon } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
@@ -13,7 +13,7 @@ import transmit from '../../assets/transmit.svg';
 import { Chevron } from '../CommonUI';
 
 
-class MediaHosting extends PureComponent {
+class MediaHosting extends Component {
 
 	state = { headline: '', showbullet: 0, showcta: false };
 

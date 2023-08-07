@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 
@@ -10,7 +10,7 @@ import { COLORS } from '../../constants';
 import { transition, countdownFormat, formatOrdinal } from '../../helpers';
 
 
-class EpochIndicator extends PureComponent {
+class EpochIndicator extends Component {
 
 	state = { hover: false };
 
@@ -40,7 +40,7 @@ class EpochIndicator extends PureComponent {
 					onMouseOut={() => this.setState({ hover: false })}
 					style={styles.container(this.state, this.props)}
 				>
-					<div style={{ width: '100%' }}>
+					<div style={{ width: '100%',  }}>
 						<div style={{ ...styles.row, height: 14, alignItems: null, lineHeight: '12px' }}>
 							<PrettySVG style={{ marginRight: 7, marginTop: -2 }} src={svghourglass} height={15} width={15} />
 							<span style={{ marginRight: 8 }}>
@@ -75,7 +75,7 @@ const styles = {
 			cursor: active ? 'default' : 'pointer',
 			whiteSpace: 'nowrap',
 			overflow: 'hidden',
-			height: active ? 98 : 49,
+			height: active ? 109 : 60,
 			color: '#fff',
 			fontSize: 12,
 			display: 'flex',

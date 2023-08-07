@@ -105,8 +105,10 @@ class Feed {
 		// Zaps on events
 		this.zaps = {};
 
-		this._mod = 0;
+		// Total zap amount received by various authors
+		this.zapReceivedTotal = {};
 
+		this._mod = 0;
 	}
 
 	/* Return an array of all items */
@@ -355,6 +357,10 @@ class Feed {
 					approval = _event;
 				}
 
+				if (this.communityPostApprovalListener) {
+					this.communityPostApprovalListener(_event);
+				}
+
 			} else { // Proceed normally
 
 				event = _event;
@@ -534,13 +540,12 @@ class Feed {
 
 			} else if (event.kind === 9735) {
 
-				
-
-				let zevent, ze, za;
+				let zevent, ze, za, zp, amount;
 
 				for (let tag of event.tags) {
-
-					if (tag[0] === 'e') {
+					if (tag[0] === 'p') {
+						zp = tag[1];
+					} else if (tag[0] === 'e') {
 						ze = tag[1];
 					} else if (tag[0] === 'a') {
 						za = tag[1];
@@ -549,26 +554,56 @@ class Feed {
 					}
 				}
 
-				if (zevent && ze) {
-
-					if (!this.zaps[ze]) {
-						this.zaps[ze] = {};
-					}
-
-					if (!this.zaps[ze][zevent.pubkey]) {
-						this.zaps[ze][zevent.pubkey] = {};
-					}
-
-					this.zaps[ze][zevent.pubkey][event.id] = {
-						request: zevent,
-						receipt: event
-					}
+				if (zevent) {
 
 					for (let tag of zevent.tags) {
 
 						if (tag[0] === 'amount') {
-							this.zaps[ze][zevent.pubkey][event.id]['sats'] = parseInt(tag[1]) / 1000;
+
+							amount = parseInt(tag[1]) / 1000;
+
+							if (zp) {
+
+								if (this.zapReceivedTotal[zp]) {
+
+									this.zapReceivedTotal[zp] += amount;
+
+								} else {
+
+									this.zapReceivedTotal[zp] = amount;
+								}
+							}
+
+							break;
 						}
+					}
+
+					if (ze) {
+
+						if (!this.zaps[ze]) {
+							this.zaps[ze] = {};
+						}
+
+						if (!this.zaps[ze][zevent.pubkey]) {
+							this.zaps[ze][zevent.pubkey] = {};
+						}
+
+						this.zaps[ze][zevent.pubkey][event.id] = {
+							request: zevent,
+							receipt: event
+						}
+
+						if (amount) {
+
+							this.zaps[ze][zevent.pubkey][event.id]['sats'] = amount;
+						}
+
+						// for (let tag of zevent.tags) {
+
+						// 	if (tag[0] === 'amount') {
+						// 		this.zaps[ze][zevent.pubkey][event.id]['sats'] = parseInt(tag[1]) / 1000;
+						// 	}
+						// }
 					}
 				}
 
@@ -1057,6 +1092,10 @@ class Feed {
 	listenForCommunity (handler) {
 
 		this.communityListener = handler;
+	}
+
+	listenForCommunityPostApproval (handler) {
+		this.communityPostApprovalListener = handler;
 	}
 
 	listenForCommunityFollowingList (handler) {

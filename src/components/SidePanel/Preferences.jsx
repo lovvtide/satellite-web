@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Icon } from 'semantic-ui-react';
 import { nip19 } from 'nostr-tools';
@@ -11,7 +11,7 @@ import { COLORS } from '../../constants';
 import { handleNostrPublish, navigate } from '../../actions';
 
 
-class Preferences extends PureComponent {
+class Preferences extends Component {
 
 	state = {
 		hover: '',

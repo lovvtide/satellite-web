@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Icon } from 'semantic-ui-react';
 
@@ -8,12 +8,15 @@ import { COLORS } from '../../../constants';
 import { handleNostrPublish, queryProfiles, nostrFollow, handleZapRequest, navigate, openReplyModal, setNotificationsLastSeen } from '../../../actions';
 
 
-class Notifications extends PureComponent {
+class Notifications extends Component {
 
 	componentDidMount = () => {
 		if (this.props.count > 0) {
 			setTimeout(() => {
 				this.handleLoadContext();
+				// if (this.props.mobile) {
+				// 	window.scrollTo(0, 0);
+				// }
 			}, 100);
 		}
 	};

@@ -1,17 +1,18 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { nip19 } from 'nostr-tools';
 
 import RelativeTime from '../common/RelativeTime';
 import { Chevron } from '../CommonUI';
 import Modal from '../Nostr/Modal';
+import CommunitiesNav from './CommunitiesNav';
 
 import { transition } from '../../helpers';
 import { setPubScrollState, setContentTop, navigate } from '../../actions';
 import { COLORS, NAV_HEIGHT, CONTENT_MAX_WIDTH } from '../../constants';
 
 
-class ContentNav extends PureComponent {
+class ContentNav extends Component {
 
 	state = { hoverToggle: false, mounted: false, list_n: 0 };
 
@@ -128,6 +129,14 @@ class ContentNav extends PureComponent {
 		}
 	};
 
+	// handleSelectCommunityNav = (mode) => {
+
+	// 	console.log('mode', mode);
+
+	// 	this.props.setCommunitiesNavMode(mode);
+
+	// };
+
 	renderProgressLine = () => {
 
 		const { showNavMeta, mobile } = this.props;
@@ -143,6 +152,76 @@ class ContentNav extends PureComponent {
 	render = () => {
 
 		const { dirExpanded, showNavMeta, mobile, rootItem } = this.props;
+
+		if (this.props.route === '/') {
+
+			return (
+				<CommunitiesNav
+					id='content_nav'
+					style={styles.container(dirExpanded, mobile, showNavMeta, this.state.mounted, this.props.contentWidth, this.props.clientWidth)}
+				/>
+			);
+
+			// const navStyle = ({ active }) => {
+			// 	return {
+			// 		cursor: 'pointer',
+			// 		color: active ? '#fff' : COLORS.secondaryBright,
+			// 		fontSize: 12,
+			// 		fontFamily: 'JetBrains-Mono-Bold',
+			// 	};
+			// };
+
+			// return (
+			// 	<div id='content_nav' style={styles.container(dirExpanded, mobile, showNavMeta, this.state.mounted, this.props.contentWidth, this.props.clientWidth)}>
+			// 		<div
+			// 			style={{
+			// 				display: 'flex',
+			// 				alignItems: 'center',
+			// 				marginRight: 12,
+			// 				fontSize: 12,
+			// 				fontFamily: 'JetBrains-Mono-Bold',
+			// 			}}
+			// 		>
+			// 			<img
+			// 				src={svgearth}
+			// 				style={{
+			// 					marginRight: 8,
+			// 					height: 18,
+			// 					width: 18,
+			// 					marginBottom: 2,
+			// 					fontSize: 12,
+			// 					fontFamily: 'JetBrains-Mono-Regular',
+			// 				}}
+			// 			/>
+			// 			<span>
+			// 				COMMUNITIES:
+			// 			</span>
+			// 		</div>
+			// 		<div
+			// 			onClick={() => this.handleSelectCommunityNav('active')}
+			// 			style={navStyle({ active: communitiesNavMode === 'active' })}
+			// 		>
+			// 			ACTIVE
+			// 		</div>
+			// 		<div style={{
+			// 			color: COLORS.secondaryBright,
+			// 			marginLeft: 12,
+			// 			marginRight: 12,
+			// 			fontSize: 12,
+			// 			fontFamily: 'JetBrains-Mono-Bold',
+			// 		}}>
+			// 			/
+			// 		</div>
+			// 		<div
+			// 			onClick={() => this.handleSelectCommunityNav('subscribed')}
+			// 			style={navStyle({ active: communitiesNavMode === 'subscribed' })}
+			// 		>
+			// 			SUBSCRIBED
+			// 		</div>
+			// 	</div>
+			// );
+		};
+		
 		const contentNavAction = this.props.mobile ? null : (
 			<div
 				style={styles.toggle(this.state.hoverToggle, dirExpanded)}
@@ -162,21 +241,21 @@ class ContentNav extends PureComponent {
 
 		if (this.props.route === '/') {
 
-			contentNavElements = (
-				<div style={{
-					display: 'flex',
-					alignItems: 'center',
-					whiteSpace: 'nowrap',
-					overflow: 'hidden',
-					textOverflow: 'ellipsis',
-					fontSize: 12,
-					color: COLORS.satelliteGold,
-					fontFamily: 'JetBrains-Mono-Bold',
-					transform: 'translate(0px, 1px)'
-				}}>
-					WELCOME NOSTRICHES
-				</div>
-			);
+			// contentNavElements = (
+			// 	<div style={{
+			// 		display: 'flex',
+			// 		alignItems: 'center',
+			// 		whiteSpace: 'nowrap',
+			// 		overflow: 'hidden',
+			// 		textOverflow: 'ellipsis',
+			// 		fontSize: 12,
+			// 		color: COLORS.satelliteGold,
+			// 		fontFamily: 'JetBrains-Mono-Bold',
+			// 		transform: 'translate(0px, 1px)'
+			// 	}}>
+			// 		WELCOME NOSTRICHES
+			// 	</div>
+			// );
 
 		} else {
 
@@ -263,7 +342,7 @@ const styles = {
 			top: NAV_HEIGHT,
 			width: mobile ? '100%' : (expanded ? contentWidth * 0.5 : '100%'),
 			marginLeft: mobile ? '0px' : (expanded ? contentWidth * 0.5 : /*(Math.min(0, (contentWidth - clientWidth) / 2))*/0),
-			height: NAV_HEIGHT,
+			height: /*NAV_HEIGHT*/mobile ? 52 : 60,
 			color: '#fff',
 			zIndex: 1,
 			display: 'flex',

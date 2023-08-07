@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Icon, Popup } from 'semantic-ui-react';
 
@@ -8,7 +8,7 @@ import { COLORS, MENU_WIDTH } from '../../../constants';
 import { X, Dropdown } from '../../CommonUI'; 
 
 
-class Header extends PureComponent {
+class Header extends Component {
 
   state = {};
 

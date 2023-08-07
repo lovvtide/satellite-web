@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { Modal } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import QRCode from 'react-qr-code';
@@ -7,7 +7,7 @@ import { displayQR } from '../../actions';
 import { COLORS } from '../../constants';
 
 
-class QRDisplay extends PureComponent {
+class QRDisplay extends Component {
 
 	render = () => {
 		return (

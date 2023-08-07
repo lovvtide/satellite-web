@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import EpochIndicator from '../DirectoryPage/EpochIndicator';
@@ -11,7 +11,7 @@ import { COLORS, NAV_HEIGHT } from '../../constants';
 
 // TODO handle empty values returned by countdown . . . ie show "pending"
 
-class HistoryPage extends PureComponent {
+class HistoryPage extends Component {
 
 	state = { epochPercentProgress: null, epochSecondsRemaining: null, epochs: [], hover: '' };
 
@@ -271,6 +271,7 @@ const styles = {
 	col2: ({ height }) => {
 		return {
 			height,
+			paddingTop: 5,
 			width: '85%',
 			float: 'right',
 			borderLeft: `1px solid ${COLORS.secondary}`

@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { Icon } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { nip19 } from 'nostr-tools';
@@ -12,7 +12,7 @@ import { transition } from '../../helpers';
 import { COLORS } from '../../constants';
 
 
-class Note extends PureComponent {
+class Note extends Component {
 
 	state = { loaded: false, postId: null };
 

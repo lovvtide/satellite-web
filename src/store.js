@@ -20,7 +20,8 @@ export const INITIAL_STATE = {
 		mobile: false,
 		minHeight: null,
 		route: null,
-		routeComponents: []
+		routeComponents: [],
+		mobileNavMode: 'network'
 	},
 
 	media: {

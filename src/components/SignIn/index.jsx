@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { nip19 } from 'nostr-tools';
@@ -10,7 +10,7 @@ import { setLocalPrivateKey, loadActiveNostr, navigate } from '../../actions';
 import { Button } from '../CommonUI';
 
 
-class SignIn extends PureComponent {
+class SignIn extends Component {
 
 	state = {
 		hover: '',
@@ -149,7 +149,10 @@ class SignIn extends PureComponent {
 						lines={3}
 					/>
 				</div>
-				<div style={styles.footer(this.state)}>
+				<div style={{ ...styles.headerText, marginBottom: 24, marginTop: -12, color: COLORS.secondaryBright }}>
+					Note: While it <em>is possible</em> to sign in by copy/pasting your secret key, it's highly recommended that you instead use a browser extension such as <a style={styles.link} href={`https://chrome.google.com/webstore/detail/nos2x/kpgefcfmnafjgpblomihpgmejjdanjjp`} target='_blank'>nos2x</a>.
+				</div>
+				<div style={styles.footer(this.state, this.props)}>
 					{this.state.error ? (
 						<div
 							style={{
@@ -192,7 +195,7 @@ class SignIn extends PureComponent {
 
 			return (
 				<div>
-					<div style={{ ...styles.container, width, padding: '24px 16px', height: 320 }}>
+					<div style={{ ...styles.container, width, padding: '24px 16px', height: 342 }}>
 						{this.renderSignInForm()}
 					</div>
 				</div>
@@ -237,10 +240,11 @@ const styles = {
 		};
 	},
 
-	footer: ({ error }) => {
+	footer: ({ error }, { mobile }) => {
 		return {
 			whiteSpace: 'nowrap',
-			height: 36
+			height: 36,
+			marginTop: mobile ? 48 : 0
 		};
 	},
 
@@ -305,7 +309,7 @@ const styles = {
 		position: 'absolute',
 		top: '50%',
 		left: '50%',
-		height: 333,
+		height: 422,
 		width: 333,
 		background: COLORS.primary,
 		transform: 'translate(-50%, -50%)'

@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { nip19 } from 'nostr-tools';
 
@@ -11,7 +11,7 @@ import { handleZapRequest, handleNostrPublish, openReplyModal, rootPostItem, roo
 
 
 /* Render a post and its replies */
-class PostFeed extends PureComponent {
+class PostFeed extends Component {
 
 	state = {
 		postId: null,
@@ -195,7 +195,7 @@ const styles = {
 
 	container: ({ mobile }) => {
 		return {
-			paddingTop: mobile ? 62 : 72,
+			paddingTop: mobile ? 62 : 78,
 			paddingBottom: 108,
 			paddingLeft: mobile ? 12 : 24,
 			paddingRight: mobile ? 12 : 24

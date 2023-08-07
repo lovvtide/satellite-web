@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import { X } from '../CommonUI';
@@ -10,7 +10,7 @@ import svgtransmit from '../../assets/transmit.svg';
 import { COLORS } from '../../constants';
 
 
-class NewPostModal extends PureComponent {
+class NewPostModal extends Component {
 
 	componentDidMount = () => {
 

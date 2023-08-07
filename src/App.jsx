@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import 'semantic-ui-css/semantic.min.css';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
@@ -27,10 +27,11 @@ import SidePanel from './components/SidePanel';
 import SignUp from './components/SignUp';
 import SignIn from './components/SignIn';
 import QRDisplay from './components/QRDisplay';
+import MobileNav from './components/MobileNav';
 import Nav from './components/Nav';
 
 
-class App extends PureComponent {
+class App extends Component {
 
   componentDidMount = async () => {
 
@@ -74,7 +75,7 @@ class App extends PureComponent {
     return mobile ? (
       <div>
         <PublicationsNav hidden={r === 'thread'} onSelectSort={() => { return; }} />
-        {this.props.mode === 'following' ? <FrontPageFeed hidden={r === 'thread'} style={{ paddingTop: 60 }} /> : (
+        {this.props.mobileNavMode === 'network' ? <FrontPageFeed hidden={r === 'thread'} style={{ paddingTop: 60 }} /> : (
           <div style={{
             paddingTop: 72,
             paddingRight: 12,
@@ -82,6 +83,10 @@ class App extends PureComponent {
           }}>
             <CommunityList
               requireImage
+              requireSubscribed={this.props.communitiesNavMode === 'subscribed'}
+              // filter={this.props.communitiesNavMode === 'subscribed' ? (item) => {
+              //   return this.props.followingList[`34550:${item.event.pubkey}:${item.name}`]
+              // } : null}
             />
           </div>
         )}
@@ -156,12 +161,13 @@ class App extends PureComponent {
           {...this.props.mobileEditor}
         />
         <NewPostModal />
+        {mobile ? <MobileNav /> : null}
       </div>
     );
   };
 }
 
-const mapState = ({ app, menu, nostr }) => {
+const mapState = ({ app, menu, nostr, communities }) => {
 
   return {
     ...app,
@@ -172,6 +178,8 @@ const mapState = ({ app, menu, nostr }) => {
     sidePanelSection: menu.topMode,
     routeComponents: app.routeComponents || [],
     mobileEditor: nostr.mobileEditor || {},
+    mobileNavMode: app.mobileNavMode,
+    communitiesNavMode: communities.navMode
   };
 };
 
@@ -179,7 +187,8 @@ const styles = {
 
   mobileDimmer: (active) => {
     return {
-      position: 'absolute',
+      //position: 'absolute',
+      position: 'fixed',
       background: 'rgba(0,0,0,0.85)',
       height: '100%',
       width: '100%',

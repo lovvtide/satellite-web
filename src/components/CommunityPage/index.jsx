@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { Icon } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import { Link, Route, Switch } from 'react-router-dom';
@@ -24,7 +24,7 @@ import svgearth from '../../assets/earth.svg';
 import { navigate, nostrFollow, getLocalPrivateKey, handleApprovePost, subscribeToCommunity, setCommunityAdminProps, viewSidePanel, handleZapRequest } from '../../actions';
 
 
-class CommunityPage extends PureComponent {
+class CommunityPage extends Component {
 
 	state = {
 		loaded: false,

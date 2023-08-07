@@ -11,6 +11,11 @@ export const setCommunityAdminProps = (data) => {
 	return { type: SET_COMMUNITY_ADMIN_PROPS, data };
 };
 
+export const SET_MOBILE_NAV_MODE = 'SET_MOBILE_NAV_MODE';
+export const setMobileNavMode = (mode) => {
+	return { type: SET_MOBILE_NAV_MODE, data: { mode } };
+};
+
 export const SET_MOBILE_MENU_OPEN = 'SET_MOBILE_MENU_OPEN';
 export const setMobileMenuOpen = (open) => {
 	return { type: SET_MOBILE_MENU_OPEN, data: { open } };

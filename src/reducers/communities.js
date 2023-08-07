@@ -4,8 +4,11 @@ import {
 	RECEIVE_COMMUNITY_EVENT,
 	RECEIVE_COMMUNITY_METADATA,
 	RECEIVE_COMMUNITY_POST,
+	RECEIVE_COMMUNITY_POST_APPROVAL,
 	RECEIVE_COMMUNITY_FOLLOWING_LIST,
-	COMMUNITY_INDEX_EOSE
+	RECEIVE_COMMUNITY_FOLLOWING_LIST_COUNT,
+	COMMUNITY_INDEX_EOSE,
+	SET_COMMUNITIES_NAV_MODE
 } from '../actions';
 
 // Get d-identifer community name
@@ -86,6 +89,30 @@ const receiveCommunityEvent = (state, { event, pubkey }) => {
 			...add
 		}
 	};
+};
+
+const receiveCommunityPostApproval = (state, { event }) => {
+
+	let coord;
+
+	for (let tag of event.tags) {
+		if (tag[0] === 'a') {
+			coord = tag[1];
+		}
+	}
+
+	if (coord && !state.activeTimestamp[coord] || state.activeTimestamp[coord] < event.created_at) {
+
+		return {
+			...state,
+			activeTimestamp: {
+				...state.activeTimestamp,
+				[coord]: event.created_at
+			}
+		};
+	}
+
+	return state;
 };
 
 const receiveCommunityPost = (state, { events }) => {
@@ -207,6 +234,27 @@ const receiveCommunityFollowingList = (state, { event }) => {
 	return state;
 };
 
+const countCommunityFollowers = (state, { event }) => {
+
+	const c = state.followingMap;
+
+	for (let tag of event.tags) {
+
+		if (tag[0] === 'a') {
+
+			const a = tag[1];
+
+			if (!c[a]) {
+				c[a] = {};
+			}
+
+			c[a][event.pubkey] = true;
+		}
+	}
+
+	return { ...state, followingMap: c };
+};
+
 const INITIAL_STATE = {
 	forks: {},
 	list: {},
@@ -214,8 +262,11 @@ const INITIAL_STATE = {
 	modqueue: {},
 	metadata: {},
 	followingList: {},
+	activeTimestamp: {},
 	followingListTimestamp: 0,
-	eoseCount: 0
+	followingMap: {},
+	eoseCount: 0,
+	navMode: 'active'
 };
 
 export default (state = INITIAL_STATE, action) => {
@@ -223,6 +274,18 @@ export default (state = INITIAL_STATE, action) => {
 	const { type, data } = action;
 
 	switch (type) {
+
+		case SET_COMMUNITIES_NAV_MODE:
+			return {
+				...state,
+				navMode: data.mode
+			};
+
+		case RECEIVE_COMMUNITY_FOLLOWING_LIST_COUNT:
+			return countCommunityFollowers(state, data);
+
+		case RECEIVE_COMMUNITY_POST_APPROVAL:
+			return receiveCommunityPostApproval(state, { event: data });
 
 		case RECEIVE_COMMUNITY_FOLLOWING_LIST:
 			return receiveCommunityFollowingList(state, data);

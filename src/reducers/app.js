@@ -16,7 +16,8 @@ import {
 	RELAY_CONNECTED,
 	SET_PUB_SCROLL_STATE,
 	SET_CONTENT_TOP,
-	SET_NEW_POST_MODAL_OPEN
+	SET_NEW_POST_MODAL_OPEN,
+	SET_MOBILE_NAV_MODE
 } from '../actions';
 
 import { NAV_HEIGHT, MOBILE_BREAKPOINT } from '../constants';
@@ -34,9 +35,16 @@ const getInnerHeight = () => {
 	return window.innerHeight || document.documentElement.innerHeight;
 };
 
+
 export default (state = {}, action) => {
 	const { type, data } = action;
 	switch (type) {
+
+		case SET_MOBILE_NAV_MODE:
+			return {
+				...state,
+				mobileNavMode: data.mode
+			};
 
 		case SET_NEW_POST_MODAL_OPEN:
 			return {

@@ -1,8 +1,8 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 
-class ComingSoon extends PureComponent {
+class ComingSoon extends Component {
 
 	render = () => {
 

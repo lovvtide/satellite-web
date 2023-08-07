@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Icon } from 'semantic-ui-react';
 
@@ -6,7 +6,7 @@ import { COLORS } from '../../constants';
 import { openReplyModal } from '../../actions';
 
 
-class MobilePostButton extends PureComponent {
+class MobilePostButton extends Component {
 
 	handleClick = (e) => {
 
@@ -36,10 +36,10 @@ class MobilePostButton extends PureComponent {
 					justifyContent: 'center',
 					userSelect: 'none',
 					position: 'fixed',
-					bottom: 24,
-					right: 24,
-					height: 60,
-					width: 60,
+					bottom: 64,
+					right: 16,
+					height: 54,
+					width: 54,
 					color: '#fff',
 					background: COLORS.satelliteGold,
 					borderRadius: 30,

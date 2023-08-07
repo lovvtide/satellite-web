@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { Icon } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import { nip19 } from 'nostr-tools';
@@ -14,7 +14,7 @@ import { COLORS } from '../../constants';
 import { transition } from '../../helpers';
 
 
-class ZapRequest extends PureComponent {
+class ZapRequest extends Component {
 
 	state = { amount: '', note: '', invoice: null };
 

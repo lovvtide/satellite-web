@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import Author from '../Nostr/Author';
@@ -9,7 +9,7 @@ import { NAV_HEIGHT, COLORS } from '../../constants';
 import { transition } from '../../helpers';
 
 
-class Subscriptions extends PureComponent {
+class Subscriptions extends Component {
 
 	render = () => {
 

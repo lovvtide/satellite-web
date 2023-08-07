@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Icon } from 'semantic-ui-react';
 import QRCode from 'react-qr-code';
@@ -12,7 +12,7 @@ import Button from './Button';
 import { Chevron, X, CanonicalValue } from '../../CommonUI';
 
 
-class AddCredit extends PureComponent {
+class AddCredit extends Component {
 
 	state = { gb_months: 1 };
 

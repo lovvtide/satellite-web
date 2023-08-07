@@ -25,9 +25,9 @@ const transform = (props) => {
 		return `<div ${stylize({
 			'margin-bottom': comment ? '4px' : '12px',
 			//'-webkit-font-smoothing': 'antialiased',
-			'color': 'rgba(255,255,255,0.80)',
+			'color': 'rgba(255,255,255,0.79)',
 			'font-family': 'Lexend-Deca-Regular',
-			'font-size': bio ? '14px' : (comment ? '14px' : '16px'),
+			'font-size': bio ? '14px' : (comment ? '14.5px' : '16px'),
 			'line-height': comment ? `21px` : `${EDITOR_LINE_HEIGHT}px`,
 			'overflow-wrap': 'break-word',
 			...(props.paragraphStyle || {})

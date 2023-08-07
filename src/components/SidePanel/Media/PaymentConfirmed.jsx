@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Icon } from 'semantic-ui-react';
 
@@ -11,7 +11,7 @@ import Modal from './Modal';
 //import Button from './Button';
 
 
-class PaymentConfirmed extends PureComponent {
+class PaymentConfirmed extends Component {
 
 	state = { gb_months: 1 };
 

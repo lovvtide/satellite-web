@@ -46,7 +46,7 @@ class Feed extends PureComponent {
 
 	componentDidUpdate = (prevProps) => {
 
-		if (this.props.listMode !== prevProps.listMode) {
+		if (this.props.listMode !== prevProps.listMode || prevProps.surface !== this.props.surface) {
 
 			this.setState({ visible: false });
 
@@ -165,8 +165,11 @@ class Feed extends PureComponent {
 
 		return this.props.lazyRender ? (
 			<LazyList
+				onUpdateLimit={this.props.onUpdateLazyFeedLimit}
 				overflowContainer={this.props.overflowContainer || window}
+				renderInit={this.props.lazyRenderInit}
 				renderBatch={this.props.lazyRenderBatch || 20}
+				offsetLead={1000}
 			>
 				{rendered}
 			</LazyList>

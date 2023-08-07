@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import logo from '../../assets/branding.png';
@@ -7,7 +7,7 @@ import { COLORS } from '../../constants';
 import { navigate } from '../../actions';
 
 
-class WelcomeContent extends PureComponent {
+class WelcomeContent extends Component {
 
 
 	render = () => {

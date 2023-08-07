@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 //import { Link } from 'react-router-dom';
 
@@ -6,7 +6,7 @@ import { COLORS } from '../../constants';
 import Image from './Image';
 
 
-class ProfileQuery extends PureComponent {
+class ProfileQuery extends Component {
 
 	state = { hover: '' };
 

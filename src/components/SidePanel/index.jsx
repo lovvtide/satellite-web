@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { Icon } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 
@@ -19,7 +19,7 @@ import { COLORS, NAV_HEIGHT, CONTENT_MAX_WIDTH, MENU_WIDTH } from '../../constan
 import { transition } from '../../helpers';
 
 
-class SidePanel extends PureComponent {
+class SidePanel extends Component {
 
 	state = {
 		expanded: false,
@@ -50,6 +50,11 @@ class SidePanel extends PureComponent {
 				} else {
 					document.body.style['overflow-y'] = 'hidden';
 				}
+
+				if (this.props.mobile) {
+					window.scrollTo(0, 0);
+				}
+
 			}, 200);
 
 		}, 100);
@@ -312,6 +317,7 @@ const styles = {
 	
 	outerContainerMobile: (clientWidth, open) => {
 		return {
+			//position: 'fixed',
 			position: 'absolute',
 			whiteSpace: 'nowrap',
 			overflow: 'hidden',
@@ -348,7 +354,7 @@ const styles = {
 			background: COLORS.primary,
 			borderLeft: '1px solid rgb(47, 54, 61)',
 			borderRadius: 0,
-			position: 'absolute',
+			position: 'fixed',
 			height: '100%',
 			width,
 			right: expanded ? 0 : -1 * width,

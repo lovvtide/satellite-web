@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component, PureComponent } from 'react';
 import { Icon } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -20,6 +20,13 @@ class ChatItem extends PureComponent {
 	componentDidMount = () => {
 
 		this.props.handleDecrypt(this.props.recent);
+
+		// setTimeout(() => {
+		// 	if (this.props.mobile) {
+		// 		window.scrollTo(0, 0);
+		// 	}
+		// }, 100);
+
 	};
 
 	componentDidUpdate = (prevProps) => {
@@ -639,7 +646,7 @@ class ActiveChat extends PureComponent {
 	};
 }
 
-class DirectMessages extends PureComponent {
+class DirectMessages extends Component {
 
 	state = { selected: null, width: 0, add: '', hover: '' };
 

@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { Icon, Checkbox } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
@@ -19,7 +19,7 @@ import PrettySVG from '../common/PrettySVG';
 import { Button, X } from '../CommonUI';
 
 
-class SignupWithNostr extends PureComponent {
+class SignupWithNostr extends Component {
 
 	state = {
 

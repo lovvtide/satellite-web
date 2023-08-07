@@ -78,8 +78,6 @@ class Client {
 
 		relay.on('connect', () => {
 
-			//console.log(`connected to ${relay.url}`);
-
 			clearTimeout(relay._reconnectTimeout);
 			relay._encounteredError = false;
 			relay._reconnectMillsecs = 500;
@@ -366,8 +364,6 @@ class Client {
 		};
 
 		const detectCommunityPost = (event, cids) => {
-
-			//console.log('event cids', event, cids);
 
 			if (event.kind === 1 || event.kind === 4550) {
 
@@ -884,11 +880,12 @@ class Client {
 
 		const tags = this.populateReplyTags(params);
 
-		this.populateMentionTags(tags, post.content);
+		const content = this.populateMentionTags(tags, post.content);
 
 		return {
 			...post,
 			kind: 1,
+			content,
 			tags
 		};
 	}
@@ -1205,8 +1202,6 @@ class Client {
 
 			if (s.indexOf('npub1') === 0) {
 
-				let pubkey;
-
 				try {
 
 					const decoded = nip19.decode(s.substring(0, 63));
@@ -1216,6 +1211,33 @@ class Client {
 					}
 
 				} catch (err) {}
+			}
+		}
+
+		const segments = [];
+
+		for (let s of content.split('@npub1')) {
+
+			let replace;
+
+			try {
+
+				const decoded = nip19.decode('npub1' + s.substring(0, 58));
+
+				if (decoded.type === 'npub') {
+					mentioned[decoded.data] = true;
+					replace = decoded.data;
+				}
+
+			} catch (err) { console.log('err', err); }
+
+			if (replace) {
+
+				segments.push(`nostr:${'npub1' + s.substring(0, 58)}${s.slice(58)}`);
+
+			} else {
+
+				segments.push(s);
 			}
 		}
 
@@ -1229,7 +1251,9 @@ class Client {
 		for (let p of Object.keys(mentioned)) {
 
 			tags.push([ 'p', p ]);
-		}	
+		}
+
+		return segments.join('');
 	}
 
 	getThreadRefs = (item, options = {}) => {

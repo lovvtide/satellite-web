@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { nip19 } from 'nostr-tools';
 
@@ -9,9 +9,9 @@ import { navigate, loadFrontpageNostr, nostrFollow } from '../../actions';
 import { FEATURED_AUTHORS, COLORS } from '../../constants';
 
 
-class FrontPageFeed extends PureComponent {
+class FrontPageFeed extends Component {
 
-	state = {};
+	state = { lazyRender: false };
 
 	componentDidMount = () => {
 
@@ -46,9 +46,9 @@ class FrontPageFeed extends PureComponent {
 
 	handleLoad = () => {
 
-		if (!this.props.surface) {
-			return;
-		}
+		// if (!this.props.surface) {
+		// 	return;
+		// }
 
 		// Dispatch action to load frontpage list - the action
 		// creator will automatically check if the subscription
@@ -115,6 +115,12 @@ class FrontPageFeed extends PureComponent {
 			<div style={{ ...styles.container(this.props), ...(this.props.style || {}) }}>
 				<Feed
 					thread
+					//lazyRender={!this.props.mobile || this.state.lazyRender}
+					lazyRender
+					lazyRenderInit={window._frontpageFeedLimit}
+					onUpdateLazyFeedLimit={limit => {
+						window._frontpageFeedLimit = limit;
+					}}
 					maintainSubscription
 					hidden={!this.props.visible}
 					feed={this.props.feed}
@@ -157,7 +163,15 @@ const mapState = ({ app, nostr, query }) => {
 
 	if (nostr.mode === 'featured') {
 
-		surface = FEATURED_AUTHORS;
+		surface = nostr.main.surface;
+
+		//console.log('surfaceprops', nostr.main.zapReceivedTotal);
+
+		// surface = Object.keys(nostr.main.zapReceivedTotal).sort((a, b) => {
+		// 	return nostr.main.zapReceivedTotal[b] - nostr.main.zapReceivedTotal[a];
+		// }).slice(0, 50);
+
+		// console.log('surface feat', surface);
 
 	} else if (nostr.mode === 'following') {
 

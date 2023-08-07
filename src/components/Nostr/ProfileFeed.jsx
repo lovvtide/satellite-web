@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Icon, Popup } from 'semantic-ui-react';
 import { nip05, nip19 } from 'nostr-tools';
@@ -19,7 +19,7 @@ import svglightningactive from '../../assets/lightning_active.svg';
 
 
 /* Render a user's profile */
-class ProfileFeed extends PureComponent {
+class ProfileFeed extends Component {
 
 	state = {
 		hover: '',

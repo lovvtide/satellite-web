@@ -515,7 +515,7 @@ const styles = {
 			lineHeight: '22px',
 			//'WebkitFontSmoothing': 'antialiased',
 			marginLeft: mobile ? (replyTo ? -12 : -24) : 0,
-			fontSize: mobile ? 15 : null
+			fontSize: mobile ? 15 : 15
 		};
 	}
 };

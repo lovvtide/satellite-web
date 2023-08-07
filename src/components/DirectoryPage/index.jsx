@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Route } from 'react-router-dom';
 
@@ -6,6 +6,7 @@ import WelcomeContent from '../Nostr/WelcomeContent';
 import CommunityList from '../Nostr/CommunityList';
 import FrontPageFeed from '../Nostr/FrontPageFeed';
 import PostFeed from '../Nostr/PostFeed';
+import CommunitiesFeed from './CommunitiesFeed';
 import PublicationsNav from './PublicationsNav';
 import ContentNav from './ContentNav';
 import TopLevelLinks from './TopLevelLinks';
@@ -22,7 +23,7 @@ import {
 } from '../../actions';
 
 
-class DirectoryPage extends PureComponent {
+class DirectoryPage extends Component {
 
 	state = { listVisible: false, col1Width: null };
 
@@ -60,6 +61,15 @@ class DirectoryPage extends PureComponent {
 		window.addEventListener('resize', this.handleResize);
 
 		this.forceUpdate();
+	};
+
+	componentDidUpdate = (prevProps) => {
+
+		if (!prevProps.dirExpanded && this.props.dirExpanded) {
+			this.setState({ listVisible: true });
+		}
+
+		this.contentNav = document.getElementById('content_nav');
 	};
 
 	componentWillUnmount = () => {
@@ -226,13 +236,22 @@ class DirectoryPage extends PureComponent {
 					<TopLevelLinks />
 				</div>
 				<div id='dir_col_2' className='no-scroll' style={{ ...styles.col2(dirExpanded, height, this.state.listVisible, contentWidth), scrollbarWidth: 'none' }}>
+					{this.col2 ? <FrontPageFeed overflowContainer={this.col2} parentWidth={this.col2.contentWidth} visible onSelect={this.handleSelectPubItem} /> : null}
+					{/*{this.col2 && mode === 'following' ? <FrontPageFeed overflowContainer={this.col2} parentWidth={this.col2.contentWidth} visible onSelect={this.handleSelectPubItem} /> : null}*/}
+					{/*{this.col2 && mode === 'featured' ? <CommunityList overflowContainer={this.col2} parentWidth={this.col2.contentWidth} visible /> : null}*/}
+				</div>
+				<div id='dir_col_3' style={styles.col3(dirExpanded, height, awaitingData, contentWidth, clientWidth)}>
+					{this.props.main ? (<Route exact path='/' render={(props) => <CommunitiesFeed overflowContainer={this.col3} />} />) : null}
+					{this.props.main ? (<Route path='/thread' component={PostFeed} />) : null}
+				</div>
+{/*				<div id='dir_col_2' className='no-scroll' style={{ ...styles.col2(dirExpanded, height, this.state.listVisible, contentWidth), scrollbarWidth: 'none' }}>
 					{this.col2 && mode === 'following' ? <FrontPageFeed overflowContainer={this.col2} parentWidth={this.col2.contentWidth} visible={this.state.listVisible} onSelect={this.handleSelectPubItem} /> : null}
 					{this.col2 && mode === 'featured' ? <CommunityList overflowContainer={this.col2} parentWidth={this.col2.contentWidth} visible={this.state.listVisible} /> : null}
 				</div>
 				<div id='dir_col_3' style={styles.col3(dirExpanded, height, awaitingData, contentWidth, clientWidth)}>
 					{this.props.main ? (<Route exact path='/' component={WelcomeContent} />) : null}
 					{this.props.main ? (<Route path='/thread' component={PostFeed} />) : null}
-				</div>
+				</div>*/}
 			</div>
 		);
 	};
@@ -294,7 +313,7 @@ const styles = {
 			float: 'left',
 			opacity: expanded && visible ? 1 : 0,
 			overflowY: 'scroll',
-			paddingTop: 60,
+			paddingTop: 66,
 			...(!expanded ? {} : transition(0.2, 'ease', [ 'width', 'opacity' ]))
 		};
 	},

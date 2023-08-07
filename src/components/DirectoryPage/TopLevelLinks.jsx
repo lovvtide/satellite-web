@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 
@@ -6,7 +6,7 @@ import { setDirectoryLayoutExpanded, navigate } from '../../actions';
 import { transition } from '../../helpers';
 
 
-class TopLevelLinks extends PureComponent {
+class TopLevelLinks extends Component {
 
 	state = { hover: '' };
 
@@ -58,22 +58,22 @@ const mapState = ({ active, app }) => {
 		links: ([
 			{
 				key: 'cdn',
-				label: 'MEDIA HOSTING',
+				label: 'Media Hosting',
 				route: '/cdn'
 			},
 			{
 				key: 'nip05',
-				label: 'NIP-05 VERIFY',
+				label: 'NIP-05 Verify',
 				route: `/verify`
 			},
 			{
 				key: 'opensource',
-				label: 'OPEN SOURCE',
+				label: 'Open Source',
 				href: 'https://github.com/lovvtide/satellite-web'
 			},
 			{
 				key: 'theory',
-				label: 'THEORY',
+				label: 'Theory',
 				route: `/theory`
 			},
 			{
@@ -98,14 +98,18 @@ const styles = {
 			display: 'flex',
 			alignItems: 'center',
 			justifyContent: 'left',
-			fontFamily: 'JetBrains-Mono-Regular',
-			fontSize: 12,
+			//fontFamily: 'JetBrains-Mono-Regular',
+			fontSize: 13,
+			fontWeight: 'bold',
 			paddingLeft: 22,
-			paddingRight: 24,
+			paddingRight: 22,
+			marginRight: 12,
 			height: 36,
 			whiteSpace: 'nowrap',
 			overflow: 'hidden',
 			borderLeft: `2px solid ${hover ? '#fff' : 'transparent'}`,
+			borderTopRightRadius: 12,
+			borderBottomRightRadius: 12,
 			...transition(0.2, 'ease', [ 'color' ])
 		};
 	}

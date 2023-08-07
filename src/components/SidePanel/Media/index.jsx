@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
 import { Icon } from 'semantic-ui-react';
@@ -15,7 +15,7 @@ import AddCredit from './AddCredit';
 import PaymentConfirmed from './PaymentConfirmed';
 
 
-class Media extends PureComponent {
+class Media extends Component {
 
   componentDidMount = () => {
 

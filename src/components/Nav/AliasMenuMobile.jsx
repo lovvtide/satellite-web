@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { Icon } from 'semantic-ui-react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -12,7 +12,7 @@ import { transition } from '../../helpers';
 import { COLORS } from '../../constants';
 
 
-class AliasMenuMobile extends PureComponent {
+class AliasMenuMobile extends Component {
 
 	state = { opened: false };
 
@@ -207,7 +207,7 @@ class AliasMenuMobile extends PureComponent {
 
 	renderCommunitiesAction = () => {
 		const { signedIn } = this.props;
-		const text = 'Communities';
+		const text = 'Manage Communities';
 		return signedIn ? (
 			<div>
 				<Icon style={styles.actionIcon} name='globe' />
@@ -308,12 +308,12 @@ class AliasMenuMobile extends PureComponent {
 					</div>
 					<div style={{ fontSize: 14, paddingTop: 12, paddingBottom: 12 }}>
 						{this.renderProfileAction()}
-						{this.renderNotificationsAction()}
-						{this.renderCommunitiesAction()}
-						{this.renderMessagesAction()}
+						{/*{this.renderNotificationsAction()}*/}
+						{/*{this.renderMessagesAction()}*/}
 						{this.renderSubscriptionsAction()}
 						{this.renderMediaAction()}
 						{this.renderRelaysAction()}
+						{this.renderCommunitiesAction()}
 						{this.renderPreferencesAction()}
 						{this.renderAuthAction()}
 					</div>
@@ -340,7 +340,8 @@ const mapState = ({ nostr, app }) => {
 const styles = {
 	outerContainer: (clientWidth, open) => {
 		return {
-			position: 'absolute',
+			//position: 'absolute',
+			position: 'fixed',
 			whiteSpace: 'nowrap',
 			overflow: 'hidden',
 			width: open ? clientWidth - 64 : 1,

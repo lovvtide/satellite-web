@@ -20,7 +20,7 @@ class LazyList extends PureComponent {
 
 		this.scrolling.addEventListener('scroll', this.handleScroll);
 
-		this.setState({ limit: this.props.renderBatch });
+		this.setState({ limit: Math.max(this.props.renderBatch, this.props.renderInit || 0) });
 	};
 
 	componentWillUnmount = () => {
@@ -65,9 +65,15 @@ class LazyList extends PureComponent {
 				const scrollAt = this.scrolling.scrollTop || this.scrolling.scrollY;
 				const boundary = item.current.offsetTop - windowHeight;
 
-				if (scrollAt >= boundary) {
+				if (scrollAt + (this.props.offsetLead || 0) >= boundary) {
 
-					this.setState({ limit: this.state.limit + this.props.renderBatch });
+					const limit = this.state.limit + this.props.renderBatch;
+
+					this.setState({ limit });
+
+					if (this.props.onUpdateLimit) {
+						this.props.onUpdateLimit(limit);
+					}
 
 					clearTimeout(this.scrollFinish);
 				}

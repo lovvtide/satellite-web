@@ -860,7 +860,7 @@ class Item extends PureComponent {
 
 				qid = s.substring(0, 63);
 
-			} else if (s.indexOf('nevent1') === 0) {
+			} else if (s.indexOf('nevent1') === 0 || s.indexOf('naddr1') === 0) {
 
 				const alphanum = '0123456789abcdefghijklmnopqrstuvwxyz';
 
@@ -897,6 +897,17 @@ class Item extends PureComponent {
 
 						this.ident[qid] = decoded.data.id;
 
+					} else if (decoded.type === 'naddr') {
+
+						if (this.props.replace[`${decoded.data.kind}:${decoded.data.pubkey}:${decoded.data.identifier}`]) {
+
+							this.ident[qid] = null // TODO assign from replaced map
+
+						} else {
+
+							this.ident[qid] = null;
+						}
+
 					} else {
 
 						this.ident[qid] = null;
@@ -915,6 +926,7 @@ class Item extends PureComponent {
 			return s;
 
 		}).join('');
+
 		const elements = replaced.split('__replace__').map((markdown, index) => {
 		
 			const renderQuote = (id) => {
@@ -1045,7 +1057,7 @@ class Item extends PureComponent {
 			return (
 				<div key={index}>
 					<MD
-						showFullsizeMedia={this.props.showFullsizeMedia}
+						showFullsizeMedia={this.props.showFullsizeMedia || (this.props.thread && this.props.contacts[this.props.event.pubkey])}
 						showImagePreviews
 						attachMediaPreviewListeners={this.attachMediaPreviewListeners}
 						scriptContextId={this.contextId()}
@@ -1178,7 +1190,7 @@ class Item extends PureComponent {
 
 	renderActions = () => {
 
-		const { repost, event, upvotes, active, thread, quote, hideActions } = this.props;
+		const { repost, event, upvotes, active, thread, quote, hideActions, mobile } = this.props;
 		const { hover, pendingZapRequest } = this.state;
 
 		if (hideActions || thread || quote || this.state.compose || this.props.event.kind === 6) { return null; }
@@ -1199,8 +1211,8 @@ class Item extends PureComponent {
 					<img
 						style={{ cursor: 'pointer', transform: 'translate(0px, 1px)' }}
 						src={svgcomment}
-						height={18}
-						width={18}
+						height={mobile ? 22 : 18}
+						width={mobile ? 22 : 18}
 					/>
 				</div>
 				<div
@@ -1212,8 +1224,8 @@ class Item extends PureComponent {
 					<img
 						style={{ cursor: 'pointer', transform: 'translate(0px, 1px)' }}
 						src={upvotes && upvotes[active] ? svgupactive : svgupinactive}
-						height={15}
-						width={15}
+						height={mobile ? 19 : 15}
+						width={mobile ? 19 : 15}
 					/>
 				</div>
 				{activeRepost ? null : (
@@ -1226,8 +1238,8 @@ class Item extends PureComponent {
 						<img
 							style={{ cursor: 'pointer' }}
 							src={svgrepost}
-							height={19}
-							width={19}
+							height={mobile ? 24 : 19}
+							width={mobile ? 24 : 19}
 						/>
 					</div>
 				)}
@@ -1240,8 +1252,8 @@ class Item extends PureComponent {
 					<img
 						style={{ cursor: 'pointer', transform: 'translate(0px, 2px)' }}
 						src={svglightning}
-						height={15}
-						width={15}
+						height={mobile ? 19 : 15}
+						width={mobile ? 19 : 15}
 					/>
 				</div>) : null}
 				{ownEvent ? (
@@ -1254,8 +1266,8 @@ class Item extends PureComponent {
 						<img
 							style={{ cursor: 'pointer', transform: 'translate(0px, 1px)' }}
 							src={svgdelete}
-							height={16}
-							width={16}
+							height={mobile ? 20 : 16}
+							width={mobile ? 20 : 16}
 						/>
 					</div>
 				) : null}
@@ -1336,16 +1348,18 @@ class Item extends PureComponent {
 			<div
 				ref={this.item}
 				onClick={thread ? () => this.props.handleSelectThread(this.props) : null}
-				onMouseOver={() => { if (this.props.mobile || !this.item) { return; } this.item.current.style.background = 'rgba(31, 32, 33, 0.8)'; }}
-				onMouseOut={() => { if (this.props.mobile || !this.item) { return; } this.item.current.style.background = 'unset'; }}
+				onMouseOver={() => { if (this.props.mobile || !this.item) { return; } this.item.current.style.background = 'rgba(31, 32, 33, 0.7)'; }}
+				onMouseOut={() => { if (this.props.mobile || !this.item || selected) { return; } this.item.current.style.background = 'unset'; }}
+				// onMouseOver={() => { if (this.props.mobile || !this.item) { return; } this.item.current.style.background = 'rgba(31, 32, 33, 0.8)'; }}
+				// onMouseOut={() => { if (this.props.mobile || !this.item) { return; } this.item.current.style.background = 'unset'; }}
 				style={{
-					borderRadius: 4,
+					borderRadius: mobile ? 0 : 12,
 					willChange: 'scroll-position',
 					borderLeft: selected ? `2px solid #fff` : '2px solid transparent',
 					cursor: thread ? 'pointer' : 'default',
 					marginBottom: thread ? 8 : (this.props.topLevel ? 24 : 0),
 					padding: thread ? `${this.props.mobile ? 8 : 12}px 16px ${this.props.divided ? 14 : 4}px` : 0,
-					background: this.state.hoverItem ? 'rgba(31, 32, 33, 0.8)' : null,
+					background: this.state.hoverItem || selected ? 'rgba(31, 32, 33, 0.7)' : (/*this.props.thread && !this.props.mobile*/false ? 'rgba(31, 32, 33, 0.5)' : null),
 					borderBottom: this.props.divided ? (this.props.mobile ? `1px solid ${COLORS.secondary}` : '2px solid rgba(47, 54, 61, 0.25)'): 'none',
 					paddingBottom: this.props.divided ? 12 : 'none',
 					...(unseen ? {

@@ -1,17 +1,19 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import { transition } from '../../helpers';
 import { COLORS, NAV_HEIGHT, CONTENT_MAX_WIDTH } from '../../constants';
 import { setFrontpageMode, queryProfiles, navigate } from '../../actions';
-import svgearth from '../../assets/earth.svg';
-import svgfollowing from '../../assets/following_circles.svg';
-import svgsearch from '../../assets/search.svg';
+// import svgearth from '../../assets/earth.svg';
+import svgnetwork from '../../assets/transmit.svg';
+// import svgfollowing from '../../assets/following_circles.svg';
+// import svgsearch from '../../assets/search.svg';
 
 import ProfileQuery from '../Nostr/ProfileQuery';
+import CommunitiesNav from './CommunitiesNav';
 
 
-class PublicationsNav extends PureComponent {
+class PublicationsNav extends Component {
 
 	state = { hover: '' };
 
@@ -21,6 +23,13 @@ class PublicationsNav extends PureComponent {
 			this.container = document.getElementById('publications_nav');
 			window.addEventListener('scroll', this.onMobileScroll);
 		}
+	};
+
+	componentDidUpdate = (prevProps) => {
+
+		if (prevProps.mobileNavMode !== this.props.mobileNavMode || this.props.route !== prevProps.route) {
+			this.container = document.getElementById('publications_nav');
+		}		
 	};
 
 	componenetWillUnmount = () => {
@@ -176,13 +185,14 @@ class PublicationsNav extends PureComponent {
 		);
 	};
 
+	/*
 	renderActions = () => {
 
 		if (this.props.searchActive === 'frontpage') { return null; }
 
 		const modes = [
 			{ label: 'COMMUNITIES', key: 'featured', color: '#fff', icon: svgearth, height: 18 },
-			{ label: 'FOLLOWING', key: 'following', color: '#fff', icon: /*svgstar*/svgfollowing, height: /*20*/33, marginRight: 6 }
+			{ label: 'FOLLOWING', key: 'following', color: '#fff', icon: svgfollowing, height: 33, marginRight: 6 }
 		];
 
 		return this.props.dirExpanded ? modes.map((mode, i) => {
@@ -207,13 +217,85 @@ class PublicationsNav extends PureComponent {
 			);
 		}) : null;
 	};
+	*/
 
 	render = () => {
+
+		if (this.props.mobile && this.props.mobileNavMode === 'communities') {
+
+			return (
+				<CommunitiesNav
+					id='publications_nav'
+					style={styles.container(this.props.dirExpanded, this.props.mobile, this.props.contentWidth, this.props.searchActive)}
+				/>
+			);
+		}
+
+		const navStyle = ({ active }) => {
+			return {
+				cursor: 'pointer',
+				color: active ? '#fff' : COLORS.secondaryBright,
+				fontSize: this.props.mobile ? 14 : 13,
+				fontFamily: 'Lexend-Deca-Regular',
+				fontWeight: 'bold',
+				borderBottom: this.props.mobile ? 'none' : `2px solid ${active ? '#fff' : 'transparent'}`,
+				paddingBottom: this.props.mobile ? 0 : 2,
+
+				// background: active ? '#fff' : 'none',
+				// color: active ? COLORS.primary : COLORS.secondaryBright,
+				// borderRadius: 3,
+				// marginBottom: 3,
+				// padding: '4px 12px'
+			};
+		};
+
 		return (
 			<div id='publications_nav' style={styles.container(this.props.dirExpanded, this.props.mobile, this.props.contentWidth, this.props.searchActive)}>
-				{this.renderActions()}
-				{this.renderSearch()}
-				<div style={styles.divider} />
+				{/*this.props.mobile*/true ? null : (<div
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						marginRight: 12,
+						fontSize: 12,
+						fontFamily: 'JetBrains-Mono-Regular'
+					}}
+				>
+					<img
+						src={svgnetwork}
+						style={{
+							marginRight: 6,
+							height: 22,
+							width: 22,
+							marginBottom: 2
+						}}
+					/>
+					<span>
+						NETWORK:
+					</span>
+				</div>)}
+				<div
+					onClick={() => this.props.setFrontpageMode('featured')}
+					style={navStyle({
+						active: this.props.mode === 'featured'
+					})}
+				>
+					Featured
+				</div>
+				<div style={{
+					marginLeft: this.props.mobile ? 12 : 8,
+					marginRight: this.props.mobile ? 12 : 8,
+				}} />
+				<div
+					onClick={() => this.props.setFrontpageMode('following')}
+					style={navStyle({
+						active: this.props.mode === 'following'
+					})}
+				>
+					Following
+				</div>
+				{/*{this.renderActions()}*/}
+{/*				{this.renderSearch()}
+				<div style={styles.divider} />*/}
 			</div>
 		);
 	};
@@ -226,7 +308,8 @@ const mapState = ({ app, nostr, query }) => {
 		mobile: app.mobile,
 		pendingContacts: nostr.pendingContacts,
 		contentWidth: Math.min(app.clientWidth, CONTENT_MAX_WIDTH),
-		searchActive: query.active
+		searchActive: query.active,
+		mobileNavMode: app.mobileNavMode
 	};
 };
 
@@ -234,20 +317,22 @@ const styles = {
 	container: (expanded, mobile, contentWidth, searchActive) => {
 		return {
 			display: 'flex',
-			justifyContent: mobile ? 'space-evenly' : 'left',
-			alignItems: 'left',
+			justifyContent: mobile ? 'center' : 'left',
+			alignItems: 'center',
 			background: COLORS.primary,
 			position: 'absolute',
 			top: NAV_HEIGHT,
 			width: mobile ? '100%' : (expanded ? contentWidth * 0.35 : '0px'),
 			marginLeft: mobile ? 0 : (expanded ? contentWidth * 0.15 : '0px'),
-			paddingLeft: mobile || searchActive ? 0 : 18,
-			height: NAV_HEIGHT,
-			color: '#2f363d',
+			paddingLeft: mobile ? 16 : 18,
+			height: /*NAV_HEIGHT*/mobile ? 52 : 60,
+			//color: '#2f363d',
 			zIndex: expanded ? 1 : -1,
 			userSelect: expanded ? 'auto' : 'none',
 			opacity: expanded ? 1 : 0,
 			boxShadow: 'rgb(23 24 25) 24px 0px 16px 12px',
+			fontSize: 12,
+			fontFamily: 'JetBrains-Mono-Bold',
 			...transition(0.2, 'ease', [ 'margin', 'width', 'opacity', 'border-color' ])
 		}
 	},

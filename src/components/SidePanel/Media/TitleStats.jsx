@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import Button from './Button';
@@ -8,7 +8,7 @@ import { SetAddCreditModalOpen } from '../../../actions';
 import { COLORS } from '../../../constants';
 
 
-class TitleStats extends PureComponent {
+class TitleStats extends Component {
 
 	render = () => {
 
