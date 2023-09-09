@@ -83,6 +83,8 @@ class NewPost extends Component {
 
 		data.content = window.client.populateMentionTags(data.tags, data.content.trim());
 
+		window.client.populateHashTags(data.tags, data.content);
+
 		let event, ok;
 
 		try {

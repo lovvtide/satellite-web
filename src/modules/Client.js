@@ -882,6 +882,8 @@ class Client {
 
 		const content = this.populateMentionTags(tags, post.content);
 
+		this.populateHashTags(tags, post.content);
+
 		return {
 			...post,
 			kind: 1,
@@ -1192,6 +1194,30 @@ class Client {
 			...etags,
 			...pubk.map(pubkey => { return [ 'p', pubkey ]; })
 		];
+	}
+
+	populateHashTags (tags, content) {
+
+		const t = {};
+
+		const matched = content.match(/#\w+/g);
+
+		if (!matched) { return; }
+
+		for (let match of matched) {
+
+			const tag = match.slice(1);
+
+			if (!tag) { continue; }
+
+			t[tag] = true;
+			t[tag.toLowerCase()] = true;
+		}
+
+		for (let tag of Object.keys(t)) {
+
+			tags.push([ 't', tag ]);
+		}
 	}
 
 	populateMentionTags (tags, content) {
