@@ -933,8 +933,22 @@ class Item extends PureComponent {
 
 				if (id === this.props.feedPostId) { return null; }
 
+				//console.log('BAD!', JSON.stringify(id));
+
+				let nnote;
+
 				const item = this.props.items[id];
-				const nnote = nip19.noteEncode(id);
+				//const nnote = nip19.noteEncode(id);
+
+				try {
+
+					nnote = nip19.noteEncode(id);
+
+				} catch (err) {
+					console.log(err);
+				}
+
+				if (!nnote) { return null; }
 
 				return item && !item.phantom ? (
 					<div
