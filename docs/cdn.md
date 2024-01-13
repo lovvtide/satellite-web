@@ -76,13 +76,16 @@ Note that the account object contains much more information than just `creditTot
 ### Step 4: Upload a file
 
 ```js
-// Prompt user to sign auth event for file upload
+// Prompt user to sign auth event for file upload.
+// Note that all tags are optional (see API section)
 const uploadAuth = await window.nostr.signEvent({
   created_at: Math.ceil(Date.now() / 1000),
   kind: 22242,
   content: 'Authorize Upload',
   tags: [
-    [ 'name', file.name ]
+    [ 'name', file.name ],
+    [ 'size', 1234567 ],
+    [ 'label', 'foo' ]
   ]
 });
 
@@ -128,7 +131,7 @@ Note that for all requests that require an `auth` param, the request may be fail
 
 #### Params
 
-- `auth` - The signed, stringified, url-encoded kind `22242` event to authorize a file upload. Clients MAY specify a `name` tag in this event to indicate the file's name. The value of the `content` field MUST be equal to `Authorize Upload`.
+- `auth` - The signed, stringified, url-encoded kind `22242` event to authorize a file upload. The value of the `content` field MUST be equal to `Authorize Upload`. Clients MAY include any or all of the following tags in the signed auth event: a `name` tag to indicate the file's name, a `size` tag (which, if present, will cause the request to fail if the actual size of the file does not match this value) and a `label` tag (the value being an arbitary string which applications might need to otherwise classify/identify the uploaded file).
 
 #### Returns
 
