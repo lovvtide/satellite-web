@@ -131,7 +131,8 @@ Note that for all requests that require an `auth` param, the request may be fail
 
 #### Params
 
-- `auth` - The signed, stringified, url-encoded kind `22242` event to authorize a file upload. The value of the `content` field MUST be equal to `Authorize Upload`. Clients MAY include any or all of the following tags in the signed auth event: a `name` tag to indicate the file's name, a `size` tag (which, if present, will cause the request to fail if the actual size of the file does not match this value) and a `label` tag (the value being an arbitary string which applications might need to otherwise classify/identify the uploaded file).
+- `auth` - The signed, stringified, url-encoded kind `22242` event to authorize a file upload. The value of the `content` field MUST be equal to `Authorize Upload`. Clients MAY include any or all of the following tags in the signed auth event: a `name` tag to indicate the file's name, a `size` tag (which, if present, will cause the request to fail if the actual size of the file does not match this value) and a `label` tag (the value being an arbitrary string which applications might need to otherwise classify/identify the uploaded file). Note that a unique auth event must be signed *per request*. Reusing an auth event will fail.
+
 
 #### Returns
 
@@ -152,7 +153,7 @@ Note that for all requests that require an `auth` param, the request may be fail
 
 `402` - Payment required (ensure that account has credit)
 
-`403` - Auth missing or failed to verify
+`403` - Auth missing, failed to verify, or not unique
 
 
 #### Body
