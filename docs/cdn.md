@@ -146,6 +146,7 @@ Note that for all requests that require an `auth` param, the request may be fail
 - `size` `Number` - File size in bytes
 - `type` `String` - File MIME type as inferred by server
 - `nip94` `Array` - Tags for creating NIP-94 event, if that's what the client wants to do
+- `label` `String` - Value from label tag in auth event, if provided
 
 `400` - Bad request
 
