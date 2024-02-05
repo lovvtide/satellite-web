@@ -40,6 +40,32 @@ class ProfileFeed extends Component {
 	}
 
 	componentDidMount = async () => {
+
+		// Redirect to thread page when receiving /@<nevent>
+		// links to account for default njump behavior
+		if (window.location.pathname.slice(0, 9) === '/@nevent1') {
+
+			let decoded;
+
+			try {
+
+				decoded = nip19.decode(window.location.pathname.slice(2));
+
+			} catch (err) {
+				console.log(err);
+			}
+
+			if (decoded && decoded.data) {
+
+				if (decoded.data.id) {
+
+					this.props.navigate(`/thread/${decoded.data.id}`, { replace: true });
+				}
+
+				return;
+			}
+		}
+
 		window.addEventListener('scroll', this.handleScroll);
 		this.setState({ initialClientHeight: this.props.clientHeight });
 		this.handleLoad();

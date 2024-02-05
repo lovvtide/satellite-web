@@ -21,6 +21,30 @@ class PostFeed extends Component {
 
 	componentDidMount = async () => {
 
+		// Redirect to note id path when receiving /thread/<nevent> links
+		if (window.location.pathname.slice(0, 15) === '/thread/nevent1') {
+
+			let decoded;
+
+			try {
+
+				decoded = nip19.decode(window.location.pathname.slice(8));
+
+			} catch (err) {
+				console.log(err);
+			}
+
+			if (decoded && decoded.data) {
+
+				if (decoded.data.id) {
+
+					this.props.navigate(`/thread/${decoded.data.id}`, { replace: true });
+				}
+
+				return;
+			}
+		}
+
 		window.scrollTo(0, 0);
 
 		this.handleLoad(this.props.postId);
