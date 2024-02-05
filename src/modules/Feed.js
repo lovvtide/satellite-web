@@ -174,6 +174,11 @@ class Feed {
 			// Pass received events to handler
 			req.on('event', event => {
 
+				// Ignore the old style reporting events so they don't get
+				// interpreted as a reaction and show up on user's feed
+				// See https://github.com/lovvtide/satellite-web/issues/25
+				if (event.kind === 7 && event.content === '⚠️') { return; }
+
 				if (this.eventListener) {
 					this.eventListener(event);
 				}
